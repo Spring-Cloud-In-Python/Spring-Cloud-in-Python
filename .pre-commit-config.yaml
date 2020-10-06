@@ -29,11 +29,3 @@ repos:
         args:
             - '--autofix'
             - '--indent=2'
--   repo: local
-    hooks:
-    -   id: dockerfile-lint
-        name: Lint Dockerfile
-        entry: ./ops/hooks/scripts/lint_dockerfile.sh
-        language: system
-        files: .*Dockerfile.*$
-        pass_filenames: true

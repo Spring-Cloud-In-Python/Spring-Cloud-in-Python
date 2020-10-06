@@ -7,7 +7,7 @@ _CURRENT_DIR=$(dirname "${BASH_SOURCE[0]}")
 SCRIPTS_CI_DIR="$(cd "${_CURRENT_DIR}"/.. && pwd)"
 export SCRIPTS_CI_DIR
 
-# Fetch Airflow Root
+# Fetch Git Root
 GIT_ROOT=$(git rev-parse --show-toplevel)
 export GIT_ROOT
 
