@@ -1,0 +1,39 @@
+default_language_version:
+    python: python3
+
+repos:
+-   repo: https://github.com/timothycrosley/isort
+    rev: 5.5.2
+    hooks:
+    -   id: isort
+        name: isort
+-   repo: https://github.com/psf/black.git
+    rev: 19.10b0
+    hooks:
+    -   id: black
+        name: black
+        args: [--line-length, "120", "."]
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v3.2.0
+    hooks:
+    -   id: check-yaml
+        args: ['--allow-multiple-documents']
+    -   id: end-of-file-fixer
+    -   id: trailing-whitespace
+    -   id: check-added-large-files
+        args: ['--maxkb=1024']
+    -   id: requirements-txt-fixer
+    -   id: check-merge-conflict
+    -   id: debug-statements
+    -   id: pretty-format-json
+        args:
+            - '--autofix'
+            - '--indent=2'
+-   repo: local
+    hooks:
+    -   id: dockerfile-lint
+        name: Lint Dockerfile
+        entry: ./scripts/pre_commit/plugins/lint_dockerfile.sh
+        language: system
+        files: .*Dockerfile.*$
+        pass_filenames: true
