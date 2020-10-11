@@ -21,4 +21,4 @@ jobs:
     - name: Run pre-commit test
       uses: pre-commit/action@v2.0.0
       with:
-        extra_args: --config .pre-commit-config-ci.yml
+        extra_args: --config .pre-commit-config-ci.yaml
