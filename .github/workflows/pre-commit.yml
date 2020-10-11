@@ -1,0 +1,24 @@
+name: Pre-commit
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: Setup python latest version
+      uses: actions/setup-python@v2
+
+    - name: Run pre-commit test
+      uses: pre-commit/action@v2.0.0
+      with:
+        extra_args: --config .pre-commit-config-ci.yml
