@@ -1,0 +1,45 @@
+name: Pre-commit
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: Setup python latest version
+      uses: actions/setup-python@v2
+
+    - name: Set Head
+      run: |
+        echo "Pull request's branch name is: ${BRANCH:-$BASE_REF}"
+        git remote set-head origin "${BRANCH:-$BASE_REF}"
+      env:
+        BRANCH: ${{ github.head_ref }}
+        BASE_REF: main
+
+    - name: Install Hadolint
+      run: |
+        sudo apt update && sudo apt install -yqq --no-install-recommends git wget
+        sudo wget -O /usr/local/bin/hadolint https://github.com/hadolint/hadolint/releases/download/v1.18.0/hadolint-Linux-x86_64
+        sudo chmod 755 /usr/local/bin/hadolint
+
+    - name: Run pre-commit test on Push Request
+      uses: pre-commit/action@v2.0.0
+      with:
+        extra_args: --config .pre-commit-config.yaml -v --from-ref origin/HEAD --to-ref HEAD
+      if: github.event_name == 'pull_request'
+
+    - name: Run pre-commit test on Main
+      uses: pre-commit/action@v2.0.0
+      with:
+        extra_args: --config .pre-commit-config.yaml -v --all
+      if: github.event_name != 'pull_request'
