@@ -8,6 +8,10 @@ __license__ = "Apache 2.0"
 
 
 class CompositeDiscoveryClient(DiscoveryClient):
+    """
+    Composite pattern application: aggregate the service sources from a list of discovery client
+    """
+
     def __init__(self, *discovery_clients):
         self.discovery_clients = discovery_clients
 
