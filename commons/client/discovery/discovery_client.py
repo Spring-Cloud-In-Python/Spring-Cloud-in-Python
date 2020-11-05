@@ -45,5 +45,9 @@ class StaticDiscoveryClient(DiscoveryClient):
 
 
 def static_discovery_client(uri, service_id, instance_ids):
+    """
+    Usage:
+        static_discovery_client("url-1", "service-1", ["id-1", "id-2", "id-3"])
+    """
     services = [StaticServiceInstance(uri, service_id, instance_id) for instance_id in instance_ids]
     return StaticDiscoveryClient(services)
