@@ -1,25 +1,24 @@
 # -*- coding: utf-8 -*-
+# standard library
+from typing import Iterable
 
 __author__ = "Waterball (johnny850807@gmail.com)"
 __license__ = "Apache 2.0"
 
 
-def flat_map(f, xs):
+def flat_map(f, xs: Iterable):
     """
     :param f: a mapping function
     :param xs: (Iterable)
     :return: list
     """
-    results = []
-    for element in xs:
-        results += f(element)
-    return results
+    return [item for element in xs for item in f(element)]
 
 
-def filter_get_first(f, xs):
+def filter_get_first(f, xs: Iterable):
     """
     :param f: a predicate function that returns a boolean
-    :param xs: (Iterable
-    :return: an element
+    :param xs: (Iterable)
+    :return: the first element matches the predicate
     """
-    return next(filter(f, xs), None)
+    return [x for x in xs if f(x)][0]

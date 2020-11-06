@@ -16,37 +16,37 @@ class ServiceInstance(ABC):
 
     @property
     @abstractmethod
-    def instance_id(self):
+    def instance_id(self) -> str:
         pass
 
     @property
     @abstractmethod
-    def service_id(self):
+    def service_id(self) -> str:
         pass
 
     @property
     @abstractmethod
-    def host(self):
+    def host(self) -> str:
         pass
 
     @property
     @abstractmethod
-    def port(self):
+    def port(self) -> int:
         pass
 
     @property
     @abstractmethod
-    def secure(self):
+    def secure(self) -> bool:
         pass
 
     @property
     @abstractmethod
-    def uri(self):
+    def uri(self) -> str:
         pass
 
     @property
     @abstractmethod
-    def scheme(self):
+    def scheme(self) -> str:
         pass
 
 
@@ -55,7 +55,7 @@ class StaticServiceInstance(ServiceInstance):
     A service instance that is initialized with its basic properties
     """
 
-    def __init__(self, uri, service_id, instance_id):
+    def __init__(self, uri: str, service_id: str, instance_id: str):
         """
         :param uri: the url in the string type
         """
@@ -69,29 +69,29 @@ class StaticServiceInstance(ServiceInstance):
         self._instance_id = instance_id
 
     @property
-    def service_id(self):
+    def service_id(self) -> str:
         return self._service_id
 
     @property
-    def instance_id(self):
+    def instance_id(self) -> str:
         return self._instance_id
 
     @property
-    def host(self):
+    def host(self) -> str:
         return self._host
 
     @property
-    def port(self):
+    def port(self) -> int:
         return self._port
 
     @property
-    def secure(self):
+    def secure(self) -> bool:
         return self._secure
 
     @property
-    def uri(self):
+    def uri(self) -> str:
         return self._uri
 
     @property
-    def scheme(self):
+    def scheme(self) -> str:
         return self._scheme

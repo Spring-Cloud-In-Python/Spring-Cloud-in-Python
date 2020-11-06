@@ -4,9 +4,8 @@ __author__ = "Waterball (johnny850807@gmail.com)"
 __license__ = "Apache 2.0"
 
 
-def not_none_nor_empty(the_list):
+def not_none_nor_empty(the_list: list):
     """
-    :param the_list: a list
     :return: true if the list is neither none nor empty
     """
     return the_list is not None and len(the_list) != 0

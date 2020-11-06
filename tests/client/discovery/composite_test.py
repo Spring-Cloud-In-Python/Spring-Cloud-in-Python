@@ -16,17 +16,12 @@ client = CompositeDiscoveryClient(
 
 def test_get_instances():
     for service_id in range(1, 4):
-        instances = client.get_instances("service-{}".format(service_id))
+        instances = client.get_instances(f"service-{service_id}")
         for instance_id in range(1, 4):
             instance = instances[instance_id - 1]
-            assert "{}-{}".format(service_id, instance_id) == instance.instance_id
+            assert f"{service_id}-{instance_id}" == instance.instance_id
 
 
 def test_get_services():
-    instances = client.services
-    i = 0
-    for service_id in range(1, 4):
-        for instance_id in range(1, 4):
-            assert "service-{}".format(service_id) == instances[i].service_id
-            assert "{}-{}".format(service_id, instance_id) == instances[i].instance_id
-            i += 1
+    services = client.services
+    assert {"service-1", "service-2", "service-3"} == services
