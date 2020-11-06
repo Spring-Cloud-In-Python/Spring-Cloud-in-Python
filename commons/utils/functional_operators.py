@@ -21,4 +21,4 @@ def filter_get_first(f, xs: Iterable):
     :param xs: (Iterable)
     :return: the first element matches the predicate
     """
-    return [x for x in xs if f(x)][0]
+    return next((x for x in xs if f(x)), None)
