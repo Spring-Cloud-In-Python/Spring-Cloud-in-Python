@@ -18,8 +18,8 @@ def flat_map(f, xs):
 
 def filter_get_first(f, xs):
     """
-    :param f: a mapping function
-    :param xs: (Iterable)
+    :param f: a predicate function that returns a boolean
+    :param xs: (Iterable
     :return: an element
     """
-    return [x for x in xs if f(x)][0]
+    return next(filter(f, xs), None)
