@@ -15,3 +15,8 @@ class NoneTypeError(Exception):
 
     def __init__(self, message):
         self.message = message
+
+
+def raise_if_type_not_match(obj, the_type):
+    if not isinstance(obj, the_type):
+        raise TypeError()

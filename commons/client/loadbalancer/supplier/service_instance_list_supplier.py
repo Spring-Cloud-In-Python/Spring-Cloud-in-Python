@@ -47,6 +47,7 @@ class FixedServiceInstanceListSupplier(ServiceInstanceListSupplier):
     """
     A supplier that is initialized with fixed instances. (i.e. they won't be changed)
     """
+
     def __init__(self, service_id: str, instances: List[ServiceInstance]):
         """
         :param service_id: (str)

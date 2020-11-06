@@ -21,7 +21,7 @@ class AtomicInteger:
         self.__value = value
         self.__lock = threading.Lock()
 
-    def increment_and_get(self):
+    def increment_and_get(self) -> int:
         with self.__lock:
             self.__value += 1
-        return self.__value
+            return self.__value

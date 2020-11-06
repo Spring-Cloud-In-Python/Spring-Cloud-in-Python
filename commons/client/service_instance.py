@@ -62,9 +62,6 @@ class ServiceInstance(ABC):
 
         return False
 
-    def __str__(self):
-        return str(self.__dict__)
-
 
 class StaticServiceInstance(ServiceInstance):
     """
@@ -111,17 +108,3 @@ class StaticServiceInstance(ServiceInstance):
     @property
     def scheme(self) -> str:
         return self._scheme
-
-    def __eq__(self, o: object) -> bool:
-        if isinstance(o, ServiceInstance):
-            return (
-                self.uri == o.uri
-                and self.service_id == o.service_id
-                and self.instance_id == o.instance_id
-                and self.host == o.host
-                and self.port == o.port
-                and self.secure == o.secure
-                and self.scheme == o.scheme
-            )
-
-        return False
