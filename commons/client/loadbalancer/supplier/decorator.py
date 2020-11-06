@@ -1,4 +1,10 @@
 # -*- coding: utf-8 -*-
+# standard library
+from typing import List
+
+# scip plugin
+from commons.client.service_instance import ServiceInstance
+
 __author__ = "Waterball (johnny850807@gmail.com)"
 __license__ = "Apache 2.0"
 # standard library
@@ -20,7 +26,7 @@ class DelegatingServiceInstanceListSupplier(ServiceInstanceListSupplier, ABC):
         self.delegate = delegate
 
     @property
-    def service_id(self):
+    def service_id(self) -> str:
         return self.delegate.service_id
 
 
@@ -31,5 +37,5 @@ class CachingServiceInstanceListSupplier(DelegatingServiceInstanceListSupplier):
         super().__init__(delegate)
         self.__cache_manager = cache_manager
 
-    def get(self, request=None):
+    def get(self, request=None) -> List[ServiceInstance]:
         return self.__cache_manager.get(self.CACHE_NAME).on_cache_miss(self.delegate.get)

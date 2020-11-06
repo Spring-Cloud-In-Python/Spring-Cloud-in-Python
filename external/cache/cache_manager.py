@@ -38,6 +38,7 @@ class CacheManager(ABC):
     """
     Service Provider Interface (SPI) for basic caching.
     We might want to extend this class with many features in the future.
+    (e.g. timeout, evict-and-replacement)
     """
 
     def get(self, key) -> OnCacheMiss:
@@ -55,7 +56,7 @@ class CacheManager(ABC):
 
 class NaiveCacheManager(CacheManager):
     """
-    A very simple cache implementation that is not concerned about evict-and-replacement.
+    A very simple cache implementation.
     """
 
     def __init__(self):

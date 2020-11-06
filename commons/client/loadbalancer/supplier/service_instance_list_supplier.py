@@ -6,9 +6,11 @@ each service to decouple the source of the instances from load-balancers.
 """
 # standard library
 from abc import ABC, abstractmethod
+from typing import List
 
 # scip plugin
 from commons.client.discovery.discovery_client import DiscoveryClient
+from commons.client.service_instance import ServiceInstance
 
 __author__ = "Waterball (johnny850807@gmail.com)"
 __license__ = "Apache 2.0"
@@ -25,14 +27,14 @@ class ServiceInstanceListSupplier(ABC):
 
     @property
     @abstractmethod
-    def service_id(self):
+    def service_id(self) -> str:
         """
         :return: (str) the service's id
         """
         pass
 
     @abstractmethod
-    def get(self, request=None):
+    def get(self, request=None) -> List[ServiceInstance]:
         """
         :param request (opt) TODO not sure will we need this,
                         this extension was designed by spring-cloud.
@@ -46,7 +48,7 @@ class FixedServiceInstanceListSupplier(ServiceInstanceListSupplier):
     A supplier that is initialized with fixed instances. (i.e. they won't be changed)
     """
 
-    def __init__(self, service_id, instances):
+    def __init__(self, service_id: str, instances: List[ServiceInstance]):
         """
         :param service_id: (str)
         :param instances: (*ServiceInstance)
@@ -54,11 +56,11 @@ class FixedServiceInstanceListSupplier(ServiceInstanceListSupplier):
         self._service_id = service_id
         self._instances = instances
 
-    def get(self, request=None):
+    def get(self, request=None) -> List[ServiceInstance]:
         return self._instances
 
     @property
-    def service_id(self):
+    def service_id(self) -> str:
         return self._service_id
 
 
@@ -67,7 +69,7 @@ class DiscoveryClientServiceInstanceListSupplier(ServiceInstanceListSupplier):
     The adapter delegating to discovery client for querying instances
     """
 
-    def __init__(self, service_id, discovery_client):
+    def __init__(self, service_id: str, discovery_client: DiscoveryClient):
         """
         :param service_id: (str)
         :param discovery_client: (DiscoveryClient)
@@ -76,8 +78,8 @@ class DiscoveryClientServiceInstanceListSupplier(ServiceInstanceListSupplier):
         self.__delegate = discovery_client
 
     @property
-    def service_id(self):
+    def service_id(self) -> str:
         return self.__service_id
 
-    def get(self, request=None):
-        return self.__delegate.get_instances()
+    def get(self, request=None) -> List[ServiceInstance]:
+        return self.__delegate.get_instances(self.service_id)
