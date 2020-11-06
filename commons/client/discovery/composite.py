@@ -19,10 +19,10 @@ class CompositeDiscoveryClient(DiscoveryClient):
         """
         :param discovery_clients: a list of DiscoveryClient
         """
-        self.discovery_clients = discovery_clients
+        self.__discovery_clients = discovery_clients
 
     def get_instances(self, service_id):
-        for client in self.discovery_clients:
+        for client in self.__discovery_clients:
             services = client.get_instances(service_id)
             if not_none_nor_empty(services):
                 return services
@@ -30,4 +30,4 @@ class CompositeDiscoveryClient(DiscoveryClient):
 
     @property
     def services(self):
-        return flat_map(lambda d: d.services, self.discovery_clients)
+        return flat_map(lambda d: d.services, self.__discovery_clients)
