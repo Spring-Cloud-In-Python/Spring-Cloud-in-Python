@@ -1,14 +1,17 @@
-# standard library
-from abc import ABC, abstractmethod
-from urllib.parse import urlparse
+# -*- coding: utf-8 -*-
 
 __author__ = "Waterball (johnny850807@gmail.com)"
 __license__ = "Apache 2.0"
 
 
+# standard library
+from abc import ABC, abstractmethod
+from urllib.parse import urlparse
+
+
 class ServiceInstance(ABC):
     """
-
+    A service's instance that owns basic HTTP info.
     """
 
     @property

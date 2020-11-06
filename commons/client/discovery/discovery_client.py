@@ -1,3 +1,11 @@
+# -*- coding: utf-8 -*-
+"""
+DiscoveryClient is responsible for providing a list of service's instances.
+There may be many services, for example: 'user-service', 'order-service', 'product-service', and so on.
+Where each service may have several instances registered (e.g. user-service-1, user-service-2, ...),
+and the registered instances are called ServiceInstances.
+"""
+
 # standard library
 from abc import ABC, abstractmethod
 
@@ -14,7 +22,7 @@ class DiscoveryClient(ABC):
     def get_instances(self, service_id):
         """
         Gets all ServiceInstances associated with a particular serviceId.
-        :param service_id: The serviceId to query.
+        :param service_id: (str) The serviceId to query.
         :return: A List of ServiceInstance.
         """
         pass
@@ -23,14 +31,14 @@ class DiscoveryClient(ABC):
     @abstractmethod
     def services(self):
         """
-        :return: All known service IDs.
+        :return: All known service IDs (*str).
         """
         pass
 
 
 class StaticDiscoveryClient(DiscoveryClient):
     """
-    A DiscoveryClient initialized with the services
+    A DiscoveryClient initialized with the services.
     """
 
     def __init__(self, services):
@@ -46,6 +54,10 @@ class StaticDiscoveryClient(DiscoveryClient):
 
 def static_discovery_client(uri, service_id, instance_ids):
     """
+    A helper method that helps create a list of instances from the same service.
+    :param uri the uri of every service's
+    :param service_id the service_id of the service
+    :param instance_ids a list of ids (*str) of the instances'
     Usage:
         static_discovery_client("url-1", "service-1", ["id-1", "id-2", "id-3"])
     """
