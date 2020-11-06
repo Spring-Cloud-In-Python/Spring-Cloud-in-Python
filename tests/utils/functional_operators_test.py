@@ -11,7 +11,13 @@ def test_flat_map():
     assert ["a", "b", "c", "1", "2", "3", ""] == results
 
 
-def test_filter_get_first():
+def test_filter_get_first_Given_numbers():
     the_list = [1, 2, 3, 4, 5, 6, 7, 8]
     result = filter_get_first(lambda e: e > 4, the_list)
     assert 5 == result
+
+
+def test_filter_get_first_Given_empty_list():
+    the_list = []
+    result = filter_get_first(lambda e: e > 4, the_list)
+    assert result is None
