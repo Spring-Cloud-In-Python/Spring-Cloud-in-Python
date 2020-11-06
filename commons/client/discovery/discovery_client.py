@@ -42,14 +42,14 @@ class StaticDiscoveryClient(DiscoveryClient):
     """
 
     def __init__(self, services):
-        self._services = services
+        self.__services = services
 
     def get_instances(self, service_id):
         return list(filter(lambda s: s.service_id == service_id, self.services))
 
     @property
     def services(self):
-        return self._services
+        return self.__services
 
 
 def static_discovery_client(uri, service_id, instance_ids):
