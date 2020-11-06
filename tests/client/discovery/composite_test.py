@@ -1,9 +1,11 @@
+# -*- coding: utf-8 -*-
+
+__author__ = "Waterball (johnny850807@gmail.com)"
+__license__ = "Apache 2.0"
+
 # scip plugin
 from commons.client.discovery.composite import CompositeDiscoveryClient
 from commons.client.discovery.discovery_client import static_discovery_client
-
-__author__ = "Waterball (johnny850807@gmail.com)"
-__license__ = "Apache"
 
 client = CompositeDiscoveryClient(
     static_discovery_client("url-1", "service-1", ["1-1", "1-2", "1-3"]),
