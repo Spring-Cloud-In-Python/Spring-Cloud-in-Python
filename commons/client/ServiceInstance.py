@@ -7,6 +7,10 @@ __license__ = "Apache 2.0"
 
 
 class ServiceInstance(ABC):
+    """
+
+    """
+
     @property
     @abstractmethod
     def instance_id(self):

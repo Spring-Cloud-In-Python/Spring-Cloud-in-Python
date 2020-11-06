@@ -49,3 +49,9 @@ poetry run pre-commit install
 ```
 
 6. Start to commit :)
+
+## Test
+
+1. Show test coverage report on terminal
+
+`poetry run pytest --cov-report term --cov ${package} tests/`

@@ -17,7 +17,7 @@ def test_get_instances():
         instances = client.get_instances("service-{}".format(service_id))
         for instance_id in range(1, 4):
             instance = instances[instance_id - 1]
-            assert instance.instance_id == "{}-{}".format(service_id, instance_id)
+            assert "{}-{}".format(service_id, instance_id) == instance.instance_id
 
 
 def test_get_services():
@@ -25,6 +25,6 @@ def test_get_services():
     i = 0
     for service_id in range(1, 4):
         for instance_id in range(1, 4):
-            assert instances[i].service_id == "service-{}".format(service_id)
-            assert instances[i].instance_id == "{}-{}".format(service_id, instance_id)
+            assert "service-{}".format(service_id) == instances[i].service_id
+            assert "{}-{}".format(service_id, instance_id) == instances[i].instance_id
             i += 1
