@@ -95,7 +95,7 @@ class StaticServiceInstance(ServiceInstance):
     def scheme(self) -> str:
         return self._scheme
 
-    def __eq__(self, o):
+    def __eq__(self, o: object) -> bool:
         if isinstance(o, ServiceInstance):
             return (
                 self.uri == o.uri
