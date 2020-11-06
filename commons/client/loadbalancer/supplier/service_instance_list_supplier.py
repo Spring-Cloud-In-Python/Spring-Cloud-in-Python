@@ -7,6 +7,9 @@ each service to decouple the source of the instances from load-balancers.
 # standard library
 from abc import ABC, abstractmethod
 
+# scip plugin
+from commons.client.discovery.discovery_client import DiscoveryClient
+
 __author__ = "Waterball (johnny850807@gmail.com)"
 __license__ = "Apache 2.0"
 
@@ -33,6 +36,7 @@ class ServiceInstanceListSupplier(ABC):
         """
         :param request (opt) TODO not sure will we need this,
                         this extension was designed by spring-cloud.
+        :return: (*ServiceInstance) a list of instances
         """
         pass
 
@@ -56,3 +60,24 @@ class FixedServiceInstanceListSupplier(ServiceInstanceListSupplier):
     @property
     def service_id(self):
         return self._service_id
+
+
+class DiscoveryClientServiceInstanceListSupplier(ServiceInstanceListSupplier):
+    """
+    The adapter delegating to discovery client for querying instances
+    """
+
+    def __init__(self, service_id, discovery_client):
+        """
+        :param service_id: (str)
+        :param discovery_client: (DiscoveryClient)
+        """
+        self.__service_id = service_id
+        self.__delegate = discovery_client
+
+    @property
+    def service_id(self):
+        return self.__service_id
+
+    def get(self, request=None):
+        return self.__delegate.get_instances()
