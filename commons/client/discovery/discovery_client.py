@@ -10,7 +10,7 @@ and the registered instances are called ServiceInstances.
 from abc import ABC, abstractmethod
 
 # scip plugin
-from commons.client.ServiceInstance import StaticServiceInstance
+from commons.client.service_instance import StaticServiceInstance
 from commons.utils.functional_operators import filter_get_first
 
 __author__ = "Waterball (johnny850807@gmail.com)"
