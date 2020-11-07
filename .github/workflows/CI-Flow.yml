@@ -1,4 +1,4 @@
-name: Pre-commit
+name: CI-Flow
 
 on:
   push:
@@ -45,4 +45,6 @@ jobs:
       if: github.event_name != 'pull_request'
 
     - name: Run pytest
-      run: pytest
+      uses: fylein/python-pytest-github-action@v1
+      with:
+        args: pytest test
