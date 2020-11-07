@@ -49,5 +49,5 @@ jobs:
       with:
         poetry-version: 1.1.4
 
-    - name: View poetry --help
-      run: poetry --help
+    - name: Run pytest
+      run: poetry run pytest
