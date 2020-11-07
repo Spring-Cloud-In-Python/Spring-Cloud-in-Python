@@ -43,3 +43,6 @@ jobs:
       with:
         extra_args: --config .pre-commit-config.yaml -v --all
       if: github.event_name != 'pull_request'
+
+    - name: Run pytest
+      run: pytest
