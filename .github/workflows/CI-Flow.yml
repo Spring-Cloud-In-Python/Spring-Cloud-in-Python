@@ -43,8 +43,11 @@ jobs:
       with:
         extra_args: --config .pre-commit-config.yaml -v --all
       if: github.event_name != 'pull_request'
+      
+    - name: Build with poetry
+      uses: abatilo/actions-poetry@v2.0.0
+      with:
+        poetry-version: 1.1.4
 
     - name: Run pytest
-      uses: fylein/python-pytest-github-action@v1
-      with:
-        args: pytest test
+      run: poetry run pytest test
