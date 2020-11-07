@@ -1,4 +1,4 @@
-name: Pre-commit
+name: CI Flow
 
 on:
   push:
@@ -32,7 +32,7 @@ jobs:
         sudo wget -O /usr/local/bin/hadolint https://github.com/hadolint/hadolint/releases/download/v1.18.0/hadolint-Linux-x86_64
         sudo chmod 755 /usr/local/bin/hadolint
 
-    - name: Run pre-commit test on Push Request
+    - name: Run pre-commit test on Pull Request
       uses: pre-commit/action@v2.0.0
       with:
         extra_args: --config .pre-commit-config.yaml -v --from-ref origin/HEAD --to-ref HEAD
@@ -43,3 +43,9 @@ jobs:
       with:
         extra_args: --config .pre-commit-config.yaml -v --all
       if: github.event_name != 'pull_request'
+    
+    - name: Run pytest on Pull Request
+      run: |
+        pytest
+      if: github.event_name != 'pull_request'
+
