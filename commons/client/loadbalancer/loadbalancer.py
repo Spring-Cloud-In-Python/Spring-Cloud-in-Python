@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # standard library
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Optional, Union
 
 # scip plugin
 from commons.client.loadbalancer.factory import LoadBalancerClientFactory
@@ -14,7 +14,7 @@ __license__ = "Apache 2.0"
 
 class ServiceInstanceChooser(ABC):
     @abstractmethod
-    def choose(self, service_id: str, request=None) -> Optional[ServiceInstance]:
+    def choose(self, service_id: str, request=None) -> Union[ServiceInstance, None]:
         """
         Choose an instance from the instances associated by the service_id,
         and it's expected that the choice is load-balanced.
@@ -44,7 +44,7 @@ class BlockingLoadBalancerClient(LoadBalancerClient):
     def __init__(self, loadbalancer_client_factory: LoadBalancerClientFactory):
         self.loadbalancer_client_factory = loadbalancer_client_factory
 
-    def choose(self, service_id: str, request=None) -> Optional[ServiceInstance]:
+    def choose(self, service_id: str, request=None) -> Union[ServiceInstance, None]:
         loadbalancer = self.loadbalancer_client_factory.get_instance(service_id)
         if not loadbalancer:
             return None
@@ -67,7 +67,7 @@ class LoadBalancer(ABC):
         pass
 
     @abstractmethod
-    def choose(self, request=None) -> Optional[ServiceInstance]:
+    def choose(self, request=None) -> Union[ServiceInstance, None]:
         """
         Make a load-balanced choice among several instances.
         :param request: (opt) TODO not sure will we need this,

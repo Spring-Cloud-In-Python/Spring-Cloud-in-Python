@@ -3,9 +3,13 @@
 The built-in Round-Robin algorithm.
 """
 
+# standard library
+from typing import Union
+
 # scip plugin
 from commons.client.loadbalancer.loadbalancer import LoadBalancer
 from commons.client.loadbalancer.supplier.service_instance_list_supplier import ServiceInstanceListSupplier
+from commons.client.service_instance import ServiceInstance
 from commons.utils.atomic import AtomicInteger
 
 __author__ = "Waterball (johnny850807@gmail.com)"
@@ -24,10 +28,10 @@ class RoundRobinLoadBalancer(LoadBalancer):
         self.__position = AtomicInteger(-1)
 
     @property
-    def service_id(self):
+    def service_id(self) -> str:
         return self.__service_id
 
-    def choose(self, request=None):
+    def choose(self, request=None) -> Union[ServiceInstance, None]:
         instances = self.__instances_supplier.get(request=request)
         pos = abs(self.__position.increment_and_get())
         return instances[pos % len(instances)]
