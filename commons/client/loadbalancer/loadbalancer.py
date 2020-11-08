@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 # standard library
 from abc import ABC, abstractmethod
-from typing import Optional, Union
+from typing import Union
 
 # scip plugin
 from commons.client.loadbalancer.factory import LoadBalancerClientFactory
 from commons.client.service_instance import ServiceInstance
-from commons.exceptions.primitive import raise_if_type_not_match
+from commons.utils import validate
 
 __author__ = "Waterball (johnny850807@gmail.com)"
 __license__ = "Apache 2.0"
@@ -48,7 +48,7 @@ class BlockingLoadBalancerClient(LoadBalancerClient):
         loadbalancer = self.loadbalancer_client_factory.get_instance(service_id)
         if not loadbalancer:
             return None
-        raise_if_type_not_match(loadbalancer, LoadBalancer)
+        validate.is_instance_of(loadbalancer, LoadBalancer)
         return loadbalancer.choose(request=request)
 
     def execute(self):

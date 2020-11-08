@@ -5,6 +5,7 @@ from typing import List
 # scip plugin
 from commons.client.service_instance import ServiceInstance
 from commons.exceptions.primitive import NoneTypeError
+from commons.utils import validate
 
 __author__ = "Waterball (johnny850807@gmail.com)"
 __license__ = "Apache 2.0"
@@ -23,8 +24,7 @@ class DelegatingServiceInstanceListSupplier(ServiceInstanceListSupplier, ABC):
     """
 
     def __init__(self, delegate: ServiceInstanceListSupplier):
-        NoneTypeError.raise_if_none(delegate)
-        self.delegate = delegate
+        self.delegate = validate.not_none(delegate)
 
     @property
     def service_id(self) -> str:

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 # standard library
-from unittest.mock import Mock
 
 # scip plugin
 from commons.client.loadbalancer.round_robin import RoundRobinLoadBalancer
