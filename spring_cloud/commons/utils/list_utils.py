@@ -8,4 +8,4 @@ def not_none_nor_empty(the_list: list):
     """
     :return: true if the list is neither none nor empty
     """
-    return the_list is not None and len(the_list) != 0
+    return isinstance(the_list, list) and the_list

@@ -11,8 +11,7 @@ from abc import ABC, abstractmethod
 from typing import List, Set
 
 # scip plugin
-from commons.client.service_instance import ServiceInstance, StaticServiceInstance
-from commons.utils.functional_operators import filter_get_first
+from spring_cloud.commons.client import ServiceInstance, StaticServiceInstance
 
 __author__ = "Waterball (johnny850807@gmail.com)"
 __license__ = "Apache 2.0"

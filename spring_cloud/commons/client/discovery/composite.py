@@ -3,15 +3,15 @@
 from typing import List, Set
 
 # scip plugin
-from commons.client.service_instance import ServiceInstance
+from spring_cloud.commons.client import ServiceInstance
 
 __author__ = "Waterball (johnny850807@gmail.com)"
 __license__ = "Apache 2.0"
 
 # scip plugin
-from commons.client.discovery.discovery_client import DiscoveryClient
-from commons.utils.functional_operators import flat_map
-from commons.utils.list_utils import not_none_nor_empty
+from spring_cloud.commons.client.discovery.discovery_client import DiscoveryClient
+from spring_cloud.commons.utils.functional_operators import flat_map
+from spring_cloud.commons.utils.list_utils import not_none_nor_empty
 
 
 class CompositeDiscoveryClient(DiscoveryClient):
