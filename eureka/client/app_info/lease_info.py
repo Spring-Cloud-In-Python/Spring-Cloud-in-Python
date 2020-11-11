@@ -11,7 +11,6 @@ class LeaseInfo:
     Represents the lease information with Eureka.
     Eureka decides to remove the instance out of its view depending on
     the duration. The lease also tracks the last time it was renewed.
-
     See com.netflix.appinfo.LeaseInfo.
     """
 
@@ -19,13 +18,13 @@ class LeaseInfo:
     DEFAULT_LEASE_DURATION = 90
 
     def __init__(
-        self,
-        registration_timestamp: int = 0,
-        last_renewal_timestamp: int = 0,
-        eviction_timestamp: int = 0,
-        service_up_timestamp: int = 0,
-        lease_renewal_interval_in_secs: int = DEFAULT_LEASE_RENEWAL_INTERVAL,
-        lease_duration_in_secs: int = DEFAULT_LEASE_DURATION,
+            self,
+            registration_timestamp: int = 0,
+            last_renewal_timestamp: int = 0,
+            eviction_timestamp: int = 0,
+            service_up_timestamp: int = 0,
+            lease_renewal_interval_in_secs: int = DEFAULT_LEASE_RENEWAL_INTERVAL,
+            lease_duration_in_secs: int = DEFAULT_LEASE_DURATION,
     ):
         """
         @param registration_timestamp: time when the lease was first registered.
