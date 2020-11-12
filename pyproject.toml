@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "spring-cloud-in-python"
+name = "spring_cloud"
 version = "0.1.0"
 description = ""
 authors = ["spring-cloud-in-python-contributor"]
