@@ -18,3 +18,7 @@ class StaticPredicate(Predicate):
 
     def test(self, obj) -> bool:
         return self.value
+
+
+TRUE = StaticPredicate(True)
+FALSE = StaticPredicate(False)
