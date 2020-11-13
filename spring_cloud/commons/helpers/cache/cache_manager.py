@@ -56,14 +56,14 @@ class CacheManager(ABC):
 
 class NaiveCacheManager(CacheManager):
     """
-    A very simple cache implementation.
+    A very simple cache implementation without any optimization (i.e. only put them into a dict).
     """
 
     def __init__(self):
-        self.cache_dict = {}
+        self.dict = {}
 
     def retrieve_value(self, key):
-        return self.cache_dict.get(key, None)
+        return self.dict.get(key)
 
     def put(self, key, value):
-        self.cache_dict[key] = value
+        self.dict[key] = value

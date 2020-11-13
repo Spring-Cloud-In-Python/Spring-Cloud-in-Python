@@ -5,7 +5,7 @@ from unittest.mock import Mock
 # scip plugin
 from spring_cloud.commons.client.loadbalancer.supplier.decorator import CachingServiceInstanceListSupplier
 from spring_cloud.commons.helpers.cache.cache_manager import NaiveCacheManager
-from tests.commons.client.loadbalancer.supplier.stubs import INSTANCES
+from tests.commons.client.loadbalancer.stubs import INSTANCES
 
 __author__ = "Waterball (johnny850807@gmail.com)"
 __license__ = "Apache 2.0"
