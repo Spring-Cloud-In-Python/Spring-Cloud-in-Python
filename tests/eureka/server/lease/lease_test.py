@@ -21,21 +21,17 @@ def test_expired_at_first():
     assert not lease.is_expired()
 
 
-def test_get_holder():
-    fake_lease_info = FakeLeaseInfo()
-    lease = Lease(fake_lease_info, 0)
-
-    assert lease.holder == fake_lease_info
-
-
-def test_set_holder():
+def test_setters():
     fake_lease_info = FakeLeaseInfo()
     fake_lease_info2 = FakeLeaseInfo()
+
     lease = Lease(fake_lease_info, 0)
+    lease.service_up_timestamp = 123
 
     assert lease.holder != fake_lease_info2
+    assert lease.service_up_timestamp == 123
 
-    lease.holder = fake_lease_info2
+    lease = Lease(fake_lease_info2, 0)
 
     assert lease.holder == fake_lease_info2
 
