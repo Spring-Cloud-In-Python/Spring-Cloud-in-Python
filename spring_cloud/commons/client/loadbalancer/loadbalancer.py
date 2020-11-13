@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
 
-"""
 # standard library
 from abc import ABC, abstractmethod
 from typing import Union
