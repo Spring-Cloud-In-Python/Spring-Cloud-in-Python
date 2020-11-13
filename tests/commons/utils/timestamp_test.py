@@ -12,11 +12,12 @@ from spring_cloud.commons.utils.timestamp import current_timestamp
 
 def test_timestamp():
     start = current_timestamp()
-    time.sleep(1)
+    sleep_time = 0.1
+    time.sleep(sleep_time)
     end = current_timestamp()
 
     assert end > start
     assert 0 < start
 
-    acceptable_range = 1000 * 1.05
+    acceptable_range = sleep_time * 1.5 * 1000  # in millisecond
     assert acceptable_range >= (end - start)
