@@ -3,7 +3,6 @@
 __author__ = "Waterball (johnny850807@gmail.com)"
 __license__ = "Apache 2.0"
 
-
 # standard library
 from abc import ABC, abstractmethod
 from urllib.parse import urlparse
@@ -95,3 +94,17 @@ class StaticServiceInstance(ServiceInstance):
     @property
     def scheme(self) -> str:
         return self._scheme
+
+    def __eq__(self, o: object) -> bool:
+        if isinstance(o, ServiceInstance):
+            return (
+                self.uri == o.uri
+                and self.service_id == o.service_id
+                and self.instance_id == o.instance_id
+                and self.host == o.host
+                and self.port == o.port
+                and self.secure == o.secure
+                and self.scheme == o.scheme
+            )
+
+        return False
