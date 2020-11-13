@@ -1,0 +1,35 @@
+name: "CI: Pytest"
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  py-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.7, 3.8]
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: Setup python
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+        architecture: x64
+    - name: Install dependencies
+      run: |
+        python -c "import sys; print(f'Running test with py version: {sys.version}')"
+        python -m pip install --upgrade pip
+        pip install poetry
+        poetry install
+
+    - name: Run pytest in `commons`
+      run: |
+        poetry run python -m pytest tests/* --cov --cov-config=tests/.coveragerc --junitxml=py_springcloud_junit_report.xml

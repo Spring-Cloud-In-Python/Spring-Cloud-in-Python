@@ -1,0 +1,8 @@
+[run]
+omit =
+    # Testing scripts
+    tests/*
+    # Specific files
+    */__init__.py
+    */setup.py
+source = .

@@ -1,4 +1,4 @@
-name: Pre-commit
+name: "CI: Pre-commit"
 
 on:
   push:
