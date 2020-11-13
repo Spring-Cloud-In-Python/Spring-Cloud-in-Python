@@ -63,7 +63,7 @@ class NaiveCacheManager(CacheManager):
         self.dict = {}
 
     def retrieve_value(self, key):
-        return self.dict.get(key, None)
+        return self.dict.get(key)
 
     def put(self, key, value):
         self.dict[key] = value
