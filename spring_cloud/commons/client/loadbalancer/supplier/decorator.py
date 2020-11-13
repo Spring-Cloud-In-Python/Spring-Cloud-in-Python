@@ -4,7 +4,6 @@ from typing import List
 
 # scip plugin
 from spring_cloud.commons.client import ServiceInstance
-from spring_cloud.commons.exceptions import NoneTypeError
 from spring_cloud.commons.utils import validate
 
 __author__ = "Waterball (johnny850807@gmail.com)"

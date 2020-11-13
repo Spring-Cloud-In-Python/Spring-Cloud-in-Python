@@ -54,4 +54,4 @@ poetry run pre-commit install
 
 1. Show test coverage report on terminal
 
-`poetry run pytest --cov-report term --cov ${package} tests/`
+`poetry run pytest --cov-report term --cov spring_cloud tests/`
