@@ -1,4 +1,4 @@
-name: "Run Pytest [Commons]"
+name: "CI: Pytest"
 
 on:
   push:
@@ -32,4 +32,4 @@ jobs:
 
     - name: Run pytest in `commons`
       run: |
-        poetry run python -m pytest tests/commons --cov --cov-config=tests/.coveragerc --junitxml=py_springcloud_junit_report.xml
+        poetry run python -m pytest tests/* --cov --cov-config=tests/.coveragerc --junitxml=py_springcloud_junit_report.xml
