@@ -4,7 +4,7 @@
 # scip plugin
 from spring_cloud.commons.client.loadbalancer import RoundRobinLoadBalancer
 from spring_cloud.commons.client.loadbalancer.supplier import FixedServiceInstanceListSupplier
-from tests.client.loadbalancer.stubs import INSTANCES, SERVICE_ID
+from tests.commons.client.loadbalancer.stubs import INSTANCES, SERVICE_ID
 
 __author__ = "Waterball (johnny850807@gmail.com)"
 __license__ = "Apache 2.0"
