@@ -59,3 +59,7 @@ class Lease:
     def cancel(self):
         if self.__eviction_timestamp == 0:
             self.__eviction_timestamp = current_timestamp()
+
+    def service_up(self):
+        if self.__service_up_timestamp == 0:
+            self.__service_up_timestamp = current_timestamp()

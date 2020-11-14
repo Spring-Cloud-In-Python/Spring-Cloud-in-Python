@@ -92,3 +92,19 @@ def test_cancel():
 
     expected = {"registration_timestamp": start, "eviction_timestamp": cancel_time}
     assert_timestamp(lease, expected)
+
+
+def test_service_up():
+    start = current_timestamp()
+
+    fake_lease_info = FakeLeaseInfo()
+    lease = Lease(fake_lease_info, 0)
+
+    time_passed = 0.1  # pass 0.1 second
+    time.sleep(time_passed)
+    current = start + time_passed * 1000
+    service_uptime = current
+    lease.service_up()
+
+    expected = {"registration_timestamp": start, "service_up_timestamp": service_uptime}
+    assert_timestamp(lease, expected)
