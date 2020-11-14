@@ -17,9 +17,14 @@ class Lease:
         RENEW = "renew"
 
     def __init__(self, holder, duration_in_secs: int):
-        self.duration = duration_in_secs * 1000
+        self.__duration = duration_in_secs * 1000
         self.__holder = holder
         self.__registration_timestamp = current_timestamp()
+        self.__last_update_timestamp = self.__registration_timestamp
+
+        # init
+        self.__eviction_timestamp = 0
+        self.__service_up_timestamp = 0
 
     @property
     def holder(self):
@@ -47,3 +52,10 @@ class Lease:
 
     def is_expired(self):
         return False
+
+    def renew(self):
+        self.__last_update_timestamp = current_timestamp() + self.__duration
+
+    def cancel(self):
+        if self.__eviction_timestamp == 0:
+            self.__eviction_timestamp = current_timestamp()
