@@ -108,3 +108,24 @@ def test_service_up():
 
     expected = {"registration_timestamp": start, "service_up_timestamp": service_uptime}
     assert_timestamp(lease, expected)
+
+
+def test_is_expired():
+    start = current_timestamp()
+    lease_expire_time_in_secs = 1
+
+    fake_lease_info = FakeLeaseInfo()
+    lease = Lease(fake_lease_info, lease_expire_time_in_secs)
+
+    assert not lease.is_expired()
+
+    time_passed = 0.7
+    time.sleep(time_passed)
+    current = start + time_passed * 1000
+    assert not lease.is_expired()
+
+    time_passed = 1
+    time_passed = 0.7
+    time.sleep(time_passed)
+    current = start + time_passed * 1000
+    assert lease.is_expired()

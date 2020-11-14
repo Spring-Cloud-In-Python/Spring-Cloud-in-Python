@@ -51,6 +51,13 @@ class Lease:
         self.__service_up_timestamp = value
 
     def is_expired(self):
+        if self.__eviction_timestamp > 0:
+            return True
+
+        current = current_timestamp()
+        if current > self.__last_update_timestamp + self.__duration:
+            return True
+
         return False
 
     def renew(self):
