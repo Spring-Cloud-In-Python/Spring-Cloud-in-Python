@@ -61,22 +61,34 @@ def test_timestamps():
     assert lease.registration_timestamp >= start <= current_timestamp()
     assert_timestamp(lease, expected)
 
+
+def test_renew():
+    start = current_timestamp()
+
+    fake_lease_info = FakeLeaseInfo()
+    lease = Lease(fake_lease_info, 0)
+
     time_passed = 0.1  # pass 0.1 second
     time.sleep(time_passed)
     current = start + time_passed * 1000
     last_update = current
     lease.renew()
+
     expected = {"registration_timestamp": start, "last_update_timestamp": last_update}
     assert_timestamp(lease, expected)
 
+
+def test_cancel():
+    start = current_timestamp()
+
+    fake_lease_info = FakeLeaseInfo()
+    lease = Lease(fake_lease_info, 0)
+
     time_passed = 0.1  # pass 0.1 second
     time.sleep(time_passed)
-    current = current + time_passed * 1000
+    current = start + time_passed * 1000
     cancel_time = current
     lease.cancel()
-    expected = {
-        "registration_timestamp": start,
-        "eviction_timestamp": cancel_time,
-        "last_update_timestamp": last_update,
-    }
+
+    expected = {"registration_timestamp": start, "eviction_timestamp": cancel_time}
     assert_timestamp(lease, expected)
