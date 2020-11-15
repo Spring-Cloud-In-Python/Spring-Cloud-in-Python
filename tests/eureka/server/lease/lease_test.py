@@ -7,8 +7,8 @@ __license__ = "Apache 2.0"
 import time
 
 # scip plugin
-from spring_cloud.commons.utils.timestamp import current_timestamp
-from spring_cloud.eureka.server.lease.lease import Lease
+from eureka.server.lease.lease import Lease
+from eureka.utils.timestamp import current_timestamp
 
 
 class FakeLeaseInfo:

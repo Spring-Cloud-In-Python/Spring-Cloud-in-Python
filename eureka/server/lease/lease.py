@@ -7,7 +7,7 @@ __license__ = "Apache 2.0"
 import enum
 
 # scip plugin
-from spring_cloud.commons.utils.timestamp import current_timestamp
+from eureka.utils.timestamp import current_timestamp
 
 
 class Lease:
