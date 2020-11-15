@@ -11,6 +11,10 @@ class LeaseInfo:
     Represents the lease information with Eureka.
     Eureka decides to remove the instance out of its view depending on
     the duration. The lease also tracks the last time it was renewed.
+<<<<<<< HEAD
+=======
+
+>>>>>>> 55eb9dc... add docstring and test
     See com.netflix.appinfo.LeaseInfo.
     """
 
