@@ -5,6 +5,7 @@ __license__ = "Apache 2.0"
 
 # standard library
 import enum
+from typing import Any
 
 # scip plugin
 from eureka.utils.timestamp import current_timestamp
@@ -16,7 +17,7 @@ class Lease:
         CANCEL = "cancel"
         RENEW = "renew"
 
-    def __init__(self, holder, duration_in_secs: int):
+    def __init__(self, holder: Any, duration_in_secs: int):
         self.__duration = duration_in_secs * 1000
         self.__holder = holder
         self.__registration_timestamp = current_timestamp()
