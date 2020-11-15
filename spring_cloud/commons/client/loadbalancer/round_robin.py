@@ -8,7 +8,7 @@ from typing import Union
 
 # scip plugin
 from spring_cloud.commons.client.service_instance import ServiceInstance
-from spring_cloud.commons.utils.atomic import AtomicInteger
+from spring_cloud.utils.atomic import AtomicInteger
 
 from .loadbalancer import LoadBalancer
 from .supplier import ServiceInstanceListSupplier

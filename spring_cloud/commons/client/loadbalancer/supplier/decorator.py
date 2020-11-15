@@ -4,7 +4,7 @@ from typing import List
 
 # scip plugin
 from spring_cloud.commons.client import ServiceInstance
-from spring_cloud.commons.utils import validate
+from spring_cloud.utils import validate
 
 __author__ = "Waterball (johnny850807@gmail.com)"
 __license__ = "Apache 2.0"
