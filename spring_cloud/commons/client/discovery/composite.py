@@ -10,8 +10,8 @@ __license__ = "Apache 2.0"
 
 # scip plugin
 from spring_cloud.commons.client.discovery.discovery_client import DiscoveryClient
-from spring_cloud.commons.utils.functional_operators import flat_map
-from spring_cloud.commons.utils.list_utils import not_none_nor_empty
+from spring_cloud.utils.functional_operators import flat_map
+from spring_cloud.utils.list_utils import not_none_nor_empty
 
 
 class CompositeDiscoveryClient(DiscoveryClient):

@@ -1,5 +1,5 @@
 # scip plugin
-from spring_cloud.commons.utils.functional_operators import filter_get_first, flat_map
+from spring_cloud.utils.functional_operators import filter_get_first, flat_map
 
 __author__ = "Waterball (johnny850807@gmail.com)"
 __license__ = "Apache 2.0"
