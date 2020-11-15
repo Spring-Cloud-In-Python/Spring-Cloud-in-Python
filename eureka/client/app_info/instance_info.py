@@ -16,7 +16,6 @@ class InstanceInfo:
     """
     The class that holds information required for registration with
     Eureka Server and to be discovered by other components.
-
     See com.netflix.appinfo.InstanceInfo.
     """
 
@@ -297,12 +296,9 @@ class InstanceInfo:
     def is_port_enabled(self, port_type: PortType) -> bool:
         """
         Checks whether a port is enabled for traffic or not.
-
         Args:
             port_type: indicates whether it is secure or unsecure port.
-
         Returns: true if the port is enabled, false otherwise.
-
         """
         return {
             InstanceInfo.PortType.UNSECURE: self._is_unsecure_port_enabled,
@@ -313,9 +309,7 @@ class InstanceInfo:
         """
         Return whether any state changed so that EurekaClient can
         check whether to retransmit info or not on the next heartbeat.
-
         Returns: true if the instance is dirty, false otherwise.
-
         """
         return self._is_instance_info_dirty
 
@@ -333,9 +327,7 @@ class InstanceInfo:
     def set_is_dirty_with_time(self) -> int:
         """
         Set the dirty flag, and also return the timestamp of the is_dirty event.
-
         Returns: the timestamp when the isDirty flag is set.
-
         """
         self.set_is_dirty()
         return self._last_dirty_timestamp
@@ -344,10 +336,8 @@ class InstanceInfo:
         """
         Unset the dirty flag iff the unset_dirty_timestamp matches the last_dirty_timestamp. No-op if
         last_dirty_timestamp > unset_dirty_timestamp
-
         Args:
             unset_dirty_timestamp: the expected last_dirty_timestamp to unset.
-
         """
         if self._last_dirty_timestamp <= unset_dirty_timestamp:
             self._is_instance_info_dirty = False
@@ -367,12 +357,9 @@ class InstanceInfo:
     def set_status(self, status: Status) -> Optional[Status]:
         """
         Set the status for this instance.
-
         Args:
             status: status to be set for this instance.
-
         Returns: the previous status if a different status from the current was set, none otherwise.
-
         """
         if self._status != status:
             previous_status = self._status
@@ -384,10 +371,8 @@ class InstanceInfo:
     def set_status_without_dirty(self, status: Status):
         """
         Set the status for this instance without updating the dirty timestamp.
-
         Args:
             status: status to be set for this instance.
-
         """
         if self._status != status:
             self._status = status
@@ -396,10 +381,8 @@ class InstanceInfo:
         """
         Set the overridden status for this instance. Normally set by an external
         process to disable instance from taking traffic.
-
         Args:
             status: overridden status to be for this instance.
-
         """
         if self._overridden_status != status:
             self._overridden_status = status
@@ -408,10 +391,8 @@ class InstanceInfo:
         """
         Register application specific metadata to be sent to the eureka
         server.
-
         Args:
             metadata: Dictionary containing key/value pairs.
-
         """
         self._metadata.update(metadata)
         self.set_is_dirty()
