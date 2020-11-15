@@ -16,7 +16,7 @@ def test_init():
 
 
 def test_init_spam1():
-    server = Server(id="this is a spam:")
+    server = Server(id="this is a spam")
     assert server.get_host() == "this is a spam"
     assert server.get_port() == 80
     assert server.get_id() == "this is a spam:80"

@@ -117,7 +117,7 @@ class Server:
         return (host, port)
 
     def set_host(self, host: str):
-        if host != None:
+        if host is not None:
             self.__host = host
             self.__id = host + ":" + str(self.__port)
 
