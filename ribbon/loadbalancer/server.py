@@ -57,11 +57,29 @@ class Server:
     UNKNOWN_ZONE = "UNKNOWN"
     # actually it should be public and final, but here is only public not final
 
-    def __init__(self, id: str = None):
-        self.set_id(id)
+    def __init__(self, host: str = None, port: int = None, scheme: str = None, uri: str = None):
+        if uri is not None:
+            self.set_id(uri)
+            if host is not None and host != self.__host:
+                raise Exception("Input host, port or scheme is different to the input uri ")
+            if port is not None and port != self.__port:
+                raise Exception("Input host, port or scheme is different to the input uri ")
+            if scheme is not None and scheme != self.__scheme:
+                raise Exception("Input host, port or scheme is different to the input uri ")
+        elif host is None or scheme is None:
+            raise Exception("Both host and scheme are required or You can give url only")
+        else:
+            self.__host = host
+            self.__port = port
+            self.__scheme = scheme
+
         self.__isFlagAlive = False
         self.__readyToServe = True
         self.__zone = self.UNKNOWN_ZONE
+
+    @classmethod
+    def combine_id(cls, host: str, port: int) -> str:
+        return host + ":" + str(port)
 
     @classmethod
     def normalize_id(cls, id: str) -> str:
@@ -70,7 +88,7 @@ class Server:
         if hostPort is None:
             return None
 
-        return hostPort[0] + ":" + str(hostPort[1])
+        return cls.combine_id(hostPort[0], hostPort[1])
 
     @classmethod
     def __get_scheme(cls, id: str) -> str:
@@ -119,12 +137,12 @@ class Server:
     def set_host(self, host: str):
         if host is not None:
             self.__host = host
-            self.__id = host + ":" + str(self.__port)
+            self.__id = self.combine_id(host, self.__port)
 
     def set_port(self, port: int):
         self.__port = port
         if self.__host != None:
-            self.__id = self.__host + ":" + str(port)
+            self.__id = self.combine_id(self.__host, port)
 
     def set_zone(self, zone: str):
         self.__zone = zone
@@ -140,7 +158,7 @@ class Server:
         if hostPort is None:
             self.__id = None
         else:
-            self.__id = hostPort[0] + ":" + str(hostPort[1])
+            self.__id = self.combine_id(hostPort[0], hostPort[1])
             self.__host = hostPort[0]
             self.__port = hostPort[1]
             self.__scheme = self.__get_scheme(id)
@@ -173,10 +191,10 @@ class Server:
         pass
 
     def hash_code(self) -> int:
-        hash = 7
-        hash = 31 * hash + (None == self.get_id() and 0 or hash(self.get_id()))
+        hashCode = 7
+        hashCode = 31 * hashCode + (None == self.get_id() and 0 or hash(self.get_id()))
 
-        return hash
+        return hashCode
 
     def to_string(self) -> str:
         return self.get_id
