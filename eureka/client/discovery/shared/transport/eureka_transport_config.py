@@ -6,6 +6,9 @@ from abc import ABC, abstractmethod
 __author__ = "Haribo (haribo1558599@gmail.com)"
 __license__ = "Apache 2.0"
 
+# standard library
+from typing import Optional
+
 
 class EurekaTransportConfig(ABC):
     """
@@ -107,3 +110,48 @@ class EurekaTransportConfig(ABC):
         @return: true by default.
         """
         raise NotImplemented
+
+
+class DefaultEurekaTransportConfig(EurekaTransportConfig):
+    def __init__(self):
+        super().__init__()
+
+    @property
+    def sessioned_client_reconnect_interval_in_secs(self) -> int:
+        return 20 * 60
+
+    @property
+    def retryable_client_quarantine_set_refresh_percentage(self) -> float:
+        return 0.66
+
+    @property
+    def applications_resolver_data_staleness_threshold_in_secs(self) -> int:
+        return 5 * 60
+
+    @property
+    def async_resolver_refresh_interval_in_millis(self) -> int:
+        return 5 * 60 * 1000
+
+    @property
+    def async_resolver_warm_up_timeout_in_millis(self) -> int:
+        return 5000
+
+    @property
+    def async_resolver_executor_thread_pool_size(self) -> int:
+        return 5
+
+    @property
+    def write_eureka_server_cluster_vip(self) -> Optional[str]:
+        return None
+
+    @property
+    def read_eureka_server_cluster_vip(self) -> Optional[str]:
+        return None
+
+    @property
+    def bootstrap_resolver_strategy(self) -> Optional[str]:
+        return None
+
+    @property
+    def use_bootstrap_resolver_for_query(self) -> bool:
+        return True

@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 
 # standard library
+import uuid
 from abc import ABC, abstractmethod
+from typing import Dict, Optional
 
 __author__ = "Haribo (haribo1558599@gmail.com)"
 __license__ = "Apache 2.0"
-
-# standard library
-from typing import Dict
 
 
 class EurekaInstanceConfig(ABC):
@@ -33,11 +32,6 @@ class EurekaInstanceConfig(ABC):
 
     @property
     @abstractmethod
-    def app_group_name(self) -> str:
-        raise NotImplemented
-
-    @property
-    @abstractmethod
     def is_instance_enabled_on_init(self) -> bool:
         raise NotImplemented
 
@@ -48,7 +42,7 @@ class EurekaInstanceConfig(ABC):
 
     @property
     @abstractmethod
-    def secure_port(self) -> str:
+    def secure_port(self) -> int:
         raise NotImplemented
 
     @property
@@ -115,3 +109,90 @@ class EurekaInstanceConfig(ABC):
     @abstractmethod
     def secure_health_check_page_url(self) -> str:
         raise NotImplemented
+
+
+class DefaultEurekaInstanceConfig(EurekaInstanceConfig):
+    def __init__(self, app_name: str = None):
+        self._instance_id = str(uuid.uuid4())
+        self._app_name = app_name
+        self._host_name = None
+
+    @property
+    def instance_id(self) -> str:
+        return self._instance_id
+
+    @property
+    def app_name(self) -> str:
+        return self._app_name
+
+    @app_name.setter
+    def app_name(self, app_name: str):
+        self._app_name = app_name
+
+    @property
+    def is_instance_enabled_on_init(self) -> bool:
+        return False
+
+    @property
+    def unsecure_port(self) -> int:
+        return 80
+
+    @property
+    def secure_port(self) -> int:
+        return 443
+
+    @property
+    def is_unsecure_port_enabled(self) -> bool:
+        return True
+
+    @property
+    def is_secure_port_enabled(self) -> bool:
+        return False
+
+    @property
+    def lease_renewal_interval_in_secs(self) -> int:
+        return 30
+
+    @property
+    def lease_expiration_duration_in_secs(self) -> int:
+        return 90
+
+    @property
+    def virtual_host_name(self) -> str:
+        return self.host_name + ":" + str(self.unsecure_port)
+
+    @property
+    def secure_virtual_host_name(self) -> str:
+        return self.host_name + ":" + str(self.secure_port)
+
+    @property
+    def host_name(self) -> str:
+        return "localhost"
+
+    @host_name.setter
+    def host_name(self, host_name: str):
+        self._host_name = host_name
+
+    @property
+    def metadata(self) -> Dict[str, str]:
+        return {}
+
+    @property
+    def ip_address(self) -> str:
+        return "127.0.0.1"
+
+    @property
+    def status_page_url(self) -> Optional[str]:
+        return None
+
+    @property
+    def home_page_url(self) -> Optional[str]:
+        return None
+
+    @property
+    def health_check_page_url(self) -> Optional[str]:
+        return None
+
+    @property
+    def secure_health_check_page_url(self) -> Optional[str]:
+        return None
