@@ -20,7 +20,7 @@ choose a server from the existing list of server.
 
 class LoadBalancer(ABC):
     @abstractmethod
-    def addServers(self, servers: List[Server]):
+    def add_servers(self, servers: List[Server]):
         """
         Initial list of servers. This API also serves to add additional ones at a later time.
         :param newServers: A list of Servers
@@ -28,7 +28,7 @@ class LoadBalancer(ABC):
         pass
 
     @abstractmethod
-    def chooseServer(self, key: object) -> Server:
+    def choose_server(self, key: object) -> Server:
         """
         Choose a server from load balancer.
         :param key: An object that the load balancer may use to determine which server to return.
@@ -38,7 +38,7 @@ class LoadBalancer(ABC):
         pass
 
     @abstractmethod
-    def markServerDown(self, server: Server):
+    def mark_server_down(self, server: Server):
         """
         To be called by the clients of the load balancer to notify that if a Server is down
         else, the LB will think its still Alive until the next Ping cycle - potentially
@@ -47,14 +47,14 @@ class LoadBalancer(ABC):
         pass
 
     @abstractmethod
-    def getReachableServers(self) -> List[Server]:
+    def get_reachable_servers(self) -> List[Server]:
         """
         Only return the servers that are up and reachable.
         :return: A List of Servers
         """
         pass
 
-    def getAllServers(self):
+    def get_all_servers(self):
         """
         Return all known servers, both reachable and unreachable.
         :return: A List of Servers
