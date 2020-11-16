@@ -18,6 +18,3 @@ def test_timestamp():
 
     assert end > start
     assert 0 < start
-
-    acceptable_range = sleep_time * 1.5 * 1000  # in millisecond
-    assert acceptable_range >= (end - start)
