@@ -15,16 +15,11 @@ class FakeLeaseInfo:
     pass
 
 
-def equal_with_tolerance(expected, actual, tolerance):
+def equal_with_tolerance(expected, actual):
+    tolerance = 50  # tolerant small measurement error
     diff = abs(actual - expected)
 
     return diff < tolerance
-
-
-def assert_timestamp(lease, expected):
-    tolerance = 50  # tolerant small measurement error
-    for k, v in expected.items():
-        assert equal_with_tolerance(v, getattr(lease, k), tolerance)
 
 
 def test_initial_lease_not_expired():
@@ -55,9 +50,9 @@ def test_current_timestamps_should_be_logical():
     fake_lease_info = FakeLeaseInfo()
     lease = Lease(fake_lease_info, 0)
 
-    expected = {"registration_timestamp": start, "last_update_timestamp": start}
     assert lease.registration_timestamp >= start <= current_timestamp()
-    assert_timestamp(lease, expected)
+    assert equal_with_tolerance(start, lease.registration_timestamp)
+    assert equal_with_tolerance(start, lease.last_update_timestamp)
 
 
 def test_renew():
@@ -72,8 +67,8 @@ def test_renew():
     last_update = current
     lease.renew()
 
-    expected = {"registration_timestamp": start, "last_update_timestamp": last_update}
-    assert_timestamp(lease, expected)
+    assert equal_with_tolerance(start, lease.registration_timestamp)
+    assert equal_with_tolerance(last_update, lease.last_update_timestamp)
 
 
 def test_cancel():
@@ -88,8 +83,8 @@ def test_cancel():
     cancel_time = current
     lease.cancel()
 
-    expected = {"registration_timestamp": start, "eviction_timestamp": cancel_time}
-    assert_timestamp(lease, expected)
+    assert equal_with_tolerance(start, lease.registration_timestamp)
+    assert equal_with_tolerance(cancel_time, lease.eviction_timestamp)
 
 
 def test_service_up():
@@ -104,12 +99,11 @@ def test_service_up():
     service_uptime = current
     lease.service_up()
 
-    expected = {"registration_timestamp": start, "service_up_timestamp": service_uptime}
-    assert_timestamp(lease, expected)
+    assert equal_with_tolerance(start, lease.registration_timestamp)
+    assert equal_with_tolerance(service_uptime, lease.service_up_timestamp)
 
 
 def test_is_expired():
-    start = current_timestamp()
     lease_expire_time_in_secs = 1
 
     fake_lease_info = FakeLeaseInfo()
@@ -119,11 +113,8 @@ def test_is_expired():
 
     time_passed = 0.7
     time.sleep(time_passed)
-    current = start + time_passed * 1000
     assert not lease.is_expired()
 
-    time_passed = 1
     time_passed = 0.7
     time.sleep(time_passed)
-    current = start + time_passed * 1000
     assert lease.is_expired()
