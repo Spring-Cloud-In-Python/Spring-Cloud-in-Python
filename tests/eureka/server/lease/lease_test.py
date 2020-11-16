@@ -17,10 +17,8 @@ class FakeLeaseInfo:
 
 def equal_with_tolerance(expected, actual, tolerance):
     diff = abs(actual - expected)
-    if diff < tolerance:
-        return True
 
-    return False
+    return diff < tolerance
 
 
 def assert_timestamp(lease, expected):
