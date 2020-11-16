@@ -76,3 +76,4 @@ class CookieRoutePredicate(Predicate):
         def __init__(self, cookie_name=None, cookie_value=None):
             self.cookie_name = cookie_name
             self.cookie_value = cookie_value
+
