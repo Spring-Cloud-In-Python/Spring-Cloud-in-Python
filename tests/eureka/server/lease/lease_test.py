@@ -49,7 +49,7 @@ def test_setters():
     assert lease.holder == fake_lease_info2
 
 
-def test_timestamps():
+def test_current_timestamps_should_be_logical():
     start = current_timestamp()
 
     fake_lease_info = FakeLeaseInfo()
