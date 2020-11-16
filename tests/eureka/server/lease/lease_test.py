@@ -27,7 +27,7 @@ def assert_timestamp(lease, expected):
         assert equal_with_tolerance(v, getattr(lease, k), tolerance)
 
 
-def test_expired_at_first():
+def test_initial_lease_not_expired():
     fake_lease_info = FakeLeaseInfo()
     lease = Lease(fake_lease_info, 0)
 
