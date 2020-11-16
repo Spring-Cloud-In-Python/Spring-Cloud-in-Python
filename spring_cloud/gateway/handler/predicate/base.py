@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-from __future__ import annotations
-
 # standard library
-from abc import ABC
+from abc import ABC, abstractmethod
 
 __author__ = "Chaoyuuu (chaoyu2330@gmail.com)"
 __license__ = "Apache 2.0"
@@ -11,5 +9,11 @@ __license__ = "Apache 2.0"
 from spring_cloud.gateway.handler.predicate.predicate import Predicate
 
 
-class GatewayPredicate(ABC, Predicate):
+class RoutePredicateFactory(ABC):
+    @abstractmethod
+    def apply(self, config) -> Predicate:
+        pass
+
+
+class AbstractRoutePredicateFactory(RoutePredicateFactory, ABC):
     pass

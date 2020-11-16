@@ -12,6 +12,10 @@ class Predicate(ABC):
         pass
 
 
+class GatewayPredicate(Predicate, ABC):
+    pass
+
+
 class StaticPredicate(Predicate):
     def __init__(self, value: bool):
         self.value = value
