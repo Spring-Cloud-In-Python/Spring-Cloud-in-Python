@@ -4,7 +4,9 @@ __author__ = "MJ (tsngmj@gmail.com)"
 __license__ = "Apache 2.0"
 
 # standard library
+import re
 from abc import ABC, abstractmethod
+from urllib.parse import urlparse
 
 
 class Server:
@@ -58,9 +60,9 @@ class Server:
     # actually it should be public and final, but here is only public not final
 
     def __init__(self, host: str = None, port: int = None, scheme: str = None, uri: str = None):
-        if uri is not None:
+        if uri:
             self.set_id(uri)
-            if host is not None and host != self.__host:
+            if host and host != self.__host:
                 raise Exception("Input host, port or scheme is different to the input uri ")
             if port is not None and port != self.__port:
                 raise Exception("Input host, port or scheme is different to the input uri ")
@@ -79,70 +81,61 @@ class Server:
 
     @classmethod
     def combine_id(cls, host: str, port: int) -> str:
-        return host + ":" + str(port)
+        return f"{host}:{port}"
 
     @classmethod
-    def normalize_id(cls, id: str) -> str:
-        hostPort = cls.get_host_port(id)
+    def normalize_id(cls, uri: str) -> str:
+        hostPort = cls.get_host_port(uri)
 
-        if hostPort is None:
-            return None
-
-        return cls.combine_id(hostPort[0], hostPort[1])
+        if hostPort:
+            return cls.combine_id(hostPort[0], hostPort[1])
+        return None
 
     @classmethod
-    def __get_scheme(cls, id: str) -> str:
-        if id is None:
+    def __get_scheme(cls, uri: str) -> str:
+        if not uri:
             return None
 
         scheme = None
-        if id.lower().startswith("http://"):
+        uri = uri.lower()
+        if uri.startswith("http://"):
             scheme = "http"
-        elif id.lower().startswith("https://"):
+        elif uri.startswith("https://"):
             scheme = "https"
 
         return scheme
 
     @classmethod
-    def get_host_port(cls, id: str) -> tuple:
-        if id is None:
+    def get_host_port(cls, uri: str) -> tuple:
+        if uri is None:
             return None
 
-        host = ""
+        uriPattern = r"https?:\/\/[^\/][^\/ :]*:\d+[\/]?.*"
+        uri = uri.lower()
         port = 80
 
-        if id.lower().startswith("http://"):
-            id = id[7:]
-        elif id.lower().startswith("https://"):
-            id = id[8:]
-            port = 443
+        if not re.fullmatch(uriPattern, uri):
+            raise Exception("Not a valid uri!")
 
-        if "/" in id:
-            index = id.find("/")
-            id = id[0:index]
+        result = urlparse(uri)
+        host, port = re.split(":", result.netloc)
+        port = int(port)
 
-        colonIndex = id.find(":")
-
-        if colonIndex == -1:
-            host = id
-        else:
-            host = id[0:colonIndex]
-            try:
-                port = int(id[colonIndex + 1 :])
-            except ValueError as err:
-                raise err
+        cls.__host = host
+        cls.__port = port
+        cls.__scheme = result.scheme
 
         return (host, port)
 
     def set_host(self, host: str):
         if host is not None:
             self.__host = host
-            self.__id = self.combine_id(host, self.__port)
+            self.__serverId = self.combine_id(host, self.__port)
 
     def set_port(self, port: int):
         self.__port = port
-        if self.__host != None:
-            self.__id = self.combine_id(self.__host, port)
+        if self.__host:
+            self.__serverId = self.combine_id(self.__host, port)
 
     def set_zone(self, zone: str):
         self.__zone = zone
@@ -150,18 +143,16 @@ class Server:
     def set_scheme(self, scheme: str):
         self.__scheme = scheme
 
-    def set_id(self, id: str):
-        print(id)
-        hostPort = self.get_host_port(id)
+    def set_id(self, uri: str):
+        hostPort = self.get_host_port(uri)
 
-        print(hostPort)
         if hostPort is None:
-            self.__id = None
+            self.__serverId = None
         else:
-            self.__id = self.combine_id(hostPort[0], hostPort[1])
+            self.__serverId = self.combine_id(hostPort[0], hostPort[1])
             self.__host = hostPort[0]
             self.__port = hostPort[1]
-            self.__scheme = self.__get_scheme(id)
+            self.__scheme = self.__get_scheme(uri)
 
     def set_ready_to_serve(self, ready_to_serve: bool):
         self.__readyToServe = ready_to_serve
@@ -176,7 +167,7 @@ class Server:
         return self.__zone
 
     def get_id(self) -> str:
-        return self.__id
+        return self.__serverId
 
     def get_meta_info(self) -> MetaInfo:
         return self.__simple_meta_info
@@ -187,14 +178,18 @@ class Server:
     def is_alive(self) -> bool:
         return self.__isFlagAlive
 
-    def equals(self, obj: object) -> bool:
-        pass
+    def __eq__(self, other):
+        if type(self) == type(other):
+            return self.__serverId == other.get_id()
+        else:
+            return False
 
-    def hash_code(self) -> int:
+    def __hash__(self):
         hashCode = 7
-        hashCode = 31 * hashCode + (None == self.get_id() and 0 or hash(self.get_id()))
+        serverId = self.get_id()
+        hashCode = 31 * hashCode + (None == serverId and 0 or self.__hash__(serverId))
 
         return hashCode
 
-    def to_string(self) -> str:
-        return self.get_id
+    def __str__(self):
+        return self.get_id()
