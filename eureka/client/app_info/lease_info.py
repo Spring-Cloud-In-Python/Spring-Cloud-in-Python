@@ -3,6 +3,8 @@
 __author__ = "Haribo (haribo1558599@gmail.com)"
 __license__ = "Apache 2.0"
 
+__all__ = ["LeaseInfo"]
+
 
 class LeaseInfo:
     """
