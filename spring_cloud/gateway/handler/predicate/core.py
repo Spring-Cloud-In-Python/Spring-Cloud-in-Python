@@ -36,8 +36,8 @@ class AfterRoutePredicate(Predicate):
         return now > self.config.date_time
 
     class Config:
-        def __init__(self):
-            self.date_time = None
+        def __init__(self, date_time: datetime):
+            self.date_time = date_time
 
 
 class PathRoutePredicate(Predicate):
@@ -45,12 +45,12 @@ class PathRoutePredicate(Predicate):
         self.config = config
 
     def test(self, http_request) -> bool:
-        path_patterns = http_request
+        path_patterns = http_request["path_patterns"]
         return self.config.pattern in path_patterns
 
     class Config:
-        def __init__(self):
-            self.pattern = None
+        def __init__(self, pattern=None):
+            self.pattern = pattern
 
 
 class CookieRoutePredicate(Predicate):
@@ -60,7 +60,7 @@ class CookieRoutePredicate(Predicate):
     # TODO: the cookies is dependency with http_request, but we haven't decided the tool,
     #  that is, the type of the cookies may be change in future
     def test(self, http_request) -> bool:
-        http_request_cookies = http_request
+        http_request_cookies = http_request["cookies"]
         if http_request_cookies is None:
             return False
 
@@ -73,6 +73,6 @@ class CookieRoutePredicate(Predicate):
         return False
 
     class Config:
-        def __init__(self):
-            self.cookie_name = None
-            self.cookie_value = None
+        def __init__(self, cookie_name=None, cookie_value=None):
+            self.cookie_name = cookie_name
+            self.cookie_value = cookie_value

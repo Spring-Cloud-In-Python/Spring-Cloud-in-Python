@@ -11,8 +11,7 @@ from spring_cloud.gateway.handler.predicate.core import AfterRoutePredicate, Coo
 
 class TestAfterRoutePredicate:
     def given_config_datetime(self, date_time: datetime):
-        self.config = AfterRoutePredicate.Config()
-        self.config.date_time = date_time
+        self.config = AfterRoutePredicate.Config(date_time)
         self.predicate = AfterRoutePredicate(self.config)
 
     def given_now(self, now: datetime):
@@ -33,12 +32,11 @@ class TestAfterRoutePredicate:
 
 class TestPathRoutePredicate:
     def given_config_pattern(self, pattern: str):
-        self.config = PathRoutePredicate.Config()
-        self.config.pattern = pattern
+        self.config = PathRoutePredicate.Config(pattern)
         self.predicate = PathRoutePredicate(self.config)
 
     def given_request_url(self, request_url: str):
-        self.request_url = request_url
+        self.request_url = {"path_patterns": request_url}
 
     def test_Given_url_When_match_pattern_Then_return_T(self):
         self.given_config_pattern("/get")
@@ -55,27 +53,25 @@ class TestPathRoutePredicate:
 
 class TestCookieRoutePredicate:
     def given_config_cookie(self, cookie_name, cookie_value):
-        self.config = CookieRoutePredicate.Config()
-        self.config.cookie_name = cookie_name
-        self.config.cookie_value = cookie_value
+        self.config = CookieRoutePredicate.Config(cookie_name, cookie_value)
         self.predicate = CookieRoutePredicate(self.config)
 
     def give_http_cookies(self, http_cookies=None):
-        self.http_cookies = http_cookies
+        self.http_cookies = {"cookies": http_cookies}
 
-    def test_Given_cookies_from_config_A_When_match_cookie_Then_return_T(self):
+    def test_Given_cookies_from_config_When_match_cookie_Then_return_T(self):
         self.given_config_cookie("my_cookie", "ch.p")
         self.give_http_cookies({"your_cookie": ["sugar"], "my_cookie": ["ch.p", "cookie"]})
         value = self.predicate.test(self.http_cookies)
         assert value
 
-    def test_Given_cookies_from_config_A_When_not_match_cookie_Then_return_F(self):
+    def test_Given_cookies_from_config_When_not_match_cookie_Then_return_F(self):
         self.given_config_cookie("my_cookie", "ch.p")
         self.give_http_cookies({"your_cookie": ["sugar"], "his_cookie": ["chocolate", "truffle"]})
         value = self.predicate.test(self.http_cookies)
         assert not value
 
-    def test_Given_no_cookies_from_config_A_When_test_Should_be_F(self):
+    def test_Given_no_cookies_from_config_When_test_Should_be_F(self):
         self.given_config_cookie("my_cookie", "ch.p")
         self.give_http_cookies()
         value = self.predicate.test(self.http_cookies)
