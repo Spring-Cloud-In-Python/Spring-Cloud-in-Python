@@ -1,1 +1,1 @@
-from .lease_info import *
+from .lease_info import LeaseInfo
