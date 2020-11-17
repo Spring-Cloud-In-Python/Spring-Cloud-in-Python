@@ -90,26 +90,6 @@ class EurekaInstanceConfig(ABC):
     def ip_address(self) -> str:
         raise NotImplemented
 
-    @property
-    @abstractmethod
-    def status_page_url(self) -> str:
-        raise NotImplemented
-
-    @property
-    @abstractmethod
-    def home_page_url(self) -> str:
-        raise NotImplemented
-
-    @property
-    @abstractmethod
-    def health_check_page_url(self) -> str:
-        raise NotImplemented
-
-    @property
-    @abstractmethod
-    def secure_health_check_page_url(self) -> str:
-        raise NotImplemented
-
 
 class DefaultEurekaInstanceConfig(EurekaInstanceConfig):
     def __init__(self, app_name: str = None):
@@ -180,19 +160,3 @@ class DefaultEurekaInstanceConfig(EurekaInstanceConfig):
     @property
     def ip_address(self) -> str:
         return "127.0.0.1"
-
-    @property
-    def status_page_url(self) -> Optional[str]:
-        return None
-
-    @property
-    def home_page_url(self) -> Optional[str]:
-        return None
-
-    @property
-    def health_check_page_url(self) -> Optional[str]:
-        return None
-
-    @property
-    def secure_health_check_page_url(self) -> Optional[str]:
-        return None
