@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # standard library
 from datetime import datetime
+from unittest.mock import Mock
 
 __author__ = "Chaoyuuu (chaoyu2330@gmail.com)"
 __license__ = "Apache 2.0"
@@ -36,18 +37,19 @@ class TestPathRoutePredicate:
         self.predicate = PathRoutePredicate(self.config)
 
     def given_request_url(self, request_url: str):
-        self.request_url = {"path_patterns": request_url}
+        self.http_request = Mock()
+        self.http_request.path_patterns = request_url
 
     def test_Given_url_When_match_pattern_Then_return_T(self):
         self.given_config_pattern("/get")
         self.given_request_url("http://localhost:8080/get")
-        value = self.predicate.test(self.request_url)
+        value = self.predicate.test(self.http_request)
         assert value
 
     def test_Given_url_When_not_match_pattern_Then_return_F(self):
         self.given_config_pattern("/test")
         self.given_request_url("http://localhost:8080/get")
-        value = self.predicate.test(self.request_url)
+        value = self.predicate.test(self.http_request)
         assert not value
 
 
@@ -57,22 +59,23 @@ class TestCookieRoutePredicate:
         self.predicate = CookieRoutePredicate(self.config)
 
     def give_http_cookies(self, http_cookies=None):
-        self.http_cookies = {"cookies": http_cookies}
+        self.http_request = Mock()
+        self.http_request.cookies = http_cookies
 
     def test_Given_cookies_from_config_When_match_cookie_Then_return_T(self):
         self.given_config_cookie("my_cookie", "ch.p")
         self.give_http_cookies({"your_cookie": ["sugar"], "my_cookie": ["ch.p", "cookie"]})
-        value = self.predicate.test(self.http_cookies)
+        value = self.predicate.test(self.http_request)
         assert value
 
     def test_Given_cookies_from_config_When_not_match_cookie_Then_return_F(self):
         self.given_config_cookie("my_cookie", "ch.p")
         self.give_http_cookies({"your_cookie": ["sugar"], "his_cookie": ["chocolate", "truffle"]})
-        value = self.predicate.test(self.http_cookies)
+        value = self.predicate.test(self.http_request)
         assert not value
 
     def test_Given_no_cookies_from_config_When_test_Should_be_F(self):
         self.given_config_cookie("my_cookie", "ch.p")
         self.give_http_cookies()
-        value = self.predicate.test(self.http_cookies)
+        value = self.predicate.test(self.http_request)
         assert not value

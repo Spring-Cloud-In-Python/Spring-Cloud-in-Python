@@ -45,7 +45,7 @@ class PathRoutePredicate(Predicate):
         self.config = config
 
     def test(self, http_request) -> bool:
-        path_patterns = http_request["path_patterns"]
+        path_patterns = http_request.path_patterns
         return self.config.pattern in path_patterns
 
     class Config:
@@ -60,7 +60,7 @@ class CookieRoutePredicate(Predicate):
     # TODO: the cookies is dependency with http_request, but we haven't decided the tool,
     #  that is, the type of the cookies may be change in future
     def test(self, http_request) -> bool:
-        http_request_cookies = http_request["cookies"]
+        http_request_cookies = http_request.cookies
         if http_request_cookies is None:
             return False
 
