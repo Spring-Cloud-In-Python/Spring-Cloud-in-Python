@@ -59,10 +59,6 @@ class InstanceInfo:
         app_name: str,
         app_group_name: str,
         ip_address: str,
-        home_page_url: str,
-        status_page_url: str,
-        health_check_url: str,
-        secure_health_check_url: str,
         vip_address: str,
         secure_vip_address: str,
         lease_info: LeaseInfo,
@@ -100,10 +96,6 @@ class InstanceInfo:
         self._app_name = app_name
         self._app_group_name = app_group_name
         self._ip_address = ip_address
-        self._home_page_url = home_page_url
-        self._status_page_url = status_page_url
-        self._health_check_url = health_check_url
-        self._secure_health_check_url = secure_health_check_url
         self._vip_address = vip_address
         self._secure_vip_address = secure_vip_address
         self._lease_info = lease_info
@@ -152,38 +144,6 @@ class InstanceInfo:
     @ip_address.setter
     def ip_address(self, ip_address: str):
         self._ip_address = ip_address
-
-    @property
-    def home_page_url(self) -> str:
-        return self._home_page_url
-
-    @home_page_url.setter
-    def home_page_url(self, home_page_url: str):
-        self._home_page_url = home_page_url
-
-    @property
-    def status_page_url(self) -> str:
-        return self._status_page_url
-
-    @status_page_url.setter
-    def status_page_url(self, status_page_url: str):
-        self._status_page_url = status_page_url
-
-    @property
-    def health_check_url(self) -> str:
-        return self._health_check_url
-
-    @health_check_url.setter
-    def health_check_url(self, health_check_url: str):
-        self._health_check_url = health_check_url
-
-    @property
-    def secure_health_check_url(self) -> str:
-        return self._secure_health_check_url
-
-    @secure_health_check_url.setter
-    def secure_health_check_url(self, secure_health_check_url: str):
-        self._secure_health_check_url = secure_health_check_url
 
     @property
     def vip_address(self) -> str:
