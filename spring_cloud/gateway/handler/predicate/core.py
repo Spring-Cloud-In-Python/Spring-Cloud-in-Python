@@ -61,6 +61,7 @@ class CookieRoutePredicate(Predicate):
     #  that is, the type of the cookies may be change in future
     def test(self, http_request) -> bool:
         http_request_cookies = http_request.cookies
+
         if http_request_cookies is None:
             return False
 
@@ -76,4 +77,3 @@ class CookieRoutePredicate(Predicate):
         def __init__(self, cookie_name=None, cookie_value=None):
             self.cookie_name = cookie_name
             self.cookie_value = cookie_value
-
