@@ -40,7 +40,6 @@ class TestPathRoutePredicate:
         self.http_request = Mock()
         self.http_request.path_patterns = request_url
 
-
     def test_Given_url_When_match_pattern_Then_return_T(self):
         self.given_config_pattern("/get")
         self.given_request_url("http://localhost:8080/get")
@@ -62,7 +61,6 @@ class TestCookieRoutePredicate:
     def give_http_cookies(self, http_cookies=None):
         self.http_request = Mock()
         self.http_request.cookies = http_cookies
-
 
     def test_Given_cookies_from_config_When_match_cookie_Then_return_T(self):
         self.given_config_cookie("my_cookie", "ch.p")
