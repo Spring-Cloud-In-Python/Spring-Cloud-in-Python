@@ -3,9 +3,14 @@
 __author__ = "Ssu-Tsen"
 __license__ = "Apache 2.0"
 
+# standard library
 from typing import Set
 
-class RibbonServer(ServerInstance):
+# scip plugin
+from spring_cloud.commons.client import ServiceInstance
+
+
+class RibbonServer(ServiceInstance):
     def __init__(self, service_id, server, secure, metadata):
         self.__service_id = service_id
         self.__server = server
@@ -28,7 +33,7 @@ class RibbonServer(ServerInstance):
         return self.__secure
 
     def get_uri(self):
-        return DefaultServiceInstance.getUri(self)
+        return ServiceInstance.get_uri(self)
 
     def get_metadata(self) -> dict[str, str]:
         return self.__metadata
@@ -38,8 +43,3 @@ class RibbonServer(ServerInstance):
 
     def get_scheme(self):
         return self.__server.get_scheme()
-
-
-
-
-
