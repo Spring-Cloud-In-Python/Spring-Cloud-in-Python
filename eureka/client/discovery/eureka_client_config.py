@@ -340,7 +340,7 @@ class DefaultEurekaClientConfig(EurekaClientConfig):
 
     @property
     def should_gzip_content(self) -> bool:
-        return True
+        return False
 
     @property
     def eureka_server_read_timeout_in_secs(self) -> int:
