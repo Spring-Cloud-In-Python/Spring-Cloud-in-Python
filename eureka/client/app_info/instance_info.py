@@ -8,7 +8,7 @@ from typing import Dict, Optional
 from wrapt.decorators import synchronized
 
 # scip plugin
-from eureka.client.app_info import LeaseInfo
+from eureka.client.app_info.lease_info import LeaseInfo
 from eureka.utils.timestamp import current_timestamp
 
 __author__ = "Haribo (haribo1558599@gmail.com)"
