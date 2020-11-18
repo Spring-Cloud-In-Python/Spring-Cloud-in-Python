@@ -9,7 +9,7 @@ from wrapt.decorators import synchronized
 
 # scip plugin
 from eureka.client.app_info import LeaseInfo
-from eureka.client.utils import current_time_in_millis
+from eureka.utils.timestamp import current_timestamp
 
 __author__ = "Haribo (haribo1558599@gmail.com)"
 __license__ = "Apache 2.0"
@@ -57,17 +57,17 @@ class InstanceInfo:
         self,
         instance_id: str,
         app_name: str,
-        app_group_name: str,
         ip_address: str,
         vip_address: str,
         secure_vip_address: str,
         lease_info: LeaseInfo,
-        metadata: Dict[str, str],
-        last_updated_timestamp: int,
-        last_dirty_timestamp: int,
-        action_type: ActionType,
         host_name: str,
-        is_coordinating_discovery_server: bool,
+        app_group_name: str = None,
+        metadata: Dict[str, str] = None,
+        last_updated_timestamp: int = None,
+        last_dirty_timestamp: int = None,
+        action_type: ActionType = None,
+        is_coordinating_discovery_server: bool = False,
         is_secure_port_enabled: bool = False,
         is_unsecure_port_enabled: bool = True,
         port: int = DEFAULT_PORT,
@@ -285,8 +285,17 @@ class InstanceInfo:
             InstanceInfo.PortType.SECURE: self._is_secure_port_enabled,
         }.get(port_type, False)
 
+    def is_dirty(self) -> bool:
+        """
+        Return whether any state changed so that EurekaClient can
+        check whether to retransmit info or not on the next heartbeat.
+
+        @return: true if the instance is dirty, false otherwise.
+        """
+        return self._is_instance_info_dirty
+
     @synchronized
-    def is_dirty_with_time(self) -> int:
+    def is_dirty_with_time(self) -> Optional[int]:
         return self._last_dirty_timestamp if self._is_instance_info_dirty else None
 
     @synchronized
@@ -296,7 +305,7 @@ class InstanceInfo:
         the eureka server on the next heartbeat.
         """
         self._is_instance_info_dirty = True
-        self._last_dirty_timestamp = current_time_in_millis()
+        self._last_dirty_timestamp = current_timestamp()
 
     @synchronized
     def set_is_dirty_with_time(self) -> int:
@@ -320,7 +329,7 @@ class InstanceInfo:
             self._is_instance_info_dirty = False
 
     def set_last_updated_timestamp(self):
-        self._last_updated_timestamp = current_time_in_millis()
+        self._last_updated_timestamp = current_timestamp()
 
     def set_is_coordinating_discovery_server(self):
         """
@@ -366,15 +375,6 @@ class InstanceInfo:
         """
         if self._overridden_status != status:
             self._overridden_status = status
-
-    def is_dirty(self) -> bool:
-        """
-        Return whether any state changed so that EurekaClient can
-        check whether to retransmit info or not on the next heartbeat.
-
-        @return: true if the instance is dirty, false otherwise.
-        """
-        return self._is_instance_info_dirty
 
     @synchronized
     def is_dirty_with_time(self) -> Optional[int]:
