@@ -1,0 +1,41 @@
+engines:
+  duplication:
+    enabled: true
+    config:
+      languages:
+        - python
+  fixme:
+    enabled: true
+  pep8:
+    enabled: false
+  radon:
+    enabled: true
+ratings:
+  paths:
+    - "**.py"
+exclude_paths:
+  - "**/dist/"
+  - "**/tests/"
+  - "**/build/"
+  - "*.ipynb"
+checks:
+  argument-count:
+    config:
+      threshold: 20
+  file-lines:
+    config:
+      threshold: 1000
+  method-complexity:
+    config:
+      threshold: 17
+exclude_patterns:
+  - dist/
+  - scripts/
+  - "**/ops/"
+  - "**/spec/"
+  - "**/test/"
+  - "**/tests/"
+  - "**/vendor/"
+  - "**/*_test.go"
+  - "**/__tests__/"
+  - "**/__mocks__/"
