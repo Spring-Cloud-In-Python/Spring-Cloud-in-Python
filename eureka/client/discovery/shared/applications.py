@@ -2,7 +2,7 @@
 
 # standard library
 import random
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 
 # pypi/conda library
 from wrapt import synchronized
@@ -62,7 +62,7 @@ class Applications:
         self._applications.remove(application)
         self._app_name_to_application_dict.pop(application.name, None)
 
-    def get_registered_applications(self):
+    def get_registered_applications(self) -> List[Application]:
         return self._applications
 
     def get_registered_application(self, app_name: str) -> Optional[Application]:

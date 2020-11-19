@@ -82,7 +82,7 @@ class Application:
             return list(dict.values(self._instance_dict))
 
     @synchronized
-    def shuffle_and_store_instances(self, filter_only_up_instances: bool) -> Optional[List[InstanceInfo]]:
+    def shuffle_and_store_instances(self, filter_only_up_instances: bool) -> List[InstanceInfo]:
         self._shuffled_and_filtered_instances = self.get_all_instances_from_local_cache()
 
         # We will filter out instances whose status are UP.

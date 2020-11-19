@@ -21,6 +21,6 @@ class AtomicInteger:
         self._value = value
 
     @synchronized
-    def increment_and_get(self):
+    def increment_and_get(self) -> int:
         self._value += 1
         return self._value
