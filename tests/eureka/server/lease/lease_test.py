@@ -19,34 +19,34 @@ def equal_with_tolerance(expected, actual):
 
 
 class TestLease:
-    class FakeLeaseInfo:
+    class DummyLeaseInfo:
         pass
 
     def test_initial_lease_not_expired(self):
-        fake_lease_info = self.FakeLeaseInfo()
-        lease = Lease(fake_lease_info, 0)
+        dummy_lease_info = self.DummyLeaseInfo()
+        lease = Lease(dummy_lease_info, 0)
 
         assert not lease.is_expired()
 
     def test_setters(self):
-        fake_lease_info = self.FakeLeaseInfo()
-        fake_lease_info2 = self.FakeLeaseInfo()
+        dummy_lease_info = self.DummyLeaseInfo()
+        dummy_lease_info2 = self.DummyLeaseInfo()
 
-        lease = Lease(fake_lease_info, 0)
+        lease = Lease(dummy_lease_info, 0)
         lease.service_up_timestamp = 123
 
-        assert lease.holder != fake_lease_info2
+        assert lease.holder != dummy_lease_info2
         assert lease.service_up_timestamp == 123
 
-        lease = Lease(fake_lease_info2, 0)
+        lease = Lease(dummy_lease_info2, 0)
 
-        assert lease.holder == fake_lease_info2
+        assert lease.holder == dummy_lease_info2
 
     def test_current_timestamps_should_be_logical(self):
         start = current_timestamp()
 
-        fake_lease_info = self.FakeLeaseInfo()
-        lease = Lease(fake_lease_info, 0)
+        dummy_lease_info = self.DummyLeaseInfo()
+        lease = Lease(dummy_lease_info, 0)
 
         assert lease.registration_timestamp >= start <= current_timestamp()
         assert equal_with_tolerance(start, lease.registration_timestamp)
@@ -55,8 +55,8 @@ class TestLease:
     def test_renew(self):
         start = current_timestamp()
 
-        fake_lease_info = self.FakeLeaseInfo()
-        lease = Lease(fake_lease_info, 0)
+        dummy_lease_info = self.DummyLeaseInfo()
+        lease = Lease(dummy_lease_info, 0)
 
         time_passed = 0.1  # pass 0.1 second
         time.sleep(time_passed)
@@ -70,8 +70,8 @@ class TestLease:
     def test_cancel(self):
         start = current_timestamp()
 
-        fake_lease_info = self.FakeLeaseInfo()
-        lease = Lease(fake_lease_info, 0)
+        dummy_lease_info = self.DummyLeaseInfo()
+        lease = Lease(dummy_lease_info, 0)
 
         time_passed = 0.1  # pass 0.1 second
         time.sleep(time_passed)
@@ -85,8 +85,8 @@ class TestLease:
     def test_service_up(self):
         start = current_timestamp()
 
-        fake_lease_info = self.FakeLeaseInfo()
-        lease = Lease(fake_lease_info, 0)
+        dummy_lease_info = self.DummyLeaseInfo()
+        lease = Lease(dummy_lease_info, 0)
 
         time_passed = 0.1  # pass 0.1 second
         time.sleep(time_passed)
@@ -100,8 +100,8 @@ class TestLease:
     def test_is_expired(self):
         lease_expire_time_in_secs = 1
 
-        fake_lease_info = self.FakeLeaseInfo()
-        lease = Lease(fake_lease_info, lease_expire_time_in_secs)
+        dummy_lease_info = self.DummyLeaseInfo()
+        lease = Lease(dummy_lease_info, lease_expire_time_in_secs)
 
         assert not lease.is_expired()
 
