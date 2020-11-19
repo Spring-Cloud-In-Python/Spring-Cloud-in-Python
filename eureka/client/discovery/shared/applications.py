@@ -3,7 +3,7 @@
 # standard library
 import copy
 import random
-from typing import Optional
+from typing import Dict, Optional
 
 # scip plugin
 from eureka.client.app_info import InstanceInfo
@@ -42,31 +42,30 @@ class Applications:
         self._reconciliation_hash_code = reconciliation_hash_code
 
     def add_application(self, application: Application):
-        self._app_name_to_application_dict[application.name.upper()] = application
+        self._app_name_to_application_dict[application.name] = application
         self._add_instances(application)
         self._applications.append(application)
 
     def _add_instances(self, application: Application):
         for instance in application.get_instances():
-            if not instance.vip_address:
+            if instance.vip_address:
                 virtual_host_name = instance.vip_address.upper()
-                if instance.vip_address not in self._virtual_host_name_to_instances_dict:
+                if virtual_host_name not in self._virtual_host_name_to_instances_dict:
                     self._virtual_host_name_to_instances_dict[virtual_host_name] = ConcurrentCircularList()
-                else:
-                    self._virtual_host_name_to_instances_dict[virtual_host_name].append(instance)
+                self._virtual_host_name_to_instances_dict[virtual_host_name].append(instance)
 
     def remove_application(self, application: Application):
         self._applications.remove(application)
-        self._app_name_to_application_dict.pop(application.name)
+        self._app_name_to_application_dict.pop(application.name, None)
 
     def get_registered_applications(self):
-        return copy.deepcopy(self._applications)
+        return self._applications
 
     def get_registered_application(self, app_name: str) -> Optional[Application]:
         return self._app_name_to_application_dict.get(app_name, None)
 
-    def get_instances_by_virtual_host_name(self, virtual_host_name: str) -> ConcurrentCircularList[InstanceInfo]:
-        return self._virtual_host_name_to_instances_dict.get(virtual_host_name.upper(), [])
+    def get_instances_by_virtual_host_name(self, virtual_host_name: str) -> ConcurrentCircularList:
+        return self._virtual_host_name_to_instances_dict.get(virtual_host_name.upper(), ConcurrentCircularList())
 
     def shuffle_instances(self, filter_only_up_instances: bool):
         """
@@ -76,12 +75,15 @@ class Applications:
         for application in self._applications:
             application.shuffle_and_store_instances(filter_only_up_instances)
 
-            for vip, instances in self._virtual_host_name_to_instances_dict.items():
-                shuffled_and_filtered_instances = list(
-                    filter(lambda instance: instance.status != InstanceInfo.InstanceStatus.UP, list(instances))
-                )
-                random.shuffle(shuffled_and_filtered_instances)
-                self._virtual_host_name_to_instances_dict[vip] = ConcurrentCircularList(shuffled_and_filtered_instances)
+            if filter_only_up_instances:
+                for vip, instances in self._virtual_host_name_to_instances_dict.items():
+                    shuffled_and_filtered_instances = list(
+                        filter(lambda instance: instance.status == InstanceInfo.InstanceStatus.UP, list(instances))
+                    )
+                    random.shuffle(shuffled_and_filtered_instances)
+                    self._virtual_host_name_to_instances_dict[vip] = ConcurrentCircularList(
+                        shuffled_and_filtered_instances
+                    )
 
     def size(self) -> int:
         size = 0
@@ -99,9 +101,10 @@ class Applications:
                 instance_status_count = instance_status_count_dict.get(instance.status.value)
                 instance_status_count.increment_and_get()
 
+        sorted_instance_status_count_dict_by_key = dict(sorted(instance_status_count_dict.items(), key=lambda d: d[0]))
         reconciliation_hash_code = ""
         delimiter = "_"
-        for status, count in instance_status_count_dict.items():
+        for status, count in sorted_instance_status_count_dict_by_key.items():
             record = status + delimiter + str(count) + delimiter
             reconciliation_hash_code += record
 

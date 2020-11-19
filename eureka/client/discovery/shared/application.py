@@ -37,24 +37,28 @@ class Application:
     def name(self, name: str):
         self._name = name
 
+    @property
+    def is_dirty(self):
+        return self._is_dirty
+
     def size(self):
         return len(self._instance_dict)
 
+    @synchronized
     def add_instance(self, instance_info: InstanceInfo):
-        with synchronized(self._instance_dict):
-            self._instance_dict[instance_info.instance_id] = instance_info
-            self._is_dirty = True
+        self._instance_dict[instance_info.instance_id] = instance_info
+        self._is_dirty = True
 
+    @synchronized
     def remove_instance(self, instance_info: InstanceInfo, mark_as_dirty: bool = True):
-        with synchronized(self._instance_dict):
-            self._instance_dict.pop(instance_info.instance_id)
-            if mark_as_dirty:
-                self._is_dirty = True
+        self._instance_dict.pop(instance_info.instance_id, None)
+        if mark_as_dirty:
+            self._is_dirty = True
 
     def get_instance_by_id(self, instance_id: str) -> Optional[InstanceInfo]:
         return self._instance_dict.get(instance_id, None)
 
-    def get_instances(self) -> List[InstanceInfo]:
+    def get_instances(self) -> Optional[List[InstanceInfo]]:
         """
         Note that the instances are always returned with random order after
         shuffling to avoid traffic to the same instances during startup. The
@@ -67,21 +71,24 @@ class Application:
             else self.get_all_instances_from_local_cache()
         )
 
+    @synchronized
     def get_all_instances_from_local_cache(self) -> List[InstanceInfo]:
         """
         Gets the list of non-shuffled and non-filtered instances associated with
         this particular application.
         """
-        with synchronized(self._instance_dict):
-            return list(dict.values(self._instance_dict))
+        return list(dict.values(self._instance_dict))
 
-    def shuffle_and_store_instances(self, filter_only_up_instances: bool):
+    def shuffle_and_store_instances(self, filter_only_up_instances: bool) -> Optional[List[InstanceInfo]]:
         instances = self.get_all_instances_from_local_cache()
 
-        # We will filter out instances whose status aren't UP.
+        # We will filter out instances whose status are UP.
         if filter_only_up_instances:
             self._shuffled_and_filtered_instances = list(
-                filter(lambda instance: instance.status != InstanceInfo.InstanceStatus.UP, instances)
+                filter(lambda instance: instance.status == InstanceInfo.InstanceStatus.UP, instances)
             )
 
-        return random.shuffle(self._shuffled_and_filtered_instances)
+        if self._shuffled_and_filtered_instances:
+            random.shuffle(self._shuffled_and_filtered_instances)
+
+        return self._shuffled_and_filtered_instances

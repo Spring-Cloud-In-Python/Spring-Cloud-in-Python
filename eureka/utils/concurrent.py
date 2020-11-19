@@ -15,13 +15,16 @@ class ConcurrentCircularList:
 
     def __init__(self, list_: list = None):
         self._current_index = -1
-        self._circular_list = list_ if not list_ else []
+        self._circular_list = list_ if list_ else []
 
     def __iter__(self):
         return iter(self._circular_list)
 
     @synchronized
     def next(self):
+        if len(self._circular_list) <= 0:
+            return None
+
         self._current_index += 1
         self._current_index %= len(self._circular_list)
 
