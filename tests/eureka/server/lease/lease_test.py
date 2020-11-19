@@ -6,16 +6,15 @@ __license__ = "Apache 2.0"
 # standard library
 import time
 
+# pypi/conda library
+from _pytest.monkeypatch import MonkeyPatch
+
 # scip plugin
 from eureka.server.lease.lease import Lease
-from eureka.utils.timestamp import current_timestamp
 
 
-def equal_with_tolerance(expected, actual):
-    tolerance = 50  # tolerant small measurement error
-    diff = abs(actual - expected)
-
-    return diff < tolerance
+def patch_timestamp(timestamp: int):
+    MonkeyPatch().setattr("eureka.server.lease.lease.current_timestamp", lambda: timestamp)
 
 
 class TestLease:
@@ -43,72 +42,57 @@ class TestLease:
         assert lease.holder == dummy_lease_info2
 
     def test_current_timestamps_should_be_logical(self):
-        start = current_timestamp()
-
+        patch_timestamp(1)
         dummy_lease_info = self.DummyLeaseInfo()
         lease = Lease(dummy_lease_info, 0)
 
-        assert lease.registration_timestamp >= start <= current_timestamp()
-        assert equal_with_tolerance(start, lease.registration_timestamp)
-        assert equal_with_tolerance(start, lease.last_update_timestamp)
+        assert lease.registration_timestamp == 1
+        assert lease.last_update_timestamp == 1
 
     def test_renew(self):
-        start = current_timestamp()
-
+        patch_timestamp(1)
         dummy_lease_info = self.DummyLeaseInfo()
         lease = Lease(dummy_lease_info, 0)
 
-        time_passed = 0.1  # pass 0.1 second
-        time.sleep(time_passed)
-        current = start + time_passed * 1000
-        last_update = current
+        patch_timestamp(2)
         lease.renew()
 
-        assert equal_with_tolerance(start, lease.registration_timestamp)
-        assert equal_with_tolerance(last_update, lease.last_update_timestamp)
+        assert lease.registration_timestamp == 1
+        assert lease.last_update_timestamp == 2
 
     def test_cancel(self):
-        start = current_timestamp()
-
+        patch_timestamp(1)
         dummy_lease_info = self.DummyLeaseInfo()
         lease = Lease(dummy_lease_info, 0)
 
-        time_passed = 0.1  # pass 0.1 second
-        time.sleep(time_passed)
-        current = start + time_passed * 1000
-        cancel_time = current
+        patch_timestamp(2)
         lease.cancel()
 
-        assert equal_with_tolerance(start, lease.registration_timestamp)
-        assert equal_with_tolerance(cancel_time, lease.eviction_timestamp)
+        assert lease.registration_timestamp == 1
+        assert lease.eviction_timestamp == 2
 
     def test_service_up(self):
-        start = current_timestamp()
-
+        patch_timestamp(1)
         dummy_lease_info = self.DummyLeaseInfo()
         lease = Lease(dummy_lease_info, 0)
 
-        time_passed = 0.1  # pass 0.1 second
-        time.sleep(time_passed)
-        current = start + time_passed * 1000
-        service_uptime = current
+        patch_timestamp(2)
         lease.service_up()
 
-        assert equal_with_tolerance(start, lease.registration_timestamp)
-        assert equal_with_tolerance(service_uptime, lease.service_up_timestamp)
+        assert lease.registration_timestamp == 1
+        assert lease.service_up_timestamp == 2
 
     def test_is_expired(self):
         lease_expire_time_in_secs = 1
 
+        patch_timestamp(1)
         dummy_lease_info = self.DummyLeaseInfo()
         lease = Lease(dummy_lease_info, lease_expire_time_in_secs)
 
         assert not lease.is_expired()
 
-        time_passed = 0.7
-        time.sleep(time_passed)
+        patch_timestamp(500)
         assert not lease.is_expired()
 
-        time_passed = 0.7
-        time.sleep(time_passed)
+        patch_timestamp(1500)
         assert lease.is_expired()
