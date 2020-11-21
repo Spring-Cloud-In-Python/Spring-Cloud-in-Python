@@ -4,12 +4,12 @@ __author__ = "Ricky"
 __license__ = "Apache 2.0"
 
 # standard library
-from typing import List, Set
+from typing import List
 
 # scip plugin
 from spring_cloud.commons.client.discovery.discovery_client import DiscoveryClient
 from spring_cloud.commons.client.service_instance import ServiceInstance
-from spring_cloud.spring_cloud.eureka.eureka_service_instance import EurekaServiceInstance
+from spring_cloud.eureka.eureka_service_instance import EurekaServiceInstance
 
 
 class EurekaDiscoveryClient(DiscoveryClient):
@@ -19,7 +19,7 @@ class EurekaDiscoveryClient(DiscoveryClient):
         self.client_config = client_config
 
     def get_instances(self, service_id: str) -> List[ServiceInstance]:
-        infos = self.eureka_client.getInstancesByVipAddress(service_id, False)
+        instance_info = self.eureka_client.getInstancesByVipAddress(service_id, False)
         instances = [EurekaServiceInstance(x) for x in infos]
         return instances
 
@@ -27,10 +27,9 @@ class EurekaDiscoveryClient(DiscoveryClient):
         applications = self.eureka_client.getApplications()
         if not applications:
             return []
-        registered = applications.getRegisteredApplications()
+        registered_apps = applications.getRegisteredApplications()
         names = []
-        for app in registered:
-            if app.getInstances().isEmpty():
-                continue
-            names.append(app.getName().toLowerCase())
+        for app in registered_apps:
+            if not app.getInstances().isEmpty():
+                names.append(app.getName().toLowerCase())
         return names

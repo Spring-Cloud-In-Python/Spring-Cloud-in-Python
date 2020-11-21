@@ -18,18 +18,18 @@ class EurekaServiceInstance(ServiceInstance):
         return self.__instance
 
     def instance_id(self) -> str:
-        return self.__instance.get_id()
+        return self.__instance.id()
 
     def service_id(self) -> str:
-        return self.__instance.get_app_name()
+        return self.__instance.app_name()
 
     def host(self) -> str:
-        return self.__instance.get_host_name()
+        return self.__instance.host_name()
 
     def port(self) -> int:
         if self.secure():
-            return self.__instance.get_secure_port()
-        return self.__instance.get_port()
+            return self.__instance.secure_port()
+        return self.__instance.port()
 
     def secure(self) -> bool:
         return self.__instance.is_port_enabled("SECURE")
