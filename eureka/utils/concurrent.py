@@ -59,9 +59,8 @@ class ConcurrentMap:
         with self.lock:
             if key not in self.map:
                 return None
-            result = self.map[key]
 
-        return result
+            return self.map[key]
 
     def put(self, key: str, value):
         with self.lock:
@@ -78,6 +77,8 @@ class ConcurrentMap:
 
     def entry_set(self):
         with self.lock:
-            result = self.map.items()
+            return list(self.map.items())
 
-            return result
+    def size(self) -> int:
+        with self.lock:
+            return len(self.map)

@@ -42,7 +42,6 @@ class TestConcurrentCircularList:
 class TestConcurrentMap:
     def test_put_and_get(self):
         concurrent_map = ConcurrentMap()
-
         assert concurrent_map.get("absent key") is None
 
         concurrent_map.put("first", 1)
@@ -55,7 +54,6 @@ class TestConcurrentMap:
 
     def test_pub_if_absent(self):
         concurrent_map = ConcurrentMap()
-
         concurrent_map.put_if_absent("key", 1)
         assert concurrent_map.get("key") == 1
 
@@ -73,5 +71,12 @@ class TestConcurrentMap:
         concurrent_map.put("1", 1)
         concurrent_map.put("2", 2)
         concurrent_map.put("3", 3)
+        assert concurrent_map.entry_set() == [("1", 1), ("2", 2), ("3", 3)]
 
-        assert  list(concurrent_map.entry_set()) == [("1", 1), ("2", 2), ("3", 3)]
+    def test_size(self):
+        map = ConcurrentMap()
+        map.put("1", 1)
+        assert 1 == map.size()
+
+        map.put("2", 2)
+        assert 2 == map.size()
