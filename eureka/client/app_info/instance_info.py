@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 # standard library
-import asyncio
 from enum import Enum
 from typing import Dict, Optional
 
@@ -42,7 +41,6 @@ class InstanceInfo:
         "_status",
         "_overridden_status",
         "_is_instance_info_dirty",
-        "_lock",
     )
 
     DEFAULT_PORT = 7001
@@ -135,7 +133,6 @@ class InstanceInfo:
         self._status = status
         self._overridden_status = overridden_status
         self._is_instance_info_dirty = is_instance_info_dirty
-        self._lock = asyncio.Lock()
 
     @property
     def instance_id(self) -> str:
@@ -330,9 +327,8 @@ class InstanceInfo:
         Set the dirty flag so that the instance information can be carried to
         the eureka server on the next heartbeat.
         """
-        async with self._lock:
-            self._is_instance_info_dirty = True
-            self._last_dirty_timestamp = current_timestamp()
+        self._is_instance_info_dirty = True
+        self._last_dirty_timestamp = current_timestamp()
 
     def set_is_dirty_with_time(self) -> int:
         """
@@ -353,9 +349,8 @@ class InstanceInfo:
             unset_dirty_timestamp: the expected last_dirty_timestamp to unset.
 
         """
-        async with self._lock:
-            if self._last_dirty_timestamp <= unset_dirty_timestamp:
-                self._is_instance_info_dirty = False
+        if self._last_dirty_timestamp <= unset_dirty_timestamp:
+            self._is_instance_info_dirty = False
 
     def set_last_updated_timestamp(self):
         self._last_updated_timestamp = current_timestamp()
@@ -379,13 +374,12 @@ class InstanceInfo:
         Returns: the previous status if a different status from the current was set, none otherwise.
 
         """
-        async with self._lock:
-            if self._status != status:
-                previous_status = self._status
-                self._status = status
-                self.set_is_dirty()
-                return previous_status
-            return None
+        if self._status != status:
+            previous_status = self._status
+            self._status = status
+            self.set_is_dirty()
+            return previous_status
+        return None
 
     def set_status_without_dirty(self, status: Status):
         """
@@ -395,9 +389,8 @@ class InstanceInfo:
             status: status to be set for this instance.
 
         """
-        async with self._lock:
-            if self._status != status:
-                self._status = status
+        if self._status != status:
+            self._status = status
 
     def set_overridden_status(self, status: Status):
         """
@@ -408,9 +401,8 @@ class InstanceInfo:
             status: overridden status to be for this instance.
 
         """
-        async with self._lock:
-            if self._overridden_status != status:
-                self._overridden_status = status
+        if self._overridden_status != status:
+            self._overridden_status = status
 
     def register_runtime_metadata(self, metadata: Dict[str, str]):
         """
@@ -421,6 +413,5 @@ class InstanceInfo:
             metadata: Dictionary containing key/value pairs.
 
         """
-        async with self._lock:
-            self._metadata.update(metadata)
-            self.set_is_dirty()
+        self._metadata.update(metadata)
+        self.set_is_dirty()
