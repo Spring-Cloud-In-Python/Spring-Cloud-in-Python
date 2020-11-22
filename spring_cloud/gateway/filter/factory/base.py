@@ -6,7 +6,7 @@ __author__ = "Chaoyuuu (chaoyu2330@gmail.com)"
 __license__ = "Apache 2.0"
 
 # scip plugin
-from spring_cloud.gateway.filter.factory.filter import GatewayFilter
+from spring_cloud.gateway.filter import GatewayFilter
 
 
 class GatewayFilterFactory(ABC):

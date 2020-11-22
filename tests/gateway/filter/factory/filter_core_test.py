@@ -6,11 +6,8 @@ __author__ = "Chaoyuuu (chaoyu2330@gmail.com)"
 __license__ = "Apache 2.0"
 
 # scip plugin
-from spring_cloud.gateway.filter.factory.core import (
-    AddRequestHeaderGatewayFilter,
-    AddResponseHeaderGatewayFilter,
-    GatewayFilterChain,
-)
+from spring_cloud.gateway.filter import StaticGatewayFilterChain
+from spring_cloud.gateway.filter.factory import AddRequestHeaderGatewayFilter, AddResponseHeaderGatewayFilter
 
 
 class TestAddRequestHeaderGatewayFilter:
@@ -23,7 +20,7 @@ class TestAddRequestHeaderGatewayFilter:
         self.config.header_name = header_name
         self.config.header_value = header_value
         self.gateway_filter = AddRequestHeaderGatewayFilter(self.config)
-        self.filter_chain = GatewayFilterChain()
+        self.filter_chain = StaticGatewayFilterChain()
 
     def test_When_filter_Then_add_request_header(self):
         self.given_http_request_header({})
@@ -41,7 +38,7 @@ class TestAddResponseHeaderGatewayFilter:
         self.config = Mock()
         self.config.header_name = header_name
         self.config.header_value = header_value
-        self.filter_chain = GatewayFilterChain()
+        self.filter_chain = StaticGatewayFilterChain()
         self.gateway_filter = AddResponseHeaderGatewayFilter(self.config)
 
     def test_When_filter_Then_add_request_header(self):
