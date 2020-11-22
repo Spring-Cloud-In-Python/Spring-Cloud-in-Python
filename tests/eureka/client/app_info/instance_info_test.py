@@ -9,7 +9,6 @@ from eureka.utils.timestamp import current_timestamp
 
 
 class TestInstanceInfo:
-    # the setup_method will run before the test methods
     def setup_method(self):
         self.instance_info = InstanceInfo(
             instance_id="instance_id",
@@ -43,20 +42,6 @@ class TestInstanceInfo:
         self.instance_info.is_instance_info_dirty = False
         assert self.instance_info.is_dirty() == self.instance_info.is_instance_info_dirty
 
-    @staticmethod
-    def equal_with_tolerance(expected, actual):
-        tolerance = 100  # tolerant small measurement error
-        diff = abs(actual - expected)
-
-        return diff < tolerance
-
-    def test_set_is_dirty(self):
-        self.instance_info.is_instance_info_dirty = False
-        self.instance_info.set_is_dirty()
-
-        assert self.equal_with_tolerance(self.instance_info.last_dirty_timestamp, current_timestamp())
-        assert self.instance_info.is_dirty()
-
     def test_set_is_dirty_with_time(self):
         last_dirty_timestamp = self.instance_info.set_is_dirty_with_time()
 
@@ -83,8 +68,8 @@ class TestInstanceInfo:
         assert self.instance_info.is_instance_info_dirty
 
     def test_set_status(self):
-        self.instance_info.status = InstanceInfo.InstanceStatus.UNKNOWN
-        assert self.instance_info.set_status(InstanceInfo.InstanceStatus.UP) == InstanceInfo.InstanceStatus.UNKNOWN
+        self.instance_info.status = InstanceInfo.Status.UNKNOWN
+        assert self.instance_info.set_status(InstanceInfo.Status.UP) == InstanceInfo.Status.UNKNOWN
 
         # If instance's current status is the same as the passing status, it'll return None
-        assert self.instance_info.set_status(InstanceInfo.InstanceStatus.UP) is None
+        assert self.instance_info.set_status(InstanceInfo.Status.UP) is None

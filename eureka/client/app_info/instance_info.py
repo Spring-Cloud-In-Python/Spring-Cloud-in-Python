@@ -4,9 +4,6 @@
 from enum import Enum
 from typing import Dict, Optional
 
-# pypi/conda library
-from wrapt.decorators import synchronized
-
 # scip plugin
 from eureka.client.app_info.lease_info import LeaseInfo
 from eureka.utils.timestamp import current_timestamp
@@ -23,6 +20,29 @@ class InstanceInfo:
     See com.netflix.appinfo.InstanceInfo.
     """
 
+    __slots__ = (
+        "_instance_id",
+        "_app_name",
+        "_app_group_name",
+        "_ip_address",
+        "_vip_address",
+        "_secure_vip_address",
+        "_lease_info",
+        "_metadata",
+        "_last_updated_timestamp",
+        "_last_dirty_timestamp",
+        "_action_type",
+        "_host_name",
+        "_is_coordinating_discovery_server",
+        "_is_secure_port_enabled",
+        "_is_unsecure_port_enabled",
+        "_port",
+        "_secure_port",
+        "_status",
+        "_overridden_status",
+        "_is_instance_info_dirty",
+    )
+
     DEFAULT_PORT = 7001
     DEFAULT_SECURE_PORT = 7002
 
@@ -30,7 +50,7 @@ class InstanceInfo:
         SECURE = "SECURE"
         UNSECURE = "UNSECURE"
 
-    class InstanceStatus(Enum):
+    class Status(Enum):
         # Ready to receive traffic.
         UP = "UP"
         # Do not send traffic (Healthcheck callback failed).
@@ -72,25 +92,26 @@ class InstanceInfo:
         is_unsecure_port_enabled: bool = True,
         port: int = DEFAULT_PORT,
         secure_port: int = DEFAULT_SECURE_PORT,
-        status: InstanceStatus = InstanceStatus.UP,
-        overridden_status: InstanceStatus = InstanceStatus.UNKNOWN,
+        status: Status = Status.UP,
+        overridden_status: Status = Status.UNKNOWN,
         is_instance_info_dirty: bool = False,
     ):
         """
-        @param instance_id: the unique id of the instance.
-        @param app_name: the application name of the instance.This is mostly used in querying of instances.
-        @param ip_address: the ip address, in AWS scenario it is a private IP.
-        @param vip_address: the Virtual Internet Protocol address for this instance. Defaults to hostname if not specified.
-        @param secure_vip_address: the Secure Virtual Internet Protocol address for this instance. Defaults to hostname if not specified.
-        @param lease_info: the lease information regarding when it expires.
-        @param metadata: all application specific metadata set on the instance.
-        @param last_updated_timestamp: last time when the instance was updated.
-        @param last_dirty_timestamp: the last time when this instance was touched.
-        @param host_name: the default network address to connect to this instance. Typically this would be the fully qualified public hostname.
-        @param port: the unsecure port number that is used for servicing requests.
-        @param secure_port: the secure port that is used for servicing requests.
-        @param status: the status indicating whether the instance can handle requests.
-        @param overridden_status: the status indicating whether an external process has changed the status.
+        Args:
+            instance_id: the unique id of the instance.
+            app_name: the application name of the instance.This is mostly used in querying of instances.
+            ip_address: the ip address, in AWS scenario it is a private IP.
+            vip_address: the Virtual Internet Protocol address for this instance. Defaults to hostname if not specified.
+            secure_vip_address: the Secure Virtual Internet Protocol address for this instance. Defaults to hostname if not specified.
+            lease_info: the lease information regarding when it expires.
+            host_name: the default network address to connect to this instance. Typically this would be the fully qualified public hostname.
+            metadata: all application specific metadata set on the instance.
+            last_updated_timestamp: last time when the instance was updated.
+            last_dirty_timestamp: the last time when this instance was touched.
+            port: the unsecure port number that is used for servicing requests.
+            secure_port: the secure port that is used for servicing requests.
+            status: the status indicating whether the instance can handle requests.
+            overridden_status:the status indicating whether an external process has changed the status.
         """
         self._instance_id = instance_id
         self._app_name = app_name
@@ -242,19 +263,19 @@ class InstanceInfo:
         self._is_unsecure_port_enabled = is_unsecure_port_enabled
 
     @property
-    def status(self) -> InstanceStatus:
+    def status(self) -> Status:
         return self._status
 
     @status.setter
-    def status(self, status: InstanceStatus):
+    def status(self, status: Status):
         self._status = status
 
     @property
-    def overridden_status(self) -> InstanceStatus:
+    def overridden_status(self) -> Status:
         return self._overridden_status
 
     @overridden_status.setter
-    def overridden_status(self, overridden_status: InstanceStatus):
+    def overridden_status(self, overridden_status: Status):
         self._overridden_status = overridden_status
 
     @property
@@ -277,8 +298,11 @@ class InstanceInfo:
         """
         Checks whether a port is enabled for traffic or not.
 
-        @param port_type: indicates whether it is secure or unsecure port.
-        @return: true if the port is enabled, false otherwise.
+        Args:
+            port_type: indicates whether it is secure or unsecure port.
+
+        Returns: true if the port is enabled, false otherwise.
+
         """
         return {
             InstanceInfo.PortType.UNSECURE: self._is_unsecure_port_enabled,
@@ -290,15 +314,14 @@ class InstanceInfo:
         Return whether any state changed so that EurekaClient can
         check whether to retransmit info or not on the next heartbeat.
 
-        @return: true if the instance is dirty, false otherwise.
+        Returns: true if the instance is dirty, false otherwise.
+
         """
         return self._is_instance_info_dirty
 
-    @synchronized
     def is_dirty_with_time(self) -> Optional[int]:
         return self._last_dirty_timestamp if self._is_instance_info_dirty else None
 
-    @synchronized
     def set_is_dirty(self):
         """
         Set the dirty flag so that the instance information can be carried to
@@ -307,23 +330,24 @@ class InstanceInfo:
         self._is_instance_info_dirty = True
         self._last_dirty_timestamp = current_timestamp()
 
-    @synchronized
     def set_is_dirty_with_time(self) -> int:
         """
         Set the dirty flag, and also return the timestamp of the is_dirty event.
 
-        @return: the timestamp when the isDirty flag is set.
+        Returns: the timestamp when the isDirty flag is set.
+
         """
         self.set_is_dirty()
         return self._last_dirty_timestamp
 
-    @synchronized
     def unset_is_dirty(self, unset_dirty_timestamp: int):
         """
         Unset the dirty flag iff the unset_dirty_timestamp matches the last_dirty_timestamp. No-op if
         last_dirty_timestamp > unset_dirty_timestamp
 
-        @param unset_dirty_timestamp: the expected last_dirty_timestamp to unset.
+        Args:
+            unset_dirty_timestamp: the expected last_dirty_timestamp to unset.
+
         """
         if self._last_dirty_timestamp <= unset_dirty_timestamp:
             self._is_instance_info_dirty = False
@@ -333,20 +357,22 @@ class InstanceInfo:
 
     def set_is_coordinating_discovery_server(self):
         """
-        Set tje flag if this instance is the same as the eureka discovery server that is
+        Set the flag if this instance is the same as the eureka discovery server that is
         return the instances. This flag is used by the discovery clients to
         identify the discovery server which is coordinating/returning the
         information.
         """
         self._is_coordinating_discovery_server = True
 
-    @synchronized
-    def set_status(self, status: InstanceStatus) -> Optional[InstanceStatus]:
+    def set_status(self, status: Status) -> Optional[Status]:
         """
         Set the status for this instance.
 
-        @param status: status to be set for this instance.
-        @return: the previous status if a different status from the current was set, none otherwise.
+        Args:
+            status: status to be set for this instance.
+
+        Returns: the previous status if a different status from the current was set, none otherwise.
+
         """
         if self._status != status:
             previous_status = self._status
@@ -355,43 +381,37 @@ class InstanceInfo:
             return previous_status
         return None
 
-    @synchronized
-    def set_status_without_dirty(self, status: InstanceStatus):
+    def set_status_without_dirty(self, status: Status):
         """
         Set the status for this instance without updating the dirty timestamp.
 
-        @param status: status to be set for this instance.
+        Args:
+            status: status to be set for this instance.
+
         """
         if self._status != status:
             self._status = status
 
-    @synchronized
-    def set_overridden_status(self, status: InstanceStatus):
+    def set_overridden_status(self, status: Status):
         """
         Set the overridden status for this instance. Normally set by an external
         process to disable instance from taking traffic.
 
-        @param status: overridden status to be for this instance.
+        Args:
+            status: overridden status to be for this instance.
+
         """
         if self._overridden_status != status:
             self._overridden_status = status
 
-    @synchronized
-    def is_dirty_with_time(self) -> Optional[int]:
-        """
-        @return: the last_dirty_timestamp if is dirty, none otherwise.
-        """
-        if self._is_instance_info_dirty:
-            return self._last_dirty_timestamp
-        return None
-
-    @synchronized
     def register_runtime_metadata(self, metadata: Dict[str, str]):
         """
         Register application specific metadata to be sent to the eureka
         server.
 
-        @param metadata: Dictionary containing key/value pairs.
+        Args:
+            metadata: Dictionary containing key/value pairs.
+
         """
         self._metadata.update(metadata)
         self.set_is_dirty()
