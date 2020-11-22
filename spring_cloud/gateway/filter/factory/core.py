@@ -8,12 +8,12 @@ from spring_cloud.gateway.filter.factory.base import GatewayFilterFactory
 from spring_cloud.gateway.filter.factory.filter import GatewayFilter
 
 
-class AddResponseHeaderGatewayFilterFactory(GatewayFilterFactory):
+class AddRequestHeaderGatewayFilterFactory(GatewayFilterFactory):
     def apply(self, config) -> GatewayFilter:
         return AddRequestHeaderGatewayFilter(config)
 
 
-class ModifyRequestBodyGatewayFilterFactory(GatewayFilterFactory):
+class AddResponseHeaderGatewayFilterFactory(GatewayFilterFactory):
     def apply(self, config) -> GatewayFilter:
         return AddResponseHeaderGatewayFilter(config)
 
@@ -23,30 +23,23 @@ class AddRequestHeaderGatewayFilter(GatewayFilter):
         self.config = config
 
     # TODO: the header is dependency with http_request, but we haven't decided the tool,
-    #  that is, the type of the cookies may be change in future
-    def filter(self, http_request, chain=None):
+    #  that is, the type of the http_request header may be change in future
+    def filter(self, http_request, chain=None) -> None:
         http_request.header[self.config.header_name] = self.config.header_value
         chain.filter(http_request)
-        # exchange.request.header.add(self.config.name, self.config.value)
-        # return chain.filter(http_request)
 
 
 class AddResponseHeaderGatewayFilter(GatewayFilter):
     def __init__(self, config):
         self.config = config
 
-    def filter(self, http_response, chain=None):
+    # TODO: the header is dependency with http_response, but we haven't decided the tool,
+    #  that is, the type of the http_response header may be change in future
+    def filter(self, http_response, chain=None) -> None:
         http_response.header[self.config.header_name] = self.config.header_value
         chain.filter(http_response)
 
 
-class ServerWebExchange:
-    def __init__(self):
-        self.response = None
-        self.request = None
-
-
 class GatewayFilterChain:
-    def filter(self, exchange):
-        # return Mono<void>
+    def filter(self, exchange) -> None:
         pass

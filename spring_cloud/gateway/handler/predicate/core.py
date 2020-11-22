@@ -57,8 +57,6 @@ class CookieRoutePredicate(Predicate):
     def __init__(self, config):
         self.config = config
 
-    # TODO: the cookies is dependency with http_request, but we haven't decided the tool,
-    #  that is, the type of the cookies may be change in future
     def test(self, http_request) -> bool:
         http_request_cookies = http_request.cookies
 

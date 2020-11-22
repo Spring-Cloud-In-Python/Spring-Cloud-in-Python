@@ -8,6 +8,5 @@ __license__ = "Apache 2.0"
 
 class GatewayFilter(ABC):
     @abstractmethod
-    def filter(self, exchange, chain):
-        # return Mono<void>
+    def filter(self, exchange, chain) -> None:
         pass
