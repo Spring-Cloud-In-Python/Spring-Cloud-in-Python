@@ -13,7 +13,7 @@ from ribbon.loadbalancer.loadbalancer import LoadBalancer
 
 class AbstractLoadBalanceRule(LoadBalanceRule, ABC):
 
-    __lb = LoadBalancer()
+    __lb: LoadBalancer = None
 
     def set_loadbalancer(self, lb: LoadBalancer):
         self.__lb = lb
