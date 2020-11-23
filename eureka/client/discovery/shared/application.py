@@ -5,9 +5,6 @@ import random
 import threading
 from typing import List, Optional
 
-# pypi/conda library
-from wrapt import synchronized
-
 # scip plugin
 from eureka.client.app_info import InstanceInfo
 
@@ -47,15 +44,13 @@ class Application:
         return len(self._instance_dict)
 
     def add_instance(self, instance_info: InstanceInfo):
-        with synchronized(self._instances_lock):
-            self._instance_dict[instance_info.instance_id] = instance_info
-            self._is_dirty = True
+        self._instance_dict[instance_info.instance_id] = instance_info
+        self._is_dirty = True
 
     def remove_instance(self, instance_info: InstanceInfo, mark_as_dirty: bool = True):
-        with synchronized(self._instances_lock):
-            self._instance_dict.pop(instance_info.instance_id, None)
-            if mark_as_dirty:
-                self._is_dirty = True
+        self._instance_dict.pop(instance_info.instance_id, None)
+        if mark_as_dirty:
+            self._is_dirty = True
 
     def get_instance_by_id(self, instance_id: str) -> Optional[InstanceInfo]:
         return self._instance_dict.get(instance_id, None)
@@ -78,10 +73,8 @@ class Application:
         Gets the list of non-shuffled and non-filtered instances associated with
         this particular application.
         """
-        with synchronized(self._instances_lock):
-            return list(dict.values(self._instance_dict))
+        return list(dict.values(self._instance_dict))
 
-    @synchronized
     def shuffle_and_store_instances(self, filter_only_up_instances: bool) -> List[InstanceInfo]:
         self._shuffled_and_filtered_instances = self.get_all_instances_from_local_cache()
 
@@ -89,8 +82,7 @@ class Application:
         if filter_only_up_instances:
             self._shuffled_and_filtered_instances = list(
                 filter(
-                    lambda instance: instance.status == InstanceInfo.InstanceStatus.UP,
-                    self._shuffled_and_filtered_instances,
+                    lambda instance: instance.status == InstanceInfo.Status.UP, self._shuffled_and_filtered_instances,
                 )
             )
 

@@ -91,9 +91,9 @@ class TestApplication:
             host_name="localhost",
         )
 
-        self.instance_info.set_status(InstanceInfo.InstanceStatus.UP)
-        instance_1.set_status(InstanceInfo.InstanceStatus.UNKNOWN)
-        instance_2.set_status(InstanceInfo.InstanceStatus.STARTING)
+        self.instance_info.set_status(InstanceInfo.Status.UP)
+        instance_1.set_status(InstanceInfo.Status.UNKNOWN)
+        instance_2.set_status(InstanceInfo.Status.STARTING)
 
         self.application.add_instance(self.instance_info)
         self.application.add_instance(instance_1)
@@ -123,7 +123,7 @@ class TestApplication:
         shuffled_and_filtered_instances = self.application.shuffle_and_store_instances(filter_only_up_instances=True)
         assert self.application.get_instances() == shuffled_and_filtered_instances
 
-        instance_1.set_status(InstanceInfo.InstanceStatus.STARTING)
+        instance_1.set_status(InstanceInfo.Status.STARTING)
         self.application.add_instance(instance_1)
         shuffled_and_filtered_instances = self.application.shuffle_and_store_instances(filter_only_up_instances=True)
         assert self.application.get_instances() == shuffled_and_filtered_instances

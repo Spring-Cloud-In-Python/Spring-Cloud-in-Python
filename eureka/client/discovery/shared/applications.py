@@ -2,10 +2,7 @@
 
 # standard library
 import random
-from typing import Dict, List, Optional
-
-# pypi/conda library
-from wrapt import synchronized
+from typing import List, Optional
 
 # scip plugin
 from eureka.client.app_info import InstanceInfo
@@ -43,7 +40,6 @@ class Applications:
     def reconciliation_hash_code(self, reconciliation_hash_code: str):
         self._reconciliation_hash_code = reconciliation_hash_code
 
-    @synchronized
     def add_application(self, application: Application):
         self._app_name_to_application_dict[application.name] = application
         self._add_instances(application)
@@ -57,7 +53,6 @@ class Applications:
                     self._virtual_host_name_to_instances_dict[virtual_host_name] = ConcurrentCircularList()
                 self._virtual_host_name_to_instances_dict[virtual_host_name].append(instance)
 
-    @synchronized
     def remove_application(self, application: Application):
         self._applications.remove(application)
         self._app_name_to_application_dict.pop(application.name, None)
@@ -71,7 +66,6 @@ class Applications:
     def get_instances_by_virtual_host_name(self, virtual_host_name: str) -> ConcurrentCircularList:
         return self._virtual_host_name_to_instances_dict.get(virtual_host_name.upper(), ConcurrentCircularList())
 
-    @synchronized
     def shuffle_instances(self, filter_only_up_instances: bool):
         """
         Shuffle the provided instances so that they will not always be returned
@@ -83,7 +77,7 @@ class Applications:
             if filter_only_up_instances:
                 for vip, instances in self._virtual_host_name_to_instances_dict.items():
                     shuffled_and_filtered_instances = list(
-                        filter(lambda instance: instance.status == InstanceInfo.InstanceStatus.UP, list(instances))
+                        filter(lambda instance: instance.status == InstanceInfo.Status.UP, list(instances))
                     )
                     random.shuffle(shuffled_and_filtered_instances)
                     self._virtual_host_name_to_instances_dict[vip] = ConcurrentCircularList(

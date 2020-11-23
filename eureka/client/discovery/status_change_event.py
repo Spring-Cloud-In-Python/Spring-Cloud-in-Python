@@ -9,7 +9,7 @@ from eureka.client.discovery.discovery_event import DiscoveryEvent
 
 
 class StatusChangeEvent(DiscoveryEvent):
-    def __init__(self, previous_status: InstanceInfo.InstanceStatus, current_status: InstanceInfo.InstanceStatus):
+    def __init__(self, previous_status: InstanceInfo.Status, current_status: InstanceInfo.Status):
         super().__init__()
         self._previous_status = previous_status
         self._current_status = current_status
@@ -23,7 +23,7 @@ class StatusChangeEvent(DiscoveryEvent):
         return self._current_status
 
     def is_instance_up(self) -> bool:
-        return self._current_status == InstanceInfo.InstanceStatus.UP
+        return self._current_status == InstanceInfo.Status.UP
 
     def __str__(self):
         return (

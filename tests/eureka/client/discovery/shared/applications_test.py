@@ -66,9 +66,9 @@ class TestApplication:
         assert self.applications.size() == 3
 
     def test_shuffle_instances_and_filter_only_up_instances(self):
-        self.instance_0.set_status(InstanceInfo.InstanceStatus.UP)
-        self.instance_1.set_status(InstanceInfo.InstanceStatus.UNKNOWN)
-        self.instance_2.set_status(InstanceInfo.InstanceStatus.UP)
+        self.instance_0.set_status(InstanceInfo.Status.UP)
+        self.instance_1.set_status(InstanceInfo.Status.UNKNOWN)
+        self.instance_2.set_status(InstanceInfo.Status.UP)
 
         self.applications.shuffle_instances(filter_only_up_instances=True)
 
@@ -81,9 +81,9 @@ class TestApplication:
         assert instances.next().instance_id == self.instance_2.instance_id
 
     def test_shuffle_instances_and_get_all_instances(self):
-        self.instance_0.set_status(InstanceInfo.InstanceStatus.UP)
-        self.instance_1.set_status(InstanceInfo.InstanceStatus.UNKNOWN)
-        self.instance_2.set_status(InstanceInfo.InstanceStatus.STARTING)
+        self.instance_0.set_status(InstanceInfo.Status.UP)
+        self.instance_1.set_status(InstanceInfo.Status.UNKNOWN)
+        self.instance_2.set_status(InstanceInfo.Status.STARTING)
 
         self.applications.shuffle_instances(filter_only_up_instances=False)
 
@@ -97,17 +97,17 @@ class TestApplication:
         assert instances.next().instance_id == self.instance_2.instance_id
 
     def test_compute_reconciliation_hash_code(self):
-        self.instance_0.set_status(InstanceInfo.InstanceStatus.DOWN)
-        self.instance_1.set_status(InstanceInfo.InstanceStatus.UNKNOWN)
-        self.instance_2.set_status(InstanceInfo.InstanceStatus.STARTING)
+        self.instance_0.set_status(InstanceInfo.Status.DOWN)
+        self.instance_1.set_status(InstanceInfo.Status.UNKNOWN)
+        self.instance_2.set_status(InstanceInfo.Status.STARTING)
         assert self.applications.compute_reconciliation_hash_code() == "DOWN_1_STARTING_1_UNKNOWN_1_"
 
-        self.instance_0.set_status(InstanceInfo.InstanceStatus.DOWN)
-        self.instance_1.set_status(InstanceInfo.InstanceStatus.DOWN)
-        self.instance_2.set_status(InstanceInfo.InstanceStatus.STARTING)
+        self.instance_0.set_status(InstanceInfo.Status.DOWN)
+        self.instance_1.set_status(InstanceInfo.Status.DOWN)
+        self.instance_2.set_status(InstanceInfo.Status.STARTING)
         assert self.applications.compute_reconciliation_hash_code() == "DOWN_2_STARTING_1_"
 
-        self.instance_0.set_status(InstanceInfo.InstanceStatus.OUT_OF_SERVICE)
-        self.instance_1.set_status(InstanceInfo.InstanceStatus.OUT_OF_SERVICE)
-        self.instance_2.set_status(InstanceInfo.InstanceStatus.OUT_OF_SERVICE)
+        self.instance_0.set_status(InstanceInfo.Status.OUT_OF_SERVICE)
+        self.instance_1.set_status(InstanceInfo.Status.OUT_OF_SERVICE)
+        self.instance_2.set_status(InstanceInfo.Status.OUT_OF_SERVICE)
         assert self.applications.compute_reconciliation_hash_code() == "OUT_OF_SERVICE_3_"
