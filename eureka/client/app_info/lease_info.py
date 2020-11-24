@@ -15,6 +15,15 @@ class LeaseInfo:
     See com.netflix.appinfo.LeaseInfo.
     """
 
+    __slots__ = (
+        "_registration_timestamp",
+        "_last_renewal_timestamp",
+        "_eviction_timestamp",
+        "_service_up_timestamp",
+        "_lease_renewal_interval_in_secs",
+        "_lease_duration_in_secs",
+    )
+
     DEFAULT_LEASE_RENEWAL_INTERVAL = 30
     DEFAULT_LEASE_DURATION = 90
 
@@ -28,12 +37,13 @@ class LeaseInfo:
         lease_duration_in_secs: int = DEFAULT_LEASE_DURATION,
     ):
         """
-        @param registration_timestamp: time when the lease was first registered.
-        @param last_renewal_timestamp: time when the lease was last renewed.
-        @param eviction_timestamp: time when the lease was removed.
-        @param service_up_timestamp: time when the leased service marked as UP.
-        @param lease_renewal_interval_in_secs: the time interval with which the renewals will be renewed.
-        @param lease_duration_in_secs: time in seconds after which the lease would expire without renewal.
+        Args:
+            registration_timestamp: time when the lease was first registered.
+            last_renewal_timestamp: time when the lease was last renewed.
+            eviction_timestamp: time when the lease was removed.
+            service_up_timestamp: time when the leased service marked as UP.
+            lease_renewal_interval_in_secs: the time interval with which the renewals will be renewed.
+            lease_duration_in_secs: time in seconds after which the lease would expire without renewal.
         """
         self._lease_renewal_interval_in_secs = (
             LeaseInfo.DEFAULT_LEASE_RENEWAL_INTERVAL
