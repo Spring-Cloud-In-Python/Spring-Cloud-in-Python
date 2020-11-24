@@ -28,7 +28,8 @@ class EurekaClientConfig(ABC):
         Indicates how often (in seconds) to fetch the registry information from
         the eureka server.
 
-        @return: the fetch interval in seconds.
+        Returns: the fetch interval in seconds.
+
         """
         raise NotImplemented
 
@@ -39,7 +40,8 @@ class EurekaClientConfig(ABC):
         Indicates how often (in seconds) to replicate instance changes to be
         replicated to the eureka server.
 
-        @return: the instance replication interval in seconds.
+        Returns: the instance replication interval in seconds.
+
         """
         raise NotImplemented
 
@@ -50,7 +52,8 @@ class EurekaClientConfig(ABC):
         Indicates how long initially (in seconds) to replicate instance info
         to the eureka server.
 
-        @return: the instance initial replication interval in seconds.
+        Returns: the instance initial replication interval in seconds.
+
         """
         raise NotImplemented
 
@@ -61,7 +64,8 @@ class EurekaClientConfig(ABC):
         Indicates how often (in seconds) to poll for changes to eureka server
         information.
 
-        @return: the interval to poll for eureka service url changes.
+        Returns: the interval to poll for eureka service url changes.
+
         """
         raise NotImplemented
 
@@ -74,7 +78,8 @@ class EurekaClientConfig(ABC):
         information from the eureka server is compressed for optimum network
         traffic.
 
-        @return: true, if the content need to be compressed, false otherwise.
+        Returns: true, if the content need to be compressed, false otherwise.
+
         """
         raise NotImplemented
 
@@ -85,7 +90,8 @@ class EurekaClientConfig(ABC):
         Indicates how long to wait (in seconds) before a read from eureka server
         needs to timeout.
 
-        @return: time in seconds before the read should timeout.
+        Returns: time in seconds before the read should timeout.
+
         """
         raise NotImplemented
 
@@ -96,7 +102,8 @@ class EurekaClientConfig(ABC):
         Indicates how long to wait (in seconds) before a connection to eureka
         server needs to timeout.
 
-        @return: time in seconds before the connections should timeout.
+        Returns: time in seconds before the connections should timeout.
+
         """
         raise NotImplemented
 
@@ -107,7 +114,8 @@ class EurekaClientConfig(ABC):
         Gets the total number of connections that is allowed from eureka client
         to all eureka servers.
 
-        @return: total number of allowed connections from eureka client to all eureka servers.
+        Returns: total number of allowed connections from eureka client to all eureka servers.
+
         """
         raise NotImplemented
 
@@ -118,7 +126,8 @@ class EurekaClientConfig(ABC):
         Gets the total number of connections that is allowed from eureka client
         to a eureka server host.
 
-        @return: total number of allowed connections from eureka client to a eureka server.
+        Returns: total number of allowed connections from eureka client to a eureka server.
+
         """
         raise NotImplemented
 
@@ -131,7 +140,8 @@ class EurekaClientConfig(ABC):
         want your instances to be discovered whereas you just want do discover
         other instances.
 
-        @return: true if this instance should register with eureka, false otherwise.
+        Returns: true if this instance should register with eureka, false otherwise.
+
         """
         raise NotImplemented
 
@@ -142,7 +152,8 @@ class EurekaClientConfig(ABC):
         Indicates whether the client should explicitly unregister itself from the remote server
         on client shutdown.
 
-        @return: true if this instance should unregister with eureka on client shutdown, false otherwise.
+        Returns: true if this instance should unregister with eureka on client shutdown, false otherwise.
+
         """
         raise NotImplemented
 
@@ -154,7 +165,8 @@ class EurekaClientConfig(ABC):
         If set to false, the server will handle the request directly, If set to true, it may
         send HTTP redirect to the client, with a new server location.
 
-        @return: true if HTTP redirects are allowed, false otherwise.
+        Returns: true if HTTP redirects are allowed, false otherwise.
+
         """
         raise NotImplemented
 
@@ -164,23 +176,21 @@ class EurekaClientConfig(ABC):
         """
         Indicates whether to log differences between the eureka server and the
         eureka client in terms of registry information.
-
         Eureka client tries to retrieve only delta changes from eureka server to
         minimize network traffic. After receiving the deltas, eureka client
         reconciles the information from the server to verify it has not missed
         out some information. Reconciliation failures could happen when the
         client has had network issues communicating to server.If the
         reconciliation fails, eureka client gets the full registry information.
-
         While getting the full registry information, the eureka client can log
         the differences between the client and the server and this setting
         controls that.
-
         The changes are effective at runtime at the next registry fetch cycle as
         specified by registry_fetch_interval_in_secs.
 
-        @return: true if the eureka client should log delta differences in the case of
+        Returns: true if the eureka client should log delta differences in the case of
         reconciliation failure.
+
         """
         raise NotImplemented
 
@@ -190,16 +200,15 @@ class EurekaClientConfig(ABC):
         """
         Indicates whether the eureka client should disable fetching of delta and
         should rather resort to getting the full registry information.
-
         Note that the delta fetches can reduce the traffic tremendously, because
         the rate of change with the eureka server is normally much lower than the
         rate of fetches.
-
         The changes are effective at runtime at the next registry fetch cycle as
         specified by registry_fetch_interval_in_secs.
 
-        @return: true to enable fetching delta information for registry, false to
+        Returns: true to enable fetching delta information for registry, false to
         get the full registry.
+
         """
         raise NotImplemented
 
@@ -208,14 +217,13 @@ class EurekaClientConfig(ABC):
     def eureka_server_service_urls(self) -> List[str]:
         """
         Gets the list of fully qualified urls to communicate with eureka server.
-
         Typically the eureka server urls carry protocol,host,port,context
         and version information if any.
-
         Example: http://ec2-256-156-243-129.compute-1.amazonaws.com:7001/eureka/v2/,
                  http://localhost:8080/eureka/v2/
 
-        @return: the list of eureka server service urls for eureka clients to talk to.
+        Returns: the list of eureka server service urls for eureka clients to talk to.
+
         """
         raise NotImplemented
 
@@ -226,7 +234,8 @@ class EurekaClientConfig(ABC):
         Indicates whether to get the applications after filtering the
         applications for instances with only UP states.
 
-        @return: true to filter, false otherwise.
+        Returns: true to filter, false otherwise.
+
         """
         raise NotImplemented
 
@@ -237,8 +246,9 @@ class EurekaClientConfig(ABC):
         Indicates how much time (in seconds) that the HTTP connections to eureka
         server can stay idle before it can be closed.
 
-        @return: time in seconds the connections to eureka can stay idle before it
+        Returns: time in seconds the connections to eureka can stay idle before it
         can be closed.
+
         """
         raise NotImplemented
 
@@ -248,7 +258,8 @@ class EurekaClientConfig(ABC):
         """
         Indicates whether this client should fetch eureka registry information from eureka server.
 
-        @return: true if registry information has to be fetched, false otherwise.
+        Returns: true if registry information has to be fetched, false otherwise.
+
         """
         raise NotImplemented
 
@@ -256,7 +267,8 @@ class EurekaClientConfig(ABC):
     @abstractmethod
     def should_enforce_fetch_registry_on_init(self) -> bool:
         """
-        @return: true or false for whether the client initialization should enforce an initial fetch.
+        Returns: true or false for whether the client initialization should enforce an initial fetch.
+
         """
         raise NotImplemented
 
@@ -264,7 +276,8 @@ class EurekaClientConfig(ABC):
     @abstractmethod
     def heartbeat_executor_thread_pool_size(self) -> int:
         """
-        @return: the heartbeat_executor thread pool size.
+        Returns: the heartbeat_executor thread pool size.
+
         """
         raise NotImplemented
 
@@ -276,7 +289,8 @@ class EurekaClientConfig(ABC):
         It is a maximum multiplier value for retry delay, in case where
         a sequence of timeouts occurred.
 
-        @return: maximum multiplier value for retry delay.
+        Returns: maximum multiplier value for retry delay.
+
         """
         raise NotImplemented
 
@@ -284,7 +298,8 @@ class EurekaClientConfig(ABC):
     @abstractmethod
     def registry_cache_refresh_executor_thread_pool_size(self) -> int:
         """
-        @return: the thread pool size for the registry_cache_refresh_executor.
+        Returns: the thread pool size for the registry_cache_refresh_executor.
+
         """
         raise NotImplemented
 
@@ -292,7 +307,8 @@ class EurekaClientConfig(ABC):
     @abstractmethod
     def registry_cache_refresh_executor_exponential_back_off_bound(self) -> int:
         """
-        @return: maximum multiplier value for retry delay.
+        Returns: maximum multiplier value for retry delay.
+
         """
         raise NotImplemented
 
@@ -301,9 +317,10 @@ class EurekaClientConfig(ABC):
     def should_on_demand_update_status_change(self) -> bool:
         """
         If set to true, local status updates via ApplicationInfoManager.setInstanceStatus()
-        will trigger on-demand (but rate limited) register/updates to remote eureka servers
+        will trigger on-demand (but rate limited) register/updates to remote eureka servers.
 
-        @return: true or false for whether local status updates should be updated to remote servers on-demand.
+        Returns: true or false for whether local status updates should be updated to remote servers on-demand.
+
         """
         raise NotImplemented
 
