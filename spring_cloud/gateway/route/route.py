@@ -76,8 +76,8 @@ class Route:
             self.__order = order
             return self
 
-        def set_metadata(self, metadata: {}) -> Route.Builder:
-            self.__metadata = metadata
+        def set_metadata(self, key: str, value: object) -> Route.Builder:
+            self.__metadata[key] = value
             return self
 
         # TODO: and_predicate() is a function to call Predicate.and_predicate(),
