@@ -4,7 +4,10 @@ __author__ = "Haribo (haribo1558599@gmail.com)"
 __license__ = "Apache 2.0"
 
 # scip plugin
-from eureka.client.app_info import ApplicationInfoManager, DefaultEurekaInstanceConfig, InstanceInfo, LeaseInfo
+from eureka.client.app_info.application_info_manager import ApplicationInfoManager
+from eureka.client.app_info.eureka_instance_config import DefaultEurekaInstanceConfig
+from eureka.client.app_info.instance_info import InstanceInfo
+from eureka.client.app_info.lease_info import LeaseInfo
 
 
 class TestApplicationInfoManager:

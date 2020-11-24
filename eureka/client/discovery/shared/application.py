@@ -6,7 +6,7 @@ import threading
 from typing import List, Optional
 
 # scip plugin
-from eureka.client.app_info import InstanceInfo
+from eureka.client.app_info.instance_info import InstanceInfo
 
 __author__ = "Haribo (haribo1558599@gmail.com)"
 __license__ = "Apache 2.0"

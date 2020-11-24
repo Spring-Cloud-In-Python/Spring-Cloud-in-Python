@@ -5,7 +5,7 @@ import random
 from typing import List, Optional
 
 # scip plugin
-from eureka.client.app_info import InstanceInfo
+from eureka.client.app_info.instance_info import InstanceInfo
 from eureka.client.discovery.shared.application import Application
 from eureka.utils import AtomicInteger
 from eureka.utils.concurrent import ConcurrentCircularList

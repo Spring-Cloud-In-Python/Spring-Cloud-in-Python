@@ -3,9 +3,9 @@
 from abc import ABC, abstractmethod
 
 # scip plugin
-from eureka.client.app_info import LeaseInfo
 from eureka.client.app_info.eureka_instance_config import EurekaInstanceConfig
 from eureka.client.app_info.instance_info import InstanceInfo
+from eureka.client.app_info.lease_info import LeaseInfo
 from eureka.client.discovery.status_change_event import StatusChangeEvent
 
 __author__ = "Haribo (haribo1558599@gmail.com)"
