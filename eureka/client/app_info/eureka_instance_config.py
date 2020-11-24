@@ -3,7 +3,7 @@
 # standard library
 import uuid
 from abc import ABC, abstractmethod
-from typing import Dict, Optional
+from typing import Dict
 
 __author__ = "Haribo (haribo1558599@gmail.com)"
 __license__ = "Apache 2.0"
