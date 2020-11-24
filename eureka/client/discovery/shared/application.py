@@ -2,7 +2,6 @@
 
 # standard library
 import random
-import threading
 from typing import List, Optional
 
 # scip plugin
@@ -26,7 +25,6 @@ class Application:
         self._is_dirty = False
         self._shuffled_and_filtered_instances = None
         self._instance_dict = {}
-        self._instances_lock = threading.RLock()
 
     @property
     def name(self) -> str:
