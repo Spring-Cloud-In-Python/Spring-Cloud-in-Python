@@ -27,6 +27,10 @@ class HttpRequest:
 class ClientHttpRequestInterceptor(ABC):
     @abstractmethod
     def intercept(self, http_request: HttpRequest):
+        """
+        Intercept the http request.
+        Modify the http request's attribute to transform the request.
+        """
         pass
 
 
