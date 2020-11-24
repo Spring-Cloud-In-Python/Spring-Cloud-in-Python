@@ -7,8 +7,8 @@ __author__ = "Chaoyuuu (chaoyu2330@gmail.com)"
 __license__ = "Apache 2.0"
 
 # scip plugin
+from spring_cloud.gateway.handler.predicate import Predicate
 from spring_cloud.gateway.handler.predicate.base import RoutePredicateFactory
-from spring_cloud.gateway.handler.predicate.predicate import Predicate
 
 
 class AfterRoutePredicateFactory(RoutePredicateFactory):

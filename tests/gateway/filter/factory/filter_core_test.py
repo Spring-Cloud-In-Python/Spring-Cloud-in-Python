@@ -7,7 +7,7 @@ __license__ = "Apache 2.0"
 
 # scip plugin
 from spring_cloud.gateway.filter import StaticGatewayFilterChain
-from spring_cloud.gateway.filter.factory import AddRequestHeaderGatewayFilter, AddResponseHeaderGatewayFilter
+from spring_cloud.gateway.filter.factory.core import AddRequestHeaderGatewayFilter, AddResponseHeaderGatewayFilter
 
 
 class TestAddRequestHeaderGatewayFilter:
