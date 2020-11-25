@@ -6,6 +6,7 @@ __license__ = "Apache 2.0"
 # scip plugin
 
 # scip plugin
+from eureka.client.app_info import InstanceInfo
 from spring_cloud.commons.client.service_instance import ServiceInstance
 from spring_cloud.utils.validate import not_none
 
@@ -14,11 +15,11 @@ class EurekaServiceInstance(ServiceInstance):
     def __init__(self, instance_info):
         self.__instance = not_none(instance_info)
 
-    def get_instance_info(self):
-        return self.__instance
+    # def get_instance_info(self):
+    #     return self.__instance
 
     def instance_id(self) -> str:
-        return self.__instance.id()
+        return self.__instance.instance_id()
 
     def service_id(self) -> str:
         return self.__instance.app_name()
