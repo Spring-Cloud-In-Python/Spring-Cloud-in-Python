@@ -7,8 +7,8 @@ __author__ = "Chaoyuuu (chaoyu2330@gmail.com)"
 __license__ = "Apache 2.0"
 
 # scip plugin
+from spring_cloud.gateway.handler.predicate import Predicate
 from spring_cloud.gateway.handler.predicate.base import RoutePredicateFactory
-from spring_cloud.gateway.handler.predicate.predicate import Predicate
 
 
 class AfterRoutePredicateFactory(RoutePredicateFactory):
@@ -57,10 +57,9 @@ class CookieRoutePredicate(Predicate):
     def __init__(self, config):
         self.config = config
 
-    # TODO: the cookies is dependency with http_request, but we haven't decided the tool,
-    #  that is, the type of the cookies may be change in future
     def test(self, http_request) -> bool:
         http_request_cookies = http_request.cookies
+
         if http_request_cookies is None:
             return False
 
