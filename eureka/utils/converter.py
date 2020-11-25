@@ -44,8 +44,16 @@ class Encoder:
 
         return result
 
-    def encode_application(self, application: Application) -> Dict:
-        pass
+    @staticmethod
+    def encode_application(application: Application) -> Dict:
+        result = {"name": application.name, "is_dirty": application.is_dirty}
+        instance_list = application.get_all_instances_from_local_cache()
+        instance_dict_list = []
+        for instance in instance_list:
+            instance_dict_list.append(Encoder.encode_instance(instance))
+        result["instance_dict"] = instance_dict_list
+
+        return result
 
     def encode_applications(self, applications: Applications) -> Dict:
         pass
@@ -73,8 +81,17 @@ class Decoder:
 
         return instance_info
 
-    def decode_application(self, application_dict: Dict) -> Application:
-        pass
+    @staticmethod
+    def decode_application(application_dict: Dict) -> Application:
+        application = Application(application_dict["name"])
+        instance_dict_list = application_dict["instance_dict"]
+        for instance_dict in instance_dict_list:
+            instance = Decoder.decode_instance(instance_dict)
+            application.add_instance(instance)
+
+        application._is_dirty = application_dict["is_dirty"]  # overwrite this protected value since there is no setter
+
+        return application
 
     def decode_applications(self, applications_dict: Dict) -> Applications:
         pass
