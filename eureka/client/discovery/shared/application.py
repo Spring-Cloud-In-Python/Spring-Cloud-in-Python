@@ -20,7 +20,6 @@ class Application:
     """
 
     def __init__(self, name: str):
-        super().__init__()
         self._name = name
         self._is_dirty = False
         self._shuffled_and_filtered_instances = None
@@ -78,11 +77,11 @@ class Application:
 
         # We will filter out instances whose status are UP.
         if filter_only_up_instances:
-            self._shuffled_and_filtered_instances = list(
-                filter(
-                    lambda instance: instance.status == InstanceInfo.Status.UP, self._shuffled_and_filtered_instances,
-                )
-            )
+            self._shuffled_and_filtered_instances = [
+                instance
+                for instance in self._shuffled_and_filtered_instances
+                if instance.status == InstanceInfo.Status.UP
+            ]
 
         if self._shuffled_and_filtered_instances:
             random.shuffle(self._shuffled_and_filtered_instances)

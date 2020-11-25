@@ -25,6 +25,8 @@ class Applications:
         self._reconciliation_hash_code = ""
         self._applications = []
         self._app_name_to_application_dict = {}
+
+        # Key: virtual host name in uppercase, Value: ConcurrentCircularList
         self._virtual_host_name_to_instances_dict = {}
 
     @property
@@ -76,9 +78,9 @@ class Applications:
 
             if filter_only_up_instances:
                 for vip, instances in self._virtual_host_name_to_instances_dict.items():
-                    shuffled_and_filtered_instances = list(
-                        filter(lambda instance: instance.status == InstanceInfo.Status.UP, list(instances))
-                    )
+                    shuffled_and_filtered_instances = [
+                        instance for instance in list(instances) if instance.status == InstanceInfo.Status.UP
+                    ]
                     random.shuffle(shuffled_and_filtered_instances)
                     self._virtual_host_name_to_instances_dict[vip] = ConcurrentCircularList(
                         shuffled_and_filtered_instances

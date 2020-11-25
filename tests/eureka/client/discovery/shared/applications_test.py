@@ -5,48 +5,18 @@ __license__ = "Apache 2.0"
 
 # scip plugin
 from eureka.client.app_info.instance_info import InstanceInfo
-from eureka.client.app_info.lease_info import LeaseInfo
 from eureka.client.discovery.shared.application import Application
 from eureka.client.discovery.shared.applications import Applications
+from tests.eureka.client.discovery.shared.stubs import instance_info
 
 
-class TestApplication:
+class TestApplications:
     def setup_method(self):
         self.applications = Applications()
 
-        self.instance_0 = InstanceInfo(
-            instance_id="instance_id",
-            app_name="example-app-1",
-            app_group_name="app_group_name",
-            ip_address="127.0.0.1",
-            vip_address="stub-service",
-            secure_vip_address="stub-service",
-            lease_info=LeaseInfo(),
-            metadata={},
-            host_name="localhost",
-        )
-        self.instance_1 = InstanceInfo(
-            instance_id="instance_id_1",
-            app_name="example-app-1",
-            app_group_name="app_group_name",
-            ip_address="127.0.0.1",
-            vip_address="stub-service",
-            secure_vip_address="stub-service",
-            lease_info=LeaseInfo(),
-            metadata={},
-            host_name="localhost",
-        )
-        self.instance_2 = InstanceInfo(
-            instance_id="instance_id_2",
-            app_name="example-app-2",
-            app_group_name="app_group_name",
-            ip_address="127.0.0.1",
-            vip_address="stub-service-2",
-            secure_vip_address="stub-service",
-            lease_info=LeaseInfo(),
-            metadata={},
-            host_name="localhost",
-        )
+        self.instance_0 = instance_info(num=0, app_name="example-app-1", vip_address="stub-service")
+        self.instance_1 = instance_info(num=1, app_name="example-app-1", vip_address="stub-service")
+        self.instance_2 = instance_info(num=2, app_name="example-app-2", vip_address="stub-service-2")
 
         self.application_1 = Application("example-app-1")
         self.application_1.add_instance(self.instance_0)
