@@ -6,7 +6,7 @@ __license__ = "Apache 2.0"
 # scip plugin
 
 # scip plugin
-from eureka.client.app_info import InstanceInfo
+from eureka.client.app_info.instance_info import InstanceInfo
 from spring_cloud.commons.client.service_instance import ServiceInstance
 from spring_cloud.utils.validate import not_none
 
