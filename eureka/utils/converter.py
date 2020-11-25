@@ -17,9 +17,9 @@ class Encoder:
         slots = lease.__slots__
         result = {}
         for property_name in slots:
-            property_name = property_name[1:]  # skip the beginning "_"
+            property_key = property_name[1:]  # skip the beginning "_"
 
-            result[property_name] = getattr(lease, property_name)
+            result[property_key] = getattr(lease, property_name)
 
         return result
 
@@ -27,18 +27,19 @@ class Encoder:
     def encode_instance(info: InstanceInfo) -> Dict:
         slots = info.__slots__
         result = {}
+
+        property_to_skip = ["_lease_info", "_is_instance_info_dirty"]
         for property_name in slots:
-            if property_name == "_lease_info":
-                # do LeaseInfo in another way
+            if property_name in property_to_skip:
                 continue
 
-            property_name = property_name[1:]  # skip the beginning "_"
+            property_key = property_name[1:]  # skip the beginning "_"
 
             value = getattr(info, property_name)
             if isinstance(value, InstanceInfo.Status):
                 value = str(value)
 
-            result[property_name] = value
+            result[property_key] = value
 
         result["lease_info"] = Encoder.encode_lease_info(info.lease_info)
 
