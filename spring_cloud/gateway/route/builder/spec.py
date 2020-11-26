@@ -18,7 +18,7 @@ from spring_cloud.gateway.filter.factory.core import (
     AddResponseHeaderGatewayFilterFactory,
     NameValueConfig,
 )
-from spring_cloud.gateway.handler.predicate import NOT
+from spring_cloud.gateway.handler.predicate import NOT, Predicate
 from spring_cloud.gateway.handler.predicate.core import (
     AfterRoutePredicate,
     AfterRoutePredicateFactory,
@@ -36,6 +36,8 @@ class UriSpec(ABC):
      A specification to add a URI to a route.
     """
 
+    # TODO: builder is a instance of RouteLocatorBuilder
+    #  But RouteLocatorBuilder hasn't be implemented, it will be completed in the next PR
     def __init__(self, route_builder: Route.Builder, builder):
         self.route_builder = route_builder
         self.builder = builder
@@ -56,7 +58,7 @@ class PredicateSpec(UriSpec):
         self.route_builder.set_order(order)
         return self
 
-    def predicate(self, predicate) -> BooleanSpec:
+    def predicate(self, predicate: Predicate) -> BooleanSpec:
         self.route_builder.set_predicate(predicate)
         return BooleanSpec(self.route_builder, self.builder)
 
@@ -107,14 +109,14 @@ class BooleanSpec(UriSpec):
         super().__init__(route_builder, builder)
         self.predicate = route_builder.predicate
 
-    def and_spec(self) -> BooleanOpSpec:
+    def and_(self) -> BooleanOpSpec:
         return self.BooleanOpSpec(self.route_builder, self.builder, "AND")
 
-    def or_spec(self) -> BooleanOpSpec:
+    def or_(self) -> BooleanOpSpec:
         return self.BooleanOpSpec(self.route_builder, self.builder, "OR")
 
-    def negate_spec(self) -> BooleanSpec:
-        self.route_builder.negate_predicate()
+    def negate_(self) -> BooleanSpec:
+        self.route_builder.negate_()
         return BooleanSpec(self.route_builder, self.builder)
 
     def filters(self, f_) -> UriSpec:
@@ -129,17 +131,17 @@ class BooleanSpec(UriSpec):
             super().__init__(route_builder, builder)
             self.operator = operator
 
-        def predicate(self, predicate) -> BooleanSpec:
+        def predicate(self, predicate: Predicate) -> BooleanSpec:
             not_none(self.operator)
             if re.match(self.operator, "AND") is not None:
-                self.route_builder.and_predicate(predicate)
+                self.route_builder.and_(predicate)
             elif re.match(self.operator, "OR") is not None:
-                self.route_builder.or_predicate(predicate)
+                self.route_builder.or_(predicate)
             elif re.match(self.operator, "NEGATE") is not None:
-                self.route_builder.negate_predicate()
+                self.route_builder.negate_()
             return BooleanSpec(self.route_builder, self.builder)
 
-        def not_spec(self, p_) -> BooleanSpec:
+        def not_(self, p_) -> BooleanSpec:
             """
             Args:
                 p_: lambda: PredicateSpec -> BooleanSpec
@@ -185,7 +187,7 @@ class GatewayFilterSpec(UriSpec):
         self.route_builder.filter(gateway_filter)
         return self
 
-    def add_request_header(self, header_name, header_value) -> GatewayFilterSpec:
+    def add_request_header(self, header_name: str, header_value: str) -> GatewayFilterSpec:
         """
         Add a request header to the request before it is routed by the Gateway.
         Args:
@@ -197,7 +199,7 @@ class GatewayFilterSpec(UriSpec):
         config = NameValueConfig(header_name, header_value)
         return self.filter(AddRequestHeaderGatewayFilterFactory().apply(config))
 
-    def add_response_header(self, header_name, header_value) -> GatewayFilterSpec:
+    def add_response_header(self, header_name: str, header_value: str) -> GatewayFilterSpec:
         """
         Adds a header to the response returned to the Gateway from the route.
         Args:

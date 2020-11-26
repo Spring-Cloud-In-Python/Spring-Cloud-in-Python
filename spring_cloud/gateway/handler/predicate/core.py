@@ -6,9 +6,8 @@ from datetime import datetime
 __author__ = "Chaoyuuu (chaoyu2330@gmail.com)"
 __license__ = "Apache 2.0"
 
-# scip plugin
-from spring_cloud.gateway.handler.predicate import Predicate
-from spring_cloud.gateway.handler.predicate.base import RoutePredicateFactory
+from .base import RoutePredicateFactory
+from .predicate import Predicate
 
 
 class AfterRoutePredicateFactory(RoutePredicateFactory):
