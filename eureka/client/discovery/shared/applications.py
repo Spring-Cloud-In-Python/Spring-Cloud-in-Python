@@ -96,7 +96,6 @@ class Applications:
         sorted_instance_status_count_dict_by_key = dict(sorted(instance_status_count_dict.items(), key=lambda d: d[0]))
         reconciliation_hash_code = ""
         for status, count in sorted_instance_status_count_dict_by_key.items():
-            record = f"{status}_{count}_"
-            reconciliation_hash_code += record
+            reconciliation_hash_code += f"{status}_{count}_"
 
         return reconciliation_hash_code

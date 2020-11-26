@@ -2,7 +2,7 @@
 
 # standard library
 import random
-from typing import List, Optional, Union
+from typing import List, Union
 
 # scip plugin
 from eureka.client.app_info.instance_info import InstanceInfo
@@ -49,7 +49,7 @@ class Application:
         if mark_as_dirty:
             self._is_dirty = True
 
-    def get_instance_by_id(self, instance_id: str) -> Optional[InstanceInfo]:
+    def get_instance_by_id(self, instance_id: str) -> Union[InstanceInfo, None]:
         return self._instance_dict.get(instance_id)
 
     def get_instances(self) -> Union[List[InstanceInfo], None]:
