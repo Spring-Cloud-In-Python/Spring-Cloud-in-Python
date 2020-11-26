@@ -56,8 +56,14 @@ class Encoder:
 
         return result
 
-    def encode_applications(self, applications: Applications) -> Dict:
-        pass
+    @staticmethod
+    def encode_applications(applications: Applications) -> Dict:
+        result = {"applications": []}
+
+        for application in applications.get_registered_applications():
+            result["applications"].append(Encoder.encode_application(application))
+
+        return result
 
 
 class Decoder:
@@ -94,5 +100,11 @@ class Decoder:
 
         return application
 
-    def decode_applications(self, applications_dict: Dict) -> Applications:
-        pass
+    @staticmethod
+    def decode_applications(applications_dict: Dict) -> Applications:
+        applications = Applications()
+        for application_dict in applications_dict["applications"]:
+            application = Decoder.decode_application(application_dict)
+            applications.add_application(application)
+
+        return applications

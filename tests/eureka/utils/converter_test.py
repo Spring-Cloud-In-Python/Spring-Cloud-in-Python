@@ -5,7 +5,7 @@ __license__ = "Apache 2.0"
 
 # scip plugin
 from eureka.client.app_info import InstanceInfo, LeaseInfo
-from eureka.client.discovery.shared import Application
+from eureka.client.discovery.shared import Application, Applications
 from eureka.utils.converter import Decoder, Encoder
 
 
@@ -39,12 +39,31 @@ class TestEncoder:
                 metadata={},
                 host_name="localhost",
             ),
+            InstanceInfo(
+                instance_id="instance_3",
+                app_name="app_2",
+                app_group_name="app_group_name",
+                ip_address="127.0.0.1",
+                vip_address="stub-service-2",
+                secure_vip_address="stub-service",
+                lease_info=LeaseInfo(),
+                metadata={},
+                host_name="localhost",
+            ),
         ]
 
-        application = Application("example-app")
+        application = Application("app_name")
         application.add_instance(self.instance_info_list[0])
         application.add_instance(self.instance_info_list[1])
-        self.application = application
+
+        application_2 = Application("app_2")
+        application_2.add_instance(self.instance_info_list[2])
+
+        self.application_list = [application, application_2]
+
+        self.applications = Applications()
+        self.applications.add_application(self.application_list[0])
+        self.applications.add_application(self.application_list[1])
 
     def test_encode_lease_info(self):
         info_dict = Encoder.encode_lease_info(self.lease_info_list[0])
@@ -61,13 +80,18 @@ class TestEncoder:
         assert isinstance(instance_dict, dict)
 
     def test_encode_application(self):
-        application_dict = Encoder.encode_application(self.application)
+        application_dict = Encoder.encode_application(self.application_list[0])
 
-        assert "example-app" == application_dict["name"]
+        assert "app_name" == application_dict["name"]
         assert application_dict["is_dirty"]
         assert "app_name" == application_dict["instance_dict"][0]["app_name"]
 
-    # def test_encode_applications(self):
+    def test_encode_applications(self):
+        applications_dict = Encoder.encode_applications(self.applications)
+
+        assert 2 == len(applications_dict["applications"])
+        assert "app_name" == applications_dict["applications"][0]["name"]
+        assert "instance_id" == applications_dict["applications"][0]["instance_dict"][0]["instance_id"]
 
 
 class TestDecoder:
@@ -175,6 +199,107 @@ class TestDecoder:
             ],
         }
 
+        self.applications_dict = {
+            "applications": [
+                {
+                    "name": "app_name",
+                    "is_dirty": True,
+                    "instance_dict": [
+                        {
+                            "instance_id": "instance_id",
+                            "app_name": "app_name",
+                            "app_group_name": "app_group_name",
+                            "ip_address": "127.0.0.1",
+                            "vip_address": "stub-service",
+                            "secure_vip_address": "stub-service",
+                            "metadata": {},
+                            "last_updated_timestamp": None,
+                            "last_dirty_timestamp": None,
+                            "action_type": None,
+                            "host_name": "localhost",
+                            "is_coordinating_discovery_server": False,
+                            "is_secure_port_enabled": False,
+                            "is_unsecure_port_enabled": True,
+                            "port": 7001,
+                            "secure_port": 7002,
+                            "status": "Status.UP",
+                            "overridden_status": "Status.UNKNOWN",
+                            "lease_info": {
+                                "registration_timestamp": 0,
+                                "last_renewal_timestamp": 0,
+                                "eviction_timestamp": 0,
+                                "service_up_timestamp": 0,
+                                "lease_renewal_interval_in_secs": 1,
+                                "lease_duration_in_secs": 1,
+                            },
+                        },
+                        {
+                            "instance_id": "instance_id_2",
+                            "app_name": "app_name",
+                            "app_group_name": "app_group_name",
+                            "ip_address": "127.0.0.1",
+                            "vip_address": "stub-service-2",
+                            "secure_vip_address": "stub-service",
+                            "metadata": {},
+                            "last_updated_timestamp": None,
+                            "last_dirty_timestamp": None,
+                            "action_type": None,
+                            "host_name": "localhost",
+                            "is_coordinating_discovery_server": False,
+                            "is_secure_port_enabled": False,
+                            "is_unsecure_port_enabled": True,
+                            "port": 7001,
+                            "secure_port": 7002,
+                            "status": "Status.UP",
+                            "overridden_status": "Status.UNKNOWN",
+                            "lease_info": {
+                                "registration_timestamp": 0,
+                                "last_renewal_timestamp": 0,
+                                "eviction_timestamp": 0,
+                                "service_up_timestamp": 0,
+                                "lease_renewal_interval_in_secs": 30,
+                                "lease_duration_in_secs": 90,
+                            },
+                        },
+                    ],
+                },
+                {
+                    "name": "app_2",
+                    "is_dirty": True,
+                    "instance_dict": [
+                        {
+                            "instance_id": "instance_3",
+                            "app_name": "app_2",
+                            "app_group_name": "app_group_name",
+                            "ip_address": "127.0.0.1",
+                            "vip_address": "stub-service-2",
+                            "secure_vip_address": "stub-service",
+                            "metadata": {},
+                            "last_updated_timestamp": None,
+                            "last_dirty_timestamp": None,
+                            "action_type": None,
+                            "host_name": "localhost",
+                            "is_coordinating_discovery_server": False,
+                            "is_secure_port_enabled": False,
+                            "is_unsecure_port_enabled": True,
+                            "port": 7001,
+                            "secure_port": 7002,
+                            "status": "Status.UP",
+                            "overridden_status": "Status.UNKNOWN",
+                            "lease_info": {
+                                "registration_timestamp": 0,
+                                "last_renewal_timestamp": 0,
+                                "eviction_timestamp": 0,
+                                "service_up_timestamp": 0,
+                                "lease_renewal_interval_in_secs": 30,
+                                "lease_duration_in_secs": 90,
+                            },
+                        }
+                    ],
+                },
+            ]
+        }
+
     def test_decode_lease_info(self):
         lease_info = Decoder.decode_lease_info(self.lease_info_dict)
 
@@ -199,6 +324,8 @@ class TestDecoder:
         assert not application.is_dirty
         assert 8787 == application.get_instance_by_id("instance_id").port
 
-    #
-    # def test_decode_applications(self):
-    #     assert False
+    def test_decode_applications(self):
+        applications = Decoder.decode_applications(self.applications_dict)
+
+        assert 3 == applications.size()
+        assert 2 == applications.get_registered_application("app_name").size()
