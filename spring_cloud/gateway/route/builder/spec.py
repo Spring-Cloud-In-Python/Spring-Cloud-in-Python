@@ -34,7 +34,6 @@ from spring_cloud.utils.validate import not_none
 RouteLocatorBuilder = TypeVar("RouteLocatorBuilder")
 Datetime = TypeVar("Datetime", bound=datetime)
 
-
 class UriSpec(ABC):
     """
      A specification to add a URI to a route.
