@@ -36,4 +36,3 @@ class TestSpec:
             .uri("http://a_cat")
         )
         assert isinstance(route_builder, Route.Builder)
-
