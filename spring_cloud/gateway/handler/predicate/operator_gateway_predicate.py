@@ -33,13 +33,13 @@ class NegateGatewayPredicate(Predicate):
         return not self.p.test(obj)
 
 
-def AND(p1: Predicate, p2: Predicate):
+def AND(p1: Predicate, p2: Predicate) -> Predicate:
     return AndGatewayPredicate(p1, p2)
 
 
-def OR(p1: Predicate, p2: Predicate):
+def OR(p1: Predicate, p2: Predicate) -> Predicate:
     return OrGatewayPredicate(p1, p2)
 
 
-def NOT(p: Predicate):
+def NOT(p: Predicate) -> Predicate:
     return NegateGatewayPredicate(p)

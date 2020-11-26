@@ -38,3 +38,17 @@ class AddResponseHeaderGatewayFilter(GatewayFilter):
     def filter(self, http_response, chain: GatewayFilterChain) -> None:
         http_response.header[self.config.header_name] = self.config.header_value
         chain.filter(http_response)
+
+
+class NameValueConfig:
+    def __init__(self, name: str, value: str):
+        self.__name = name
+        self.__value = value
+
+    @property
+    def name(self):
+        return self.__name
+
+    @property
+    def value(self):
+        return self.__value
