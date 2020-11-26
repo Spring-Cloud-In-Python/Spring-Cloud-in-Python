@@ -2,6 +2,7 @@
 
 # standard library
 import random
+from typing import Callable, NoReturn
 
 # pypi/conda library
 from wrapt import synchronized
@@ -34,13 +35,16 @@ class ConcurrentCircularList:
     def append(self, item):
         self._circular_list.append(item)
 
-    def filter(self, f):
+    def filter(self, f: Callable[[object], bool]) -> NoReturn:
         """
         Args:
             f: a predicate function that returns a boolean
 
         """
-        self._circular_list = [item for item in self._circular_list if f(item)]
+        if isinstance(f, Callable):
+            self._circular_list = [item for item in self._circular_list if f(item)]
+        else:
+            raise TypeError(f"{f} is not Callable.")
 
     def shuffle(self):
         random.shuffle(self._circular_list)
