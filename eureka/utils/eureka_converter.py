@@ -4,6 +4,7 @@ __author__ = "Daniel1147 (sxn91401@gmail.com)"
 __license__ = "Apache 2.0"
 
 # standard library
+from enum import Enum
 from typing import Dict
 
 # scip plugin
@@ -34,7 +35,7 @@ class EurekaEncoder:
             property_key = property_name[1:]  # skip the beginning "_"
 
             value = getattr(instance_info, property_name)
-            if isinstance(value, InstanceInfo.Status):
+            if isinstance(value, Enum):
                 value = str(value)
 
             result[property_key] = value
@@ -63,6 +64,13 @@ class EurekaEncoder:
 
 
 class EurekaDecoder:
+    def __init__(self):
+        self.instance_info_enum_transform_table = {
+            "status": InstanceInfo.Status,
+            "overridden_status": InstanceInfo.Status,
+            "action_type": InstanceInfo.ActionType,
+        }
+
     def decode_lease_info(self, lease_dict: Dict) -> LeaseInfo:
         lease = LeaseInfo(**lease_dict)
 
@@ -72,11 +80,14 @@ class EurekaDecoder:
         lease = self.decode_lease_info(instance_dict["lease_info"])
         instance_dict["lease_info"] = lease
 
-        status_property = ["status", "overridden_status"]
-        for property_name in status_property:
-            property_value = instance_dict[property_name]  # e.g. "Status.UP"
+        for property_name, enum_type in self.instance_info_enum_transform_table.items():
+            property_value = instance_dict[property_name]  # e.g. "Status.UP", None
+
+            if property_value is None:
+                continue
+
             property_value = property_value.split(".")[-1]  # e.g. "UP"
-            instance_dict[property_name] = InstanceInfo.Status(property_value)
+            instance_dict[property_name] = enum_type(property_value)
 
         instance_info = InstanceInfo(**instance_dict)
 
