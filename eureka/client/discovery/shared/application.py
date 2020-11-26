@@ -2,7 +2,7 @@
 
 # standard library
 import random
-from typing import List, Optional
+from typing import List, Optional, Union
 
 # scip plugin
 from eureka.client.app_info.instance_info import InstanceInfo
@@ -50,9 +50,9 @@ class Application:
             self._is_dirty = True
 
     def get_instance_by_id(self, instance_id: str) -> Optional[InstanceInfo]:
-        return self._instance_dict.get(instance_id, None)
+        return self._instance_dict.get(instance_id)
 
-    def get_instances(self) -> Optional[List[InstanceInfo]]:
+    def get_instances(self) -> Union[List[InstanceInfo], None]:
         """
         Note that the instances are always returned with random order after
         shuffling to avoid traffic to the same instances during startup. The

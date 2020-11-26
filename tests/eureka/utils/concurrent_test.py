@@ -13,15 +13,25 @@ def test_append_to_concurrent_circular_list():
     concurrent_circular_list.append(2)
     concurrent_circular_list.append(3)
 
-    assert list(concurrent_circular_list) == [1, 2, 3]
+    assert concurrent_circular_list._circular_list == [1, 2, 3]
 
 
 def test_iterate_concurrent_circular_list():
     concurrent_circular_list = ConcurrentCircularList([1, 2, 3])
 
-    assert concurrent_circular_list.next() == 1
-    assert concurrent_circular_list.next() == 2
-    assert concurrent_circular_list.next() == 3
-    assert concurrent_circular_list.next() == 1
-    assert concurrent_circular_list.next() == 2
-    assert concurrent_circular_list.next() == 3
+    assert next(concurrent_circular_list) == 1
+    assert next(concurrent_circular_list) == 2
+    assert next(concurrent_circular_list) == 3
+    assert next(concurrent_circular_list) == 1
+    assert next(concurrent_circular_list) == 2
+    assert next(concurrent_circular_list) == 3
+
+
+def test_iterate_empty_concurrent_circular_list():
+    concurrent_circular_list = ConcurrentCircularList()
+    try:
+        next(concurrent_circular_list)
+    except StopIteration:
+        assert True
+    else:
+        assert False

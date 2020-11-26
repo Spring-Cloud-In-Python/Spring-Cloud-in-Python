@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # standard library
-import random
-from typing import List, Optional
+from typing import List, Union
 
 # scip plugin
 from eureka.client.app_info.instance_info import InstanceInfo
@@ -23,7 +22,6 @@ class Applications:
 
     def __init__(self):
         self._reconciliation_hash_code = ""
-        self._applications = []
         self._app_name_to_application_dict = {}
 
         # Key: virtual host name in uppercase, Value: ConcurrentCircularList
@@ -45,7 +43,6 @@ class Applications:
     def add_application(self, application: Application):
         self._app_name_to_application_dict[application.name] = application
         self._add_instances(application)
-        self._applications.append(application)
 
     def _add_instances(self, application: Application):
         for instance in application.get_instances():
@@ -56,14 +53,13 @@ class Applications:
                 self._virtual_host_name_to_instances_dict[virtual_host_name].append(instance)
 
     def remove_application(self, application: Application):
-        self._applications.remove(application)
         self._app_name_to_application_dict.pop(application.name, None)
 
     def get_registered_applications(self) -> List[Application]:
-        return self._applications
+        return list(self._app_name_to_application_dict.values())
 
-    def get_registered_application(self, app_name: str) -> Optional[Application]:
-        return self._app_name_to_application_dict.get(app_name, None)
+    def get_registered_application(self, app_name: str) -> Union[Application, None]:
+        return self._app_name_to_application_dict.get(app_name)
 
     def get_instances_by_virtual_host_name(self, virtual_host_name: str) -> ConcurrentCircularList:
         return self._virtual_host_name_to_instances_dict.get(virtual_host_name.upper(), ConcurrentCircularList())
@@ -73,28 +69,23 @@ class Applications:
         Shuffle the provided instances so that they will not always be returned
         in the same order.
         """
-        for application in self._applications:
+        for application in self._app_name_to_application_dict.values():
             application.shuffle_and_store_instances(filter_only_up_instances)
 
             if filter_only_up_instances:
                 for vip, instances in self._virtual_host_name_to_instances_dict.items():
-                    shuffled_and_filtered_instances = [
-                        instance for instance in list(instances) if instance.status == InstanceInfo.Status.UP
-                    ]
-                    random.shuffle(shuffled_and_filtered_instances)
-                    self._virtual_host_name_to_instances_dict[vip] = ConcurrentCircularList(
-                        shuffled_and_filtered_instances
-                    )
+                    instances.filter(lambda instance: instance.status == InstanceInfo.Status.UP)
+                    instances.shuffle()
 
     def size(self) -> int:
         size = 0
-        for application in self._applications:
+        for application in self._app_name_to_application_dict.values():
             size += application.size()
         return size
 
     def compute_reconciliation_hash_code(self) -> str:
         instance_status_count_dict = {}
-        for application in self._applications:
+        for application in self._app_name_to_application_dict.values():
             for instance in application.get_all_instances_from_local_cache():
                 if instance.status.value not in instance_status_count_dict:
                     instance_status_count_dict[instance.status.value] = AtomicInteger(0)
@@ -104,9 +95,8 @@ class Applications:
 
         sorted_instance_status_count_dict_by_key = dict(sorted(instance_status_count_dict.items(), key=lambda d: d[0]))
         reconciliation_hash_code = ""
-        delimiter = "_"
         for status, count in sorted_instance_status_count_dict_by_key.items():
-            record = status + delimiter + str(count) + delimiter
+            record = f"{status}_{count}_"
             reconciliation_hash_code += record
 
         return reconciliation_hash_code

@@ -31,8 +31,8 @@ class TestApplications:
     def test_get_instances_by_virtual_host_name(self):
         instances = self.applications.get_instances_by_virtual_host_name("stub-service")
 
-        assert instances.next() == self.instance_0
-        assert instances.next() == self.instance_1
+        assert next(instances) == self.instance_0
+        assert next(instances) == self.instance_1
 
     def test_size(self):
         assert self.applications.size() == 3
@@ -45,12 +45,12 @@ class TestApplications:
         self.applications.shuffle_instances(filter_only_up_instances=True)
 
         instances = self.applications.get_instances_by_virtual_host_name("stub-service")
-        assert instances.next().instance_id == self.instance_0.instance_id
-        assert instances.next().instance_id == self.instance_0.instance_id
+        assert next(instances).instance_id == self.instance_0.instance_id
+        assert next(instances).instance_id == self.instance_0.instance_id
 
         instances = self.applications.get_instances_by_virtual_host_name("stub-service-2")
-        assert instances.next().instance_id == self.instance_2.instance_id
-        assert instances.next().instance_id == self.instance_2.instance_id
+        assert next(instances).instance_id == self.instance_2.instance_id
+        assert next(instances).instance_id == self.instance_2.instance_id
 
     def test_shuffle_instances_and_get_all_instances(self):
         self.instance_0.set_status(InstanceInfo.Status.UP)
@@ -60,13 +60,13 @@ class TestApplications:
         self.applications.shuffle_instances(filter_only_up_instances=False)
 
         instances = self.applications.get_instances_by_virtual_host_name("stub-service")
-        assert instances.next().instance_id == self.instance_0.instance_id
-        assert instances.next().instance_id == self.instance_1.instance_id
-        assert instances.next().instance_id == self.instance_0.instance_id
+        assert next(instances).instance_id == self.instance_0.instance_id
+        assert next(instances).instance_id == self.instance_1.instance_id
+        assert next(instances).instance_id == self.instance_0.instance_id
 
         instances = self.applications.get_instances_by_virtual_host_name("stub-service-2")
-        assert instances.next().instance_id == self.instance_2.instance_id
-        assert instances.next().instance_id == self.instance_2.instance_id
+        assert next(instances).instance_id == self.instance_2.instance_id
+        assert next(instances).instance_id == self.instance_2.instance_id
 
     def test_compute_reconciliation_hash_code(self):
         self.instance_0.set_status(InstanceInfo.Status.DOWN)

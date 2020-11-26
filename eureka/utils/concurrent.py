@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+# standard library
+import random
+
 # pypi/conda library
 from wrapt import synchronized
 
@@ -15,20 +18,29 @@ class ConcurrentCircularList:
 
     def __init__(self, list_: list = None):
         self._current_index = -1
-        self._circular_list = list_ if list_ else []
+        self._circular_list = list_ or []
 
     def __iter__(self):
-        return iter(self._circular_list)
+        return self
 
     @synchronized
-    def next(self):
-        if len(self._circular_list) <= 0:
-            return None
-
-        self._current_index += 1
-        self._current_index %= len(self._circular_list)
-
-        return self._circular_list[self._current_index]
+    def __next__(self):
+        if self._circular_list:
+            self._current_index += 1
+            self._current_index %= len(self._circular_list)
+            return self._circular_list[self._current_index]
+        raise StopIteration("The list is empty.")
 
     def append(self, item):
         self._circular_list.append(item)
+
+    def filter(self, f):
+        """
+        Args:
+            f: a predicate function that returns a boolean
+
+        """
+        self._circular_list = [item for item in self._circular_list if f(item)]
+
+    def shuffle(self):
+        random.shuffle(self._circular_list)

@@ -57,7 +57,7 @@ class ApplicationInfoManager:
     def refresh_lease_info_if_required(self):
         lease_info = self._instance_info.lease_info
 
-        if lease_info is not None:
+        if lease_info:
             current_lease_duration_in_secs = self._eureka_instance_config.lease_expiration_duration_in_secs
             current_lease_renewal_interval_in_secs = self._eureka_instance_config.lease_renewal_interval_in_secs
 

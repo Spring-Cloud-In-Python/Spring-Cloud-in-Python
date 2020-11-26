@@ -12,7 +12,7 @@ class AtomicInteger:
         self._value = value
 
     def __str__(self):
-        return str(self._value)
+        return f"{self._value}"
 
     def get(self) -> int:
         return self._value
