@@ -6,7 +6,7 @@ __license__ = "Apache 2.0"
 # scip plugin
 from eureka.client.app_info import InstanceInfo, LeaseInfo
 from eureka.client.discovery.shared import Application, Applications
-from eureka.utils.converter import Decoder, Encoder
+from eureka.utils.eureka_converter import EurekaDecoder, EurekaEncoder
 
 
 class TestEncoder:
@@ -66,28 +66,28 @@ class TestEncoder:
         self.applications.add_application(self.application_list[1])
 
     def test_encode_lease_info(self):
-        info_dict = Encoder.encode_lease_info(self.lease_info_list[0])
+        info_dict = EurekaEncoder.encode_lease_info(self.lease_info_list[0])
 
         assert 1 == info_dict["lease_renewal_interval_in_secs"]
         assert 1 == info_dict["lease_duration_in_secs"]
         assert isinstance(info_dict, dict)
 
     def test_encode_instance(self):
-        instance_dict = Encoder.encode_instance(self.instance_info_list[0])
+        instance_dict = EurekaEncoder.encode_instance(self.instance_info_list[0])
 
         assert "instance_id" == instance_dict["instance_id"]
         assert 1 == instance_dict["lease_info"]["lease_renewal_interval_in_secs"]
         assert isinstance(instance_dict, dict)
 
     def test_encode_application(self):
-        application_dict = Encoder.encode_application(self.application_list[0])
+        application_dict = EurekaEncoder.encode_application(self.application_list[0])
 
         assert "app_name" == application_dict["name"]
         assert application_dict["is_dirty"]
         assert "app_name" == application_dict["instance_dict"][0]["app_name"]
 
     def test_encode_applications(self):
-        applications_dict = Encoder.encode_applications(self.applications)
+        applications_dict = EurekaEncoder.encode_applications(self.applications)
 
         assert 2 == len(applications_dict["applications"])
         assert "app_name" == applications_dict["applications"][0]["name"]
@@ -301,13 +301,13 @@ class TestDecoder:
         }
 
     def test_decode_lease_info(self):
-        lease_info = Decoder.decode_lease_info(self.lease_info_dict)
+        lease_info = EurekaDecoder.decode_lease_info(self.lease_info_dict)
 
         assert 0 == lease_info.registration_timestamp
         assert 1 == lease_info.lease_renewal_interval_in_secs
 
     def test_decode_instance(self):
-        instance_info = Decoder.decode_instance(self.instance_info_dict)
+        instance_info = EurekaDecoder.decode_instance(self.instance_info_dict)
 
         assert "instance_id" == instance_info.instance_id
         assert "127.0.0.1" == instance_info.ip_address
@@ -317,7 +317,7 @@ class TestDecoder:
         assert 7001 == instance_info.port
 
     def test_decode_application(self):
-        application = Decoder.decode_application(self.application_dict)
+        application = EurekaDecoder.decode_application(self.application_dict)
 
         assert "example-app" == application.name
         assert 2 == application.size()
@@ -325,7 +325,7 @@ class TestDecoder:
         assert 8787 == application.get_instance_by_id("instance_id").port
 
     def test_decode_applications(self):
-        applications = Decoder.decode_applications(self.applications_dict)
+        applications = EurekaDecoder.decode_applications(self.applications_dict)
 
         assert 3 == applications.size()
         assert 2 == applications.get_registered_application("app_name").size()

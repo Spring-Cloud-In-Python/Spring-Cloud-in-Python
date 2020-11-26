@@ -11,21 +11,21 @@ from eureka.client.app_info import InstanceInfo, LeaseInfo
 from eureka.client.discovery.shared import Application, Applications
 
 
-class Encoder:
+class EurekaEncoder:
     @staticmethod
-    def encode_lease_info(lease: LeaseInfo) -> Dict:
-        slots = lease.__slots__
+    def encode_lease_info(lease_info: LeaseInfo) -> Dict:
+        slots = lease_info.__slots__
         result = {}
         for property_name in slots:
             property_key = property_name[1:]  # skip the beginning "_"
 
-            result[property_key] = getattr(lease, property_name)
+            result[property_key] = getattr(lease_info, property_name)
 
         return result
 
     @staticmethod
-    def encode_instance(info: InstanceInfo) -> Dict:
-        slots = info.__slots__
+    def encode_instance(instance_info: InstanceInfo) -> Dict:
+        slots = instance_info.__slots__
         result = {}
 
         property_to_skip = ["_lease_info", "_is_instance_info_dirty"]
@@ -35,13 +35,13 @@ class Encoder:
 
             property_key = property_name[1:]  # skip the beginning "_"
 
-            value = getattr(info, property_name)
+            value = getattr(instance_info, property_name)
             if isinstance(value, InstanceInfo.Status):
                 value = str(value)
 
             result[property_key] = value
 
-        result["lease_info"] = Encoder.encode_lease_info(info.lease_info)
+        result["lease_info"] = EurekaEncoder.encode_lease_info(instance_info.lease_info)
 
         return result
 
@@ -51,7 +51,7 @@ class Encoder:
         instance_list = application.get_all_instances_from_local_cache()
         instance_dict_list = []
         for instance in instance_list:
-            instance_dict_list.append(Encoder.encode_instance(instance))
+            instance_dict_list.append(EurekaEncoder.encode_instance(instance))
         result["instance_dict"] = instance_dict_list
 
         return result
@@ -61,12 +61,12 @@ class Encoder:
         result = {"applications": []}
 
         for application in applications.get_registered_applications():
-            result["applications"].append(Encoder.encode_application(application))
+            result["applications"].append(EurekaEncoder.encode_application(application))
 
         return result
 
 
-class Decoder:
+class EurekaDecoder:
     @staticmethod
     def decode_lease_info(lease_dict: Dict) -> LeaseInfo:
         lease = LeaseInfo(**lease_dict)
@@ -75,7 +75,7 @@ class Decoder:
 
     @staticmethod
     def decode_instance(instance_dict: Dict) -> InstanceInfo:
-        lease = Decoder.decode_lease_info(instance_dict["lease_info"])
+        lease = EurekaDecoder.decode_lease_info(instance_dict["lease_info"])
         instance_dict["lease_info"] = lease
 
         status_property = ["status", "overridden_status"]
@@ -93,7 +93,7 @@ class Decoder:
         application = Application(application_dict["name"])
         instance_dict_list = application_dict["instance_dict"]
         for instance_dict in instance_dict_list:
-            instance = Decoder.decode_instance(instance_dict)
+            instance = EurekaDecoder.decode_instance(instance_dict)
             application.add_instance(instance)
 
         application._is_dirty = application_dict["is_dirty"]  # overwrite this protected value since there is no setter
@@ -104,7 +104,7 @@ class Decoder:
     def decode_applications(applications_dict: Dict) -> Applications:
         applications = Applications()
         for application_dict in applications_dict["applications"]:
-            application = Decoder.decode_application(application_dict)
+            application = EurekaDecoder.decode_application(application_dict)
             applications.add_application(application)
 
         return applications
