@@ -141,5 +141,5 @@ class InstanceRegistry:
             applications.reconciliation_hash_code = applications.compute_reconciliation_hash_code()
             return applications
 
-    def get_responser(self) -> RegistryPresenter:
+    def get_presenter(self) -> RegistryPresenter:
         return self.presenter
