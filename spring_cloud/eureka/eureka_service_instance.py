@@ -12,28 +12,25 @@ from spring_cloud.utils.validate import not_none
 
 
 class EurekaServiceInstance(ServiceInstance):
-    def __init__(self, instance_info):
+    def __init__(self, instance_info: InstanceInfo):
         self.__instance = not_none(instance_info)
 
-    # def get_instance_info(self):
-    #     return self.__instance
-
     def instance_id(self) -> str:
-        return self.__instance.instance_id()
+        return self.__instance.instance_id
 
     def service_id(self) -> str:
-        return self.__instance.app_name()
+        return self.__instance.app_name
 
     def host(self) -> str:
-        return self.__instance.host_name()
+        return self.__instance.host_name
 
     def port(self) -> int:
         if self.secure():
-            return self.__instance.secure_port()
-        return self.__instance.port()
+            return self.__instance.secure_port
+        return self.__instance.port
 
     def secure(self) -> bool:
-        return self.__instance.is_port_enabled("SECURE")
+        return self.__instance.is_port_enabled(InstanceInfo.PortType.SECURE)
 
     def uri(self) -> str:
         if self.secure():
