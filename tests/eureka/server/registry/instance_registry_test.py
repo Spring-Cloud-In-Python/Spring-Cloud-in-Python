@@ -6,6 +6,7 @@ __license__ = "Apache 2.0"
 # scip plugin
 from eureka.server.registry.instance_registry import InstanceRegistry
 from tests.eureka.client.discovery.shared.stubs import instance_info
+from eureka.server.registry.registry_presenter import RegistryPresenter
 
 
 class TestInstanceRegistry:
@@ -48,3 +49,6 @@ class TestInstanceRegistry:
         returned_app = applications.get_registered_application("app_2")
         assert 1 == returned_app.size()
         assert "3" == returned_app.get_instance_by_id("3").instance_id
+
+    def test_get_presenter(self):
+        assert isinstance(self.instance_registry.get_presenter(), RegistryPresenter)
