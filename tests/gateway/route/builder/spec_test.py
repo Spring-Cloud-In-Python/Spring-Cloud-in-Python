@@ -21,14 +21,14 @@ class TestSpec:
         self.p = PredicateSpec(self.route_builder, self.builder)
         self.f = GatewayFilterSpec(self.route_builder, self.builder)
 
-    def test_syntactic_sugar(self):
+    def test_basic_route_builder(self):
         self.given_predicate_spec_and_gateway_filter_spec()
         route_builder = (
             self.p.path("/get").filters(lambda f: f.add_request_header("Hello", "Johnny")).uri("http://a_cat")
         )
         assert isinstance(route_builder, Route.Builder)
 
-    def test_syntactic_sugar_with_logical_operator(self):
+    def test_route_builder_with_logical_operator(self):
         self.given_predicate_spec_and_gateway_filter_spec()
         route_builder = (
             self.p.path("/andnotquery")
