@@ -135,6 +135,7 @@ class InstanceInfo:
 
     @property
     def instance_id(self) -> str:
+        print("gg")
         return self._instance_id
 
     @instance_id.setter
