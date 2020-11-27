@@ -18,13 +18,11 @@ class RoundRobinRule(AbstractLoadBalanceRule):
     __AVAILABLE_ONLY_SERVERS = True
     __ALL_SERVERS = False
 
-    def __init__(self, lb: LoadBalancer):
-        if lb:
-            self.set_loadbalancer(lb)
-
+    def __init__(self, lb: LoadBalancer = None):
+        self.__lb = lb
         self.__nextServerCyclicCounter = AtomicInteger()
 
-    def choose(self, lb: LoadBalancer, key: object) -> Server:
+    def choose(self, lb: LoadBalancer = None) -> Server:
         if lb is None and self.__lb is None:
             self.log("no load balancer")
             return None
@@ -49,6 +47,7 @@ class RoundRobinRule(AbstractLoadBalanceRule):
                 return None
 
             nextServerIndex = self.__increment_and_get_modulo(serverCount)
+
             server = allServers[nextServerIndex]
 
             if server is None:
