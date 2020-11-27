@@ -45,9 +45,9 @@ def test_eureka_service_instance():
     eureka_service_instance1 = EurekaServiceInstance(instance_info1)
     eureka_service_instance2 = EurekaServiceInstance(instance_info2)
 
-    assert eureka_service_instance0.instance_id() == "0"
-    assert eureka_service_instance0.service_id() == "app0"
-    assert eureka_service_instance0.secure() is False
+    assert eureka_service_instance0.instance_id == "0"
+    assert eureka_service_instance0.service_id == "app0"
+    assert eureka_service_instance0.secure is False
     assert EurekaServiceInstance(instance_info0) != instance_info0
     assert EurekaServiceInstance(instance_info0) != instance_info1
     assert eureka_service_instance0 != eureka_service_instance1

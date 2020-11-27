@@ -19,17 +19,18 @@ class EurekaDiscoveryClient(DiscoveryClient):
         self.client_config = client_config
 
     def get_instances(self, service_id: str) -> List[ServiceInstance]:
-        instance_info = self.eureka_client.getInstancesByVipAddress(service_id, False)
-        instances = [EurekaServiceInstance(x) for x in infos]
+        instance_info = self.eureka_client.get_instances_by_vip_address(service_id, False)
+        instances = [EurekaServiceInstance(x) for x in instance_info]
         return instances
 
+    @property
     def services(self) -> List[str]:
-        applications = self.eureka_client.getApplications()
+        applications = self.eureka_client.get_applications()
         if not applications:
             return []
-        registered_apps = applications.getRegisteredApplications()
+        registered_apps = applications.get_registered_applications()
         names = []
         for app in registered_apps:
-            if not app.getInstances().isEmpty():
-                names.append(app.getName().toLowerCase())
+            if not app.get_instances().is_empty():
+                names.append(app.get_name().lower())
         return names

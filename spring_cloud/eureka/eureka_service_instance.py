@@ -15,33 +15,40 @@ class EurekaServiceInstance(ServiceInstance):
     def __init__(self, instance_info: InstanceInfo):
         self.__instance = not_none(instance_info)
 
+    @property
     def instance_id(self) -> str:
         return self.__instance.instance_id
 
+    @property
     def service_id(self) -> str:
         return self.__instance.app_name
 
+    @property
     def host(self) -> str:
         return self.__instance.host_name
 
+    @property
     def port(self) -> int:
-        if self.secure():
+        if self.secure:
             return self.__instance.secure_port
         return self.__instance.port
 
+    @property
     def secure(self) -> bool:
         return self.__instance.is_port_enabled(InstanceInfo.PortType.SECURE)
 
+    @property
     def uri(self) -> str:
-        if self.secure():
+        if self.secure:
             scheme = "https"
         else:
             scheme = "http"
-        uri = "{}://{}:{}".format(scheme, self.host(), self.port())
+        uri = "{}://{}:{}".format(scheme, self.host, self.port)
         return uri
 
+    @property
     def scheme(self) -> str:
-        return self.uri().split(":")[0]
+        return self.uri.split(":")[0]
 
     def __eq__(self, obj) -> bool:
         if obj is self:
