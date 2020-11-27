@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from eureka.server.registry.instance_registry import InstanceRegistry
 
 
-class RegistryResponser:
+class RegistryPresenter:
     def __init__(self, registry: InstanceRegistry):
         self.registry = registry
         self.encoder = EurekaEncoder()

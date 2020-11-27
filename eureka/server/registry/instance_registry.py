@@ -13,7 +13,7 @@ from typing import Optional
 from eureka.client.app_info import InstanceInfo, LeaseInfo
 from eureka.client.discovery.shared import Application, Applications
 from eureka.server.lease.lease import Lease
-from eureka.server.registry.registry_responser import RegistryResponser
+from eureka.server.registry.registry_presenter import RegistryPresenter
 from eureka.utils.concurrent import ConcurrentMap
 
 
@@ -54,7 +54,7 @@ class InstanceRegistry:
     def __init__(self):
         self.registry = ConcurrentMap()
         self.lock = threading.RLock()
-        self.responser = RegistryResponser(self)
+        self.presenter = RegistryPresenter(self)
 
     def register(self, registrant: InstanceInfo, lease_duration: int):
         """
@@ -141,5 +141,5 @@ class InstanceRegistry:
             applications.reconciliation_hash_code = applications.compute_reconciliation_hash_code()
             return applications
 
-    def get_responser(self) -> RegistryResponser:
-        return self.responser
+    def get_responser(self) -> RegistryPresenter:
+        return self.presenter
