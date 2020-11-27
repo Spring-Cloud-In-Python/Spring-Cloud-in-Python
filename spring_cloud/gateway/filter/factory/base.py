@@ -6,14 +6,14 @@ __author__ = "Chaoyuuu (chaoyu2330@gmail.com)"
 __license__ = "Apache 2.0"
 
 # scip plugin
-from spring_cloud.gateway.handler.predicate import Predicate
+from spring_cloud.gateway.filter import GatewayFilter
 
 
-class RoutePredicateFactory(ABC):
+class GatewayFilterFactory(ABC):
     @abstractmethod
-    def apply(self, config) -> Predicate:
+    def apply(self, config) -> GatewayFilter:
         pass
 
 
-class AbstractRoutePredicateFactory(RoutePredicateFactory, ABC):
+class AbstractGatewayFilterFactory(GatewayFilterFactory, ABC):
     pass
