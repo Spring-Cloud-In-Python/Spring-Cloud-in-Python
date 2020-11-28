@@ -29,5 +29,4 @@ class EurekaDiscoveryClient(DiscoveryClient):
         if not applications:
             return []
         registered_apps = applications.get_registered_applications()
-        names = [app.get_name().lower() for app in registered_apps if not app.get_instances().is_empty()]
-        return names
+        return [app.get_name().lower() for app in registered_apps if not app.get_instances().is_empty()]
