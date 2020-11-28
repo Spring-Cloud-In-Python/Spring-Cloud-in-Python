@@ -7,19 +7,17 @@ __license__ = "Apache 2.0"
 from datetime import datetime
 
 # scip plugin
-from spring_cloud.gateway.handler.predicate import TRUE
 from spring_cloud.gateway.route import Route
-from spring_cloud.gateway.route.builder.spec import GatewayFilterSpec, PredicateSpec
+from spring_cloud.gateway.route.builder.spec import PredicateSpec
 
 
 class TestSpec:
     # TODO: builder is a instance of RouteLocatorBuilder
     #  But RouteLocatorBuilder hasn't be implemented, it will be completed in the next PR
     def given_predicate_spec_and_gateway_filter_spec(self):
-        self.route_builder = Route.Builder().set_route_id(1).set_uri("http://a_cat").set_predicate(TRUE)
+        self.route_builder = Route.Builder()
         self.builder = None
         self.p = PredicateSpec(self.route_builder, self.builder)
-        self.f = GatewayFilterSpec(self.route_builder, self.builder)
 
     def test_basic_route_builder(self):
         self.given_predicate_spec_and_gateway_filter_spec()
