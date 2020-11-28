@@ -43,6 +43,9 @@ class Route:
     def metadata(self) -> {}:
         return self.__metadata
 
+    def builder(self):
+        return Route.Builder()
+
     class Builder:
         def __init__(self):
             self.__route_id = None
@@ -60,7 +63,7 @@ class Route:
             self.__gateway_filters.append(gateway_filter)
             return self
 
-        def set_route_id(self, route_id: int) -> Route.Builder:
+        def set_route_id(self, route_id: str) -> Route.Builder:
             self.__route_id = route_id
             return self
 
