@@ -6,6 +6,7 @@ __license__ = "Apache 2.0"
 # standard library
 import time
 import warnings
+from typing import List
 
 # scip plugin
 from ribbon.loadbalancer.abstract_loadbalance_rule import AbstractLoadBalanceRule
@@ -23,49 +24,43 @@ class RoundRobinRule(AbstractLoadBalanceRule):
         self.__nextServerCyclicCounter = AtomicInteger()
 
     def choose(self, lb: LoadBalancer = None) -> Server:
-        if lb is None and self.__lb is None:
-            self.log("no load balancer")
-            return None
-
-        elif lb is None:
-            lb = self.__lb
+        lb = lb or self.__lb
 
         server: Server = None
         count = 0
 
-        while server is None and count < 10:
-            count += 1
+        if lb:
+            while not server and count < 10:
+                count += 1
 
-            reachableServers: list[Server] = lb.get_reachable_servers()
-            allServers: list[Server] = lb.get_all_servers()
+                reachableServers: List[Server] = lb.get_reachable_servers()
+                allServers: List[Server] = lb.get_all_servers()
 
-            upCount = len(reachableServers)
-            serverCount = len(allServers)
+                upCount = len(reachableServers)
+                serverCount = len(allServers)
 
-            if upCount == 0 or serverCount == 0:
-                self.log("No up servers available from load balancer: " + lb)
-                return None
+                if upCount == 0 or serverCount == 0:
+                    self.log(f"No up servers available from load balancer: {lb}")
+                    return None
 
-            nextServerIndex = self.__increment_and_get_modulo(serverCount)
+                nextServerIndex = self.__increment_and_get_modulo(serverCount)
 
-            server = allServers[nextServerIndex]
+                server = allServers[nextServerIndex]
 
-            if server is None:
-                """
-                time.sleep(0) can make it like thread.yield in java
-                """
-                time.sleep(0)
-                continue
+                if server is None:
+                    time.sleep(0)
+                    continue
 
-            if server.is_alive() and server.is_ready_to_serve():
-                return server
+                if server.is_alive() and server.is_ready_to_serve():
+                    return server
 
-            else:
-                server = None
+                else:
+                    server = None
 
-        if count > 10:
-            self.log("No available alive servers after 10 tries from load balancer: " + lb)
+            if count > 10:
+                self.log(f"No available alive servers after 10 tries from load balancer: {lb}")
 
+        self.log("no load balancer")
         return server
 
     def __increment_and_get_modulo(self, modulo: int) -> int:
