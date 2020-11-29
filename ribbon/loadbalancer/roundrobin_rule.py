@@ -44,7 +44,6 @@ class RoundRobinRule(AbstractLoadBalanceRule):
                     return None
 
                 nextServerIndex = self.__increment_and_get_modulo(serverCount)
-
                 server = allServers[nextServerIndex]
 
                 if server is None:

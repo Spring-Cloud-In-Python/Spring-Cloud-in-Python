@@ -92,7 +92,7 @@ class Server:
         return None
 
     @classmethod
-    def __get_scheme(cls, uri: str) -> str:
+    def get_scheme(cls, uri: str) -> str:
         if not uri:
             return None
 
@@ -152,7 +152,6 @@ class Server:
             self.__serverId = self.combine_id(hostPort[0], hostPort[1])
             self.__host = hostPort[0]
             self.__port = hostPort[1]
-            self.__scheme = self.__get_scheme(uri)
 
     def set_alive(self, isAliveFlag):
         self.__isAliveFlag = isAliveFlag
