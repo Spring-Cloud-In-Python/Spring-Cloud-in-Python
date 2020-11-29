@@ -3,43 +3,43 @@
 __author__ = "Ssu-Tsen"
 __license__ = "Apache 2.0"
 
+
 # standard library
 from typing import Set
 
 # scip plugin
+from ribbon.loadbalancer.server import Server
 from spring_cloud.commons.client import ServiceInstance
 
 
 class RibbonServer(ServiceInstance):
-    def __init__(self, service_id, server, secure, metadata):
+    def __init__(self, service_id: str, server: Server, secure: bool):
         self.__service_id = service_id
         self.__server = server
         self.__secure = secure
-        self.__metadata = metadata
 
-    def get_instance_id(self):
+    def instance_id(self) -> str:
         return self.__server.get_id()
 
-    def get_service_id(self):
+    def service_id(self) -> str:
         return self.__service_id
 
-    def get_host(self):
+    def host(self) -> str:
         return self.__server.get_host()
 
-    def get_port(self):
+    def port(self) -> int:
         return self.__server.get_port()
 
-    def is_secure(self):
+    def secure(self) -> bool:
         return self.__secure
 
-    def get_uri(self):
-        return ServiceInstance.get_uri(self)
+    def uri(self) -> str:
+        scheme = "https" if self.secure else "http"
+        uri = "{}://{}{}".format(scheme, self.host(), self.port())
+        return uri
 
-    def get_metadata(self) -> dict[str, str]:
-        return self.__metadata
-
-    def get_server(self):
+    def server(self) -> Server:
         return self.__server
 
-    def get_scheme(self):
-        return self.__server.get_scheme()
+    def scheme(self) -> str:
+        return self.__server.get_scheme(self.uri())

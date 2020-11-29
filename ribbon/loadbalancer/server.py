@@ -81,6 +81,23 @@ class Server:
         return None
 
     @classmethod
+<<<<<<< HEAD
+=======
+    def get_scheme(cls, uri: str) -> str:
+        if not uri:
+            return None
+
+        scheme = None
+        uri = uri.lower()
+        if uri.startswith("http://"):
+            scheme = "http"
+        elif uri.startswith("https://"):
+            scheme = "https"
+
+        return scheme
+
+    @classmethod
+>>>>>>> revise ribbon_server.py
     def get_host_port(cls, uri: str) -> tuple:
         if uri is None:
             return None
@@ -131,8 +148,33 @@ class Server:
         self.__zone = zone
 
     @property
+<<<<<<< HEAD
     def scheme(self) -> str:
         return self.__scheme
+=======
+    def scheme(self, uri: str) -> str:
+        if not uri:
+            return None
+
+        scheme = None
+        uri = uri.lower()
+        if uri.startswith("http://"):
+            scheme = "http"
+        elif uri.startswith("https://"):
+            scheme = "https"
+
+<<<<<<< HEAD
+        return scheme
+=======
+        if hostPort is None:
+            self.__serverId = None
+        else:
+            self.__serverId = self.combine_id(hostPort[0], hostPort[1])
+            self.__host = hostPort[0]
+            self.__port = hostPort[1]
+            self.__scheme = self.get_scheme(uri)
+>>>>>>> revise ribbon_server.py
+>>>>>>> revise ribbon_server.py
 
     @scheme.setter
     def scheme(self, scheme: str):
