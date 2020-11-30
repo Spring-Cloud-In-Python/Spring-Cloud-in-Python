@@ -2,13 +2,11 @@
 from __future__ import annotations
 
 # standard library
+from abc import ABC, abstractmethod
 from typing import List
 
 __author__ = "Chaoyuuu (chaoyu2330@gmail.com)"
 __license__ = "Apache 2.0"
-
-# standard library
-from abc import ABC, abstractmethod
 
 # scip plugin
 from spring_cloud.gateway.route import Route

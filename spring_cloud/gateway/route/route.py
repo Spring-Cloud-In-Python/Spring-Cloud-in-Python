@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
+# standard library
+from typing import List
+
 __author__ = "Chaoyuuu (chaoyu2330@gmail.com)"
 __license__ = "Apache 2.0"
 
@@ -55,7 +58,7 @@ class Route:
             self.__metadata = {}
             self.__order = None
 
-        def filters(self, gateway_filters: []) -> Route.Builder:
+        def filters(self, gateway_filters: List) -> Route.Builder:
             self.__gateway_filters.extends(gateway_filters)
             return self
 
