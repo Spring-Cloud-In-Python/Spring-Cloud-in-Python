@@ -38,7 +38,6 @@ class TestRouteLocatorBuilder:
                 .and_()
                 .not_(lambda p: p.after(datetime(2020, 11, 11)))
                 .filters(lambda f: f.add_request_header("Hello", "Johnny"))
-                # .metadate("A", "apple")
                 .uri("http://a_cat"),
             )
             .route(
