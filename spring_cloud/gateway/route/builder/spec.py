@@ -4,6 +4,7 @@ from __future__ import annotations
 # standard library
 import re
 from datetime import datetime
+from typing import List, TypeVar
 
 __author__ = "Chaoyuuu (chaoyu2330@gmail.com)"
 __license__ = "Apache 2.0"
@@ -30,15 +31,16 @@ from spring_cloud.gateway.handler.predicate.core import (
 from spring_cloud.gateway.route import Route
 from spring_cloud.utils.validate import not_none
 
+RouteLocatorBuilder = TypeVar("RouteLocatorBuilder")
+Datetime = TypeVar("Datetime", bound=datetime)
+
 
 class UriSpec(ABC):
     """
      A specification to add a URI to a route.
     """
 
-    # TODO: builder is a instance of RouteLocatorBuilder
-    #  But RouteLocatorBuilder hasn't be implemented, it will be completed in the next PR
-    def __init__(self, route_builder: Route.Builder, builder):
+    def __init__(self, route_builder: Route.Builder, builder: RouteLocatorBuilder):
         self.route_builder = route_builder
         self.builder = builder
 
@@ -51,7 +53,7 @@ class UriSpec(ABC):
 
 
 class PredicateSpec(UriSpec):
-    def __init__(self, route_builder: Route.Builder, builder):
+    def __init__(self, route_builder: Route.Builder, builder: RouteLocatorBuilder):
         super().__init__(route_builder, builder)
 
     def order(self, order: int) -> PredicateSpec:
@@ -65,7 +67,7 @@ class PredicateSpec(UriSpec):
     def create_gateway_predicate_spec(self) -> GatewayFilterSpec:
         return GatewayFilterSpec(self.route_builder, self.builder)
 
-    def after(self, date_time: datetime) -> BooleanSpec:
+    def after(self, date_time: Datetime) -> BooleanSpec:
         """
         A predicate to check if a request was made after a specific {@link ZonedDateTime}.
         Args:
@@ -165,7 +167,7 @@ class GatewayFilterSpec(UriSpec):
     def __init__(self, route_builder: Route.Builder, builder):
         super().__init__(route_builder, builder)
 
-    def filters(self, gateway_filters: []) -> GatewayFilterSpec:
+    def filters(self, gateway_filters: List) -> GatewayFilterSpec:
         """
         Applies the list of filters to the route.
         Args:
