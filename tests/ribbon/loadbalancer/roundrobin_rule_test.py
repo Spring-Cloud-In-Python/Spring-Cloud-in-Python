@@ -68,3 +68,9 @@ class TestRoundRobinRule:
         assert server1.get_port() == 200  # will get next index of server
         assert server2.get_port() == 100
         assert server3.get_port() == 200  # Cause the third server is not alive
+
+    def test_choose_with_no_server_in_loadbalancer(self):
+        roundRobinRule = RoundRobinRule()
+        server = roundRobinRule.choose()
+
+        assert server == "asdas"
