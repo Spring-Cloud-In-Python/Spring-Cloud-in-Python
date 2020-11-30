@@ -6,7 +6,7 @@ __license__ = "Apache 2.0"
 
 # scip plugin
 from spring_cloud.gateway.filter import GatewayFilter
-from spring_cloud.gateway.handler.predicate import Predicate
+from spring_cloud.gateway.handler.predicate import AND, NOT, OR, Predicate
 from spring_cloud.utils.validate import not_none
 
 
@@ -80,16 +80,20 @@ class Route:
             self.__metadata[key] = value
             return self
 
-        # TODO: and_predicate() is a function to call Predicate.and_predicate(),
-        #  but it has not been implemented, and will be done in the future.
-        #  Same situation to or_predicate() and negate_predicate()
-        def and_predicate(self, predicate: Predicate) -> Route.Builder:
+        @property
+        def predicate(self) -> Predicate:
+            return self.__predicate
+
+        def and_(self, predicate: Predicate) -> Route.Builder:
+            self.__predicate = AND(self.__predicate, predicate)
             return self
 
-        def or_predicate(self, predicate: Predicate) -> Route.Builder:
+        def or_(self, predicate: Predicate) -> Route.Builder:
+            self.__predicate = OR(self.__predicate, predicate)
             return self
 
-        def negate_predicate(self) -> Route.Builder:
+        def negate_(self) -> Route.Builder:
+            self.__predicate = NOT(self.__predicate)
             return self
 
         def build(self) -> Route:
