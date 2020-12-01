@@ -156,6 +156,9 @@ class Server:
     def set_alive(self, isAliveFlag):
         self.__isAliveFlag = isAliveFlag
 
+    def set_alive(self, isAliveFlag):
+        self.__isAliveFlag = isAliveFlag
+
     def set_ready_to_serve(self, ready_to_serve: bool):
         self.__readyToServe = ready_to_serve
 
