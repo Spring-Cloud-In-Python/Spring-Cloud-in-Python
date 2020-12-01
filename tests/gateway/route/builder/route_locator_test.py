@@ -16,29 +16,29 @@ class TestRouteLocatorBuilder:
 
     def test_basic_route(self):
         self.given_route_locator_builder()
-        routes = (
+        route_locator = (
             self.builder.routes()
             .route(
                 lambda p: p.path("/get").filters(lambda f: f.add_request_header("Hello", "Johnny")).uri("http://a_cat")
             )
-            .build_test()
+            .build()
         )
 
-        route = routes[0]
+        routes = route_locator.get_routes()
         assert len(routes) == 1
-        assert route.uri == "http://a_cat"
+        assert routes[0].uri == "http://a_cat"
 
     def test_routes_with_logical_opertor(self):
         self.given_route_locator_builder()
-        routes = (
+        route_locator = (
             self.builder.routes()
-            .route_with_id(
-                "test1",
+            .route(
                 lambda p: p.path("/andnotquery")
                 .and_()
                 .not_(lambda p: p.after(datetime(2020, 11, 11)))
                 .filters(lambda f: f.add_request_header("Hello", "Johnny"))
                 .uri("http://a_cat"),
+                "test1",
             )
             .route(
                 lambda p: p.cookie("cookie", "chocolate")
@@ -46,9 +46,10 @@ class TestRouteLocatorBuilder:
                 .metadata("A", "Apple")
                 .uri("http://a_dog")
             )
-            .build_test()
+            .build()
         )
 
+        routes = route_locator.get_routes()
         assert len(routes) == 2
         route_1 = routes[0]
         assert route_1.route_id == "test1"

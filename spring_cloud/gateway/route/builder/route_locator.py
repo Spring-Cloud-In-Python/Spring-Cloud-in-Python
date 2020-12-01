@@ -18,15 +18,23 @@ class RouteLocator(ABC):
         pass
 
 
+class RouteLocatorImpl(RouteLocator):
+    def __init__(self, route_builders: List[Route.Builder]):
+        self.__route_builders = route_builders
+
+    def get_routes(self) -> List[Route]:
+        return [route_builder.build() for route_builder in self.__route_builders]
+
+
 class RouteLocatorBuilder:
     def routes(self) -> RouteLocatorBuilder.Builder:
         return self.Builder()
 
     class Builder:
         def __init__(self):
-            self.__routes = []
+            self.__route_builders = []
 
-        def route_with_id(self, route_id: str, f_) -> RouteLocatorBuilder.Builder:
+        def route(self, f_, route_id: str = None) -> RouteLocatorBuilder.Builder:
             """
             Creates a new Route
             Args:
@@ -37,28 +45,13 @@ class RouteLocatorBuilder:
             # scip plugin
             from spring_cloud.gateway.route.builder.spec import RouteSpec
 
-            route_builder = f_(RouteSpec(self).id(route_id))
-            self.__routes.append(route_builder)
-            return self
+            if route_id is None:
+                route_builder = f_(RouteSpec(self).random_id())
+            else:
+                route_builder = f_(RouteSpec(self).id(route_id))
 
-        def route(self, f_) -> RouteLocatorBuilder.Builder:
-            """
-            Creates a new Route
-            Args:
-                f_: a lambda function which takes in a PredicateSpec and returns a Route.Builder
-            """
-            # To solve the circular import between RouteSpec and RouteLocatorBuilder
-            # scip plugin
-            from spring_cloud.gateway.route.builder.spec import RouteSpec
-
-            route_builder = f_(RouteSpec(self).random_id())
-            self.__routes.append(route_builder)
+            self.__route_builders.append(route_builder)
             return self
 
         def build(self) -> RouteLocator:
-            self.__routes = [route_builder.build() for route_builder in self.__routes]
-            return RouteLocator()
-
-        def build_test(self) -> List[Route]:
-            self.__routes = [route_builder.build() for route_builder in self.__routes]
-            return self.__routes
+            return RouteLocatorImpl(self.__route_builders)
