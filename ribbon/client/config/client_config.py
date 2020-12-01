@@ -62,7 +62,7 @@ DefaultClientConfig = DotMap(
 
 class ClientConfig:
     def __init__(self, nameSpace: str = None):
-        self.__property_name_space = nameSpace or DefaultClientConfig.DEFAULT_PROPERTY_NAME_SPACE
+        self.__property_name_space = nameSpace or DefaultClientConfig.PROPERTY_NAME_SPACE
         self.__properties = OrderedDict()
         self.__enable_dynamic_properties = False
 
