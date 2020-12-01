@@ -4,13 +4,8 @@ __author__ = "MJ (tsngmj@gmail.com)"
 __license__ = "Apache 2.0"
 
 # scip plugin
-from ribbon.client import default_client_config
-from ribbon.client.client_config import ClientConfig
-from ribbon.client.common_client_config_key import CommonClientConfigKey
-from ribbon.client.default_client_config import DefaultClientConfig
 from ribbon.eureka.discovery_enabled_server import DiscoveryEnabledServer
 from ribbon.loadbalancer.abstract_server_list import AbstractServerList
-from spring_cloud.utils.logger import Logger
 
 # int overridePort = DefaultClientConfigImpl.DEFAULT_PORT;
 
