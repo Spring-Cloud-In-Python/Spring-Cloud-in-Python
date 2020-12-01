@@ -54,4 +54,8 @@ def __present_message(message: Message, poster):
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8001)
+    # standard library
+    import os
+
+    port = int(os.getenv("port"))
+    uvicorn.run(app, host="0.0.0.0", port=port)

@@ -6,4 +6,8 @@ __author__ = "Waterball (johnny850807@gmail.com)"
 __license__ = "Apache 2.0"
 
 if __name__ == "__main__":
-    spring_cloud_bootstrap.enable_service_registry(port=10000)
+    # standard library
+    import os
+
+    port = int(os.getenv("port"))
+    spring_cloud_bootstrap.enable_service_registry(port=port)

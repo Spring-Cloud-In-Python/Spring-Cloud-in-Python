@@ -10,5 +10,10 @@ def enable_service_discovery():
 
 
 def enable_service_registry(port=8761):
-    # TODO: implement the bootstrapping
-    pass
+    # TODO: Fake, should be substituted with the real implementation
+    # standard library
+    import time
+
+    while True:
+        time.sleep(3)
+        print("Tick...")  # simulate service' running
