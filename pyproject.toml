@@ -9,6 +9,7 @@ license = "Apache-2.0"
 python = "^3.7"
 wrapt = "^1.12.1"
 loguru = "0.5.3"
+pydantic = "1.7.2"
 
 [tool.poetry.dev-dependencies]
 pre-commit = "^2.7.1"
