@@ -31,6 +31,7 @@ class TestToModel:
                 metadata={},
                 host_name="localhost",
                 action_type=InstanceInfo.ActionType.ADD,
+                status=InstanceInfo.Status.UP,
             ),
             InstanceInfo(
                 instance_id="instance_2",
@@ -78,7 +79,8 @@ class TestToModel:
 
         assert instance_info_model.instance_id == "instance_1"
         assert instance_info_model.lease_info.lease_renewal_interval_in_secs == 1
-        assert instance_info_model.action_type == "ActionType.ADD"
+        assert instance_info_model.action_type == "ADD"
+        assert instance_info_model.status == "UP"
 
     def test_application_model(self):
         application_model = ApplicationModel.from_entity(self.application_list[0])

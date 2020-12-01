@@ -12,6 +12,7 @@ from typing import Dict, Optional
 from pydantic import BaseModel
 
 # scip plugin
+from eureka.client.app_info import LeaseInfo
 from eureka.client.app_info.instance_info import InstanceInfo
 from eureka.model.lease_info_model import LeaseInfoModel
 
@@ -21,6 +22,8 @@ INSTANCE_INFO_ENUM_TRANSFORM_TABLE = {
     "action_type": InstanceInfo.ActionType,
 }
 
+DEFAULT_LEASE_INFO_MODEL = LeaseInfoModel.from_entity(LeaseInfo())
+
 
 class InstanceInfoModel(BaseModel):
     instance_id: str
@@ -28,7 +31,7 @@ class InstanceInfoModel(BaseModel):
     ip_address: str
     vip_address: str
     secure_vip_address: str
-    lease_info: LeaseInfoModel
+    lease_info: LeaseInfoModel = DEFAULT_LEASE_INFO_MODEL
     host_name: str
     app_group_name: Optional[str]
     metadata: Optional[Dict[str, str]]
@@ -40,8 +43,8 @@ class InstanceInfoModel(BaseModel):
     is_unsecure_port_enabled: Optional[bool]
     port: int = InstanceInfo.DEFAULT_PORT
     secure_port: int = InstanceInfo.DEFAULT_SECURE_PORT
-    status: str = InstanceInfo.Status.UP
-    overridden_status: str = InstanceInfo.Status.UNKNOWN
+    status: str = InstanceInfo.Status.UP.value
+    overridden_status: str = InstanceInfo.Status.UNKNOWN.value
     is_instance_info_dirty: Optional[bool]
 
     @staticmethod
@@ -56,7 +59,7 @@ class InstanceInfoModel(BaseModel):
 
             value = getattr(instance_info, property_name)
             if isinstance(value, Enum):
-                value = str(value)
+                value = value.value
 
             obj[property_key] = value
 
@@ -66,12 +69,12 @@ class InstanceInfoModel(BaseModel):
 
     def to_entity(self) -> InstanceInfo:
         for property_name, enum_type in INSTANCE_INFO_ENUM_TRANSFORM_TABLE.items():
-            property_value = getattr(self, property_name)  # e.g. "Status.UP", None
+            property_value = getattr(self, property_name)
 
             if property_value is None:
                 continue
 
-            property_value = property_value.split(".")[-1]  # e.g. "UP"
+            property_value = property_value.split(".")[-1]
             setattr(self, property_name, enum_type(property_value))
 
         obj = self.dict()
