@@ -54,7 +54,7 @@ class LoadBalancer(ABC):
         """
         pass
 
-    def get_all_servers(self):
+    def get_all_servers(self) -> List[Server]:
         """
         Return all known servers, both reachable and unreachable.
         :return: A List of Servers

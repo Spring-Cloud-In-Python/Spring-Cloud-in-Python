@@ -25,3 +25,14 @@ class AtomicInteger:
         with self.__lock:
             self.__value += 1
             return self.__value
+
+    def compare_and_set(self, expect: int, update: int) -> bool:
+        with self.__lock:
+            if self.__value == expect:
+                self.__value = update
+                return True
+            else:
+                return False
+
+    def get(self):
+        return self.__value
