@@ -15,19 +15,25 @@ def test_generate_an_empty_dot_map():
     assert dot_map == {}
 
 
-def test_generate_an_dot_map_with_given_none_map_data():
+def test_when_init_with_none_key_val_pair_should_raise():
     with pytest.raises(TypeError):
         dot_map = DotMap("MJ is awesome")
 
 
-def test_add_a_none_pair_data_into_dot_map():
+def test_add_key_val_pair_and_access():
     dot_map = DotMap()
     dot_map.mj = "MJ is awesome"
 
     assert dot_map.mj == "MJ is awesome"
 
 
-def test_get_value_with_given_unexist_key():
+def test_when_access_nonexistent_key_should_raise():
     dot_map = DotMap()
     with pytest.raises(AttributeError):
         val = dot_map.mj
+
+
+def test_nested_dot_map():
+    dot_map = DotMap()
+    dot_map.mj = DotMap(face="handsome")
+    assert dot_map.mj.face == "handsome"
