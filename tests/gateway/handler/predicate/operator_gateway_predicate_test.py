@@ -4,8 +4,7 @@ __author__ = "Chaoyuuu (chaoyu2330@gmail.com)"
 __license__ = "Apache 2.0"
 
 # scip plugin
-from spring_cloud.gateway.handler.predicate import FALSE, TRUE
-from spring_cloud.gateway.handler.predicate.operator_gateway_predicate import AND, NOT, OR
+from spring_cloud.gateway.handler.predicate import AND, FALSE, NOT, OR, TRUE
 
 
 class TestOrGatewayPredicate:

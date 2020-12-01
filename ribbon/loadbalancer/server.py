@@ -75,7 +75,7 @@ class Server:
             self.__port = port
             self.__scheme = scheme
 
-        self.__isFlagAlive = False
+        self.__isAliveFlag = False
         self.__readyToServe = True
         self.__zone = self.UNKNOWN_ZONE
 
@@ -92,7 +92,7 @@ class Server:
         return None
 
     @classmethod
-    def __get_scheme(cls, uri: str) -> str:
+    def get_scheme(cls, uri: str) -> str:
         if not uri:
             return None
 
@@ -152,7 +152,12 @@ class Server:
             self.__serverId = self.combine_id(hostPort[0], hostPort[1])
             self.__host = hostPort[0]
             self.__port = hostPort[1]
-            self.__scheme = self.__get_scheme(uri)
+
+    def set_alive(self, isAliveFlag):
+        self.__isAliveFlag = isAliveFlag
+
+    def set_alive(self, isAliveFlag):
+        self.__isAliveFlag = isAliveFlag
 
     def set_ready_to_serve(self, ready_to_serve: bool):
         self.__readyToServe = ready_to_serve
@@ -176,7 +181,7 @@ class Server:
         return self.__readyToServe
 
     def is_alive(self) -> bool:
-        return self.__isFlagAlive
+        return self.__isAliveFlag
 
     def __eq__(self, other):
         if type(self) == type(other):

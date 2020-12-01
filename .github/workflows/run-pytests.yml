@@ -30,6 +30,6 @@ jobs:
         pip install poetry
         poetry install
 
-    - name: Run pytest in `commons`
+    - name: Run pytests
       run: |
         poetry run python -m pytest tests/* --cov --cov-config=tests/.coveragerc --junitxml=py_springcloud_junit_report.xml
