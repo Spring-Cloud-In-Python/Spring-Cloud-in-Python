@@ -62,6 +62,10 @@ class TestInstanceRegistry:
         application = self.instance_registry.get_application("app_name")
         assert 2 == application.size()
 
+    def test_get_absent_application(self):
+        application = self.instance_registry.get_application("absent_app")
+        assert 0 == application.size()
+
     def test_get_applications(self):
         self.instance_registry.register(self.instance_info_list[0], 10)
         self.instance_registry.register(self.instance_info_list[1], 10)
