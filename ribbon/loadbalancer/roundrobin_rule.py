@@ -63,6 +63,7 @@ class RoundRobinRule(AbstractLoadBalanceRule):
                 self.logger.warning(f"No available alive servers after 10 tries from load balancer: {lb}")
 
         self.logger.warning("no load balancer")
+
         return server
 
     def __increment_and_get_modulo(self, modulo: int) -> int:
