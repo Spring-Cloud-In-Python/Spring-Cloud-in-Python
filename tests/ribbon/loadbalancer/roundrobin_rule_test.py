@@ -73,4 +73,4 @@ class TestRoundRobinRule:
         roundRobinRule = RoundRobinRule()
         server = roundRobinRule.choose()
 
-        assert server == "asdas"
+        assert server == None
