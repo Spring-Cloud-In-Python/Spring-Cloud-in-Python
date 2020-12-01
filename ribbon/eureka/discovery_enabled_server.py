@@ -4,6 +4,7 @@ __author__ = "MJ (tsngmj@gmail.com)"
 __license__ = "Apache 2.0"
 
 # scip plugin
+
 from eureka.client.app_info import InstanceInfo
 from ribbon.loadbalancer.server import MetaInfo, Server
 
@@ -49,3 +50,4 @@ class DiscoveryEnabledServer(Server):
     @property
     def meta_info(self):
         return self.__meta_info
+
