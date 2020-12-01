@@ -14,7 +14,7 @@ class TestClientConfig:
         self.client_config.add_property("mj", "is awesome")
         assert self.client_config.get_property("mj") == "is awesome"
 
-    def test_get_property_internal_with_unexist_key(self):
+    def test_get_property_internal_with_nonexistent_key(self):
         assert self.client_config.get_property("lulu") is None
 
     def test_delete_property(self):
