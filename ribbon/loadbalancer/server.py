@@ -59,7 +59,7 @@ class Server:
     UNKNOWN_ZONE = "UNKNOWN"
     # actually it should be public and final, but here is only public not final
 
-    def __init__(self, host: str = None, port: int = 80, scheme: str = None, uri: str = None):
+    def __init__(self, host: str = None, port: int = None, scheme: str = None, uri: str = None):
         if uri:
             self.set_id(uri)
             if host and host != self.__host:
@@ -72,7 +72,7 @@ class Server:
             raise Exception("Both host and scheme are required or You can give url only")
         else:
             self.__host = host
-            self.__port = port
+            self.__port = port or 80
             self.__serverId = self.combine_id(host, port)
             self.__scheme = scheme
 
