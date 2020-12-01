@@ -3,6 +3,7 @@ from __future__ import annotations
 
 # standard library
 import re
+import uuid
 from datetime import datetime
 from typing import List, TypeVar
 
@@ -29,6 +30,7 @@ from spring_cloud.gateway.handler.predicate.core import (
     PathRoutePredicateFactory,
 )
 from spring_cloud.gateway.route import Route
+from spring_cloud.gateway.route.builder.route_locator import RouteLocatorBuilder
 from spring_cloud.utils.validate import not_none
 
 RouteLocatorBuilder = TypeVar("RouteLocatorBuilder")
@@ -107,7 +109,7 @@ class BooleanSpec(UriSpec):
     A spec used to apply logical operators.
     """
 
-    def __init__(self, route_builder: Route.Builder, builder):
+    def __init__(self, route_builder: Route.Builder, builder: RouteLocatorBuilder.Builder):
         super().__init__(route_builder, builder)
         self.predicate = route_builder.predicate
 
@@ -129,7 +131,7 @@ class BooleanSpec(UriSpec):
         return f_(GatewayFilterSpec(self.route_builder, self.builder))
 
     class BooleanOpSpec(PredicateSpec):
-        def __init__(self, route_builder: Route.Builder, builder, operator: str):
+        def __init__(self, route_builder: Route.Builder, builder: RouteLocatorBuilder.Builder, operator: str):
             super().__init__(route_builder, builder)
             self.operator = operator
 
@@ -151,7 +153,7 @@ class BooleanSpec(UriSpec):
             return p_(BooleanSpec.NotOpSpec(self.route_builder, self.builder, "NEGATE"))
 
     class NotOpSpec(BooleanOpSpec):
-        def __init__(self, route_builder: Route.Builder, builder, operator: str):
+        def __init__(self, route_builder: Route.Builder, builder: RouteLocatorBuilder.Builder, operator: str):
             super().__init__(route_builder, builder, operator)
 
         def predicate(self, predicate) -> BooleanSpec:
@@ -164,7 +166,7 @@ class GatewayFilterSpec(UriSpec):
     Applies specific filters to routes.
     """
 
-    def __init__(self, route_builder: Route.Builder, builder):
+    def __init__(self, route_builder: Route.Builder, builder: RouteLocatorBuilder.Builder):
         super().__init__(route_builder, builder)
 
     def filters(self, gateway_filters: List) -> GatewayFilterSpec:
@@ -212,3 +214,20 @@ class GatewayFilterSpec(UriSpec):
         """
         config = NameValueConfig(header_name, header_value)
         return self.filter(AddResponseHeaderGatewayFilterFactory().apply(config))
+
+
+class RouteSpec:
+    def __init__(self, builder: RouteLocatorBuilder.Builder):
+        self.__builder = builder
+        self.__route_builder = Route.Builder()
+
+    def id(self, route_id: str) -> PredicateSpec:
+        self.__route_builder.set_route_id(route_id)
+        return self.predicate_builder()
+
+    def random_id(self) -> PredicateSpec:
+        self.__route_builder.set_route_id(str(uuid.uuid4()))
+        return self.predicate_builder()
+
+    def predicate_builder(self) -> PredicateSpec:
+        return PredicateSpec(self.__route_builder, self.__builder)

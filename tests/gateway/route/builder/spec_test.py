@@ -8,15 +8,14 @@ from datetime import datetime
 
 # scip plugin
 from spring_cloud.gateway.route import Route
+from spring_cloud.gateway.route.builder.route_locator import RouteLocatorBuilder
 from spring_cloud.gateway.route.builder.spec import PredicateSpec
 
 
 class TestSpec:
-    # TODO: builder is a instance of RouteLocatorBuilder
-    #  But RouteLocatorBuilder hasn't be implemented, it will be completed in the next PR
     def given_predicate_spec_and_gateway_filter_spec(self):
         self.route_builder = Route.Builder()
-        self.builder = None
+        self.builder = RouteLocatorBuilder.Builder()
         self.p = PredicateSpec(self.route_builder, self.builder)
 
     def test_basic_route_builder(self):
