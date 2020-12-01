@@ -20,7 +20,7 @@ Round Robin, Response Time based etc.
 
 class LoadBalanceRule(ABC):
     @abstractmethod
-    def choose(self, key: object) -> Server:
+    def choose(self, lb: LoadBalancer, key: object) -> Server:
         pass
 
     @abstractmethod
