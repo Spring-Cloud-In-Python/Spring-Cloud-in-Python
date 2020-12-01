@@ -10,7 +10,8 @@ import json
 from typing import TYPE_CHECKING
 
 # scip plugin
-from eureka.utils.eureka_converter import EurekaEncoder
+from eureka.model.application_model import ApplicationModel
+from eureka.model.applications_model import ApplicationsModel
 
 if TYPE_CHECKING:
     # scip plugin
@@ -20,18 +21,15 @@ if TYPE_CHECKING:
 class RegistryPresenter:
     def __init__(self, registry: InstanceRegistry):
         self.registry = registry
-        self.encoder = EurekaEncoder()
 
-    def query_application(self, application_name: str) -> str:
+    def query_application(self, application_name: str) -> ApplicationModel:
         application = self.registry.get_application(application_name)
-        application_dict = self.encoder.encode_application(application)
-        response = json.dumps(application_dict)
+        application_model = ApplicationModel.from_entity(application)
 
-        return response
+        return application_model
 
-    def query_applications(self) -> str:
+    def query_applications(self) -> ApplicationsModel:
         applications = self.registry.get_applications()
-        applications_dict = self.encoder.encode_applications(applications)
-        response = json.dumps(applications_dict)
+        applications_model = ApplicationsModel.from_entity(applications)
 
-        return response
+        return applications_model

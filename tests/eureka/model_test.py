@@ -130,6 +130,13 @@ class TestToModel:
         assert application_model.name == "app_1"
         assert application_model.instance_info_model_list[0].app_name == "app_1"
 
+    def test_application_given_empty_application(self):
+        application = Application("empty-app")
+        application_model = ApplicationModel.from_entity(application)
+
+        assert len(application_model.instance_info_model_list) == 0
+        assert application_model.name == "empty-app"
+
     def test_applications_model(self):
         applications_model = ApplicationsModel.from_entity(self.applications)
 

@@ -46,23 +46,38 @@ class StubRegistry(InstanceRegistry):
 
 class TestRegistryPresenter:
     def setup_method(self):
+        self.instance_info = InstanceInfo(
+            instance_id="instance_id",
+            app_name="app_name",
+            app_group_name="app_group_name",
+            ip_address="127.0.0.1",
+            vip_address="stub-service",
+            secure_vip_address="stub-service",
+            lease_info=LeaseInfo(),
+            metadata={},
+            host_name="localhost",
+        )
         self.stub_registry = StubRegistry()
         self.presenter = RegistryPresenter(self.stub_registry)
 
     def test_query_absent_application(self):
-        self.stub_registry.stub_application = None
-        response = self.presenter.query_application("no_app")
+        self.stub_registry.stub_application = Application("empty_app")
+        application_model = self.presenter.query_application("empty_app")
 
-        assert response == "{}"
+        assert len(application_model.instance_info_model_list) == 0
+        assert application_model.name == "empty_app"
 
     def test_query_application(self):
-        self.stub_registry.stub_application = Application("app_name")
-        response = self.presenter.query_application("app_name")
+        application = Application("app_name")
+        application.add_instance(self.instance_info)
+        self.stub_registry.stub_application = application
+        application_model = self.presenter.query_application("app_name")
 
-        assert response == '{"name": "app_name", "instance_dict": []}'
+        assert application_model.name == "app_name"
+        assert len(application_model.instance_info_model_list) == 1
 
     def test_query_applications(self):
         self.stub_registry.stub_applications = Applications()
-        response = self.presenter.query_applications()
+        applications_model = self.presenter.query_applications()
 
-        assert response == '{"applications": []}'
+        assert applications_model.application_model_list == []
