@@ -45,10 +45,10 @@ class RouteLocatorBuilder:
             # scip plugin
             from spring_cloud.gateway.route.builder.spec import RouteSpec
 
-            if route_id is None:
-                route_builder = f_(RouteSpec(self).random_id())
-            else:
+            if route_id:
                 route_builder = f_(RouteSpec(self).id(route_id))
+            else:
+                route_builder = f_(RouteSpec(self).random_id())
 
             self.__route_builders.append(route_builder)
             return self
