@@ -68,8 +68,8 @@ class Server:
                 raise Exception("Input host, port or scheme is different to the input uri ")
             if scheme is not None and scheme != self.__scheme:
                 raise Exception("Input host, port or scheme is different to the input uri ")
-        elif host is None or scheme is None:
-            raise Exception("Both host and scheme are required or You can give url only")
+        elif host is None or port is None:
+            raise Exception("Both host and port are required or You can give url only")
         else:
             self.__host = host
             self.__port = port or 80

@@ -9,14 +9,14 @@ from ribbon.loadbalancer.server import Server
 
 
 class DiscoveryEnabledServer(Server):
-    def __init__(self, instance_info: InstanceInfo, use_secure_port: bool, use_ip_address: bool = False):
+    def __init__(self, instance_info: InstanceInfo, use_secure_port: bool = False, use_ip_address: bool = False):
         if use_ip_address:
             super(DiscoveryEnabledServer, self).__init__(host=instance_info.ip_address, port=instance_info.port)
         else:
             super(DiscoveryEnabledServer, self).__init__(host=instance_info.host_name, port=instance_info.port)
 
         if use_secure_port and instance_info.is_secure_port_enabled:
-            super(DiscoveryEnabledServer, self).port = instance_info.secure_port
+            self.port = instance_info.secure_port
 
         class DiscoveryEnabledServerMetaInfo(self.MetaInfo):
             @classmethod
