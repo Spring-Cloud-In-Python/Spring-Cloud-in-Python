@@ -20,8 +20,8 @@ class FakeLoadBalancer(LoadBalancer):
     server2 = Server(uri="http://127.0.0.1:200")
     server3 = Server(uri="http://127.0.0.1:300")
 
-    server1.set_alive(True)
-    server2.set_alive(True)
+    server1.is_alive = True
+    server2.is_alive = True
 
     def add_servers(self, servers: List[Server]):
         pass
@@ -44,33 +44,33 @@ class FakeLoadBalancer(LoadBalancer):
 
 class TestRoundRobinRule:
     lb = FakeLoadBalancer()
-    roundRobinRule = RoundRobinRule(lb)
+    round_robin_rule = RoundRobinRule(lb)
 
     def test_fake_loadbalancer(self):
         assert None != self.lb
 
     def test_sequential_choose_given_loadbalancer(self):
         lb = self.lb
-        server1 = self.roundRobinRule.choose(lb)
-        server2 = self.roundRobinRule.choose(lb)
-        server3 = self.roundRobinRule.choose(lb)
+        server1 = self.round_robin_rule.choose(lb)
+        server2 = self.round_robin_rule.choose(lb)
+        server3 = self.round_robin_rule.choose(lb)
 
-        assert server1.get_port() == 200  # will get next index of server
-        assert server2.get_port() == 100
-        assert server3.get_port() == 200  # Cause the third server is not alive
+        assert server1.port == 200  # will get next index of server
+        assert server2.port == 100
+        assert server3.port == 200  # Cause the third server is not alive
 
     def test_sequential_choose_without_given_loadbalancer(self):
-        roundRobinRule = RoundRobinRule(self.lb)
-        server1 = roundRobinRule.choose()
-        server2 = roundRobinRule.choose()
-        server3 = roundRobinRule.choose()
+        round_robin_rule = RoundRobinRule(self.lb)
+        server1 = round_robin_rule.choose()
+        server2 = round_robin_rule.choose()
+        server3 = round_robin_rule.choose()
 
-        assert server1.get_port() == 200  # will get next index of server
-        assert server2.get_port() == 100
-        assert server3.get_port() == 200  # Cause the third server is not alive
+        assert server1.port == 200  # will get next index of server
+        assert server2.port == 100
+        assert server3.port == 200  # Cause the third server is not alive
 
     def test_choose_with_no_server_in_loadbalancer(self):
-        roundRobinRule = RoundRobinRule()
-        server = roundRobinRule.choose()
+        round_robin_rule = RoundRobinRule()
+        server = round_robin_rule.choose()
 
         assert server == None

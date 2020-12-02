@@ -12,8 +12,8 @@ from ribbon.loadbalancer.server import Server
 
 def test_init_given_uri():
     server = Server(uri="http://127.0.0.1:56747")
-    assert server.get_host() == "127.0.0.1"
-    assert server.get_port() == 56747
+    assert server.host == "127.0.0.1"
+    assert server.port == 56747
 
 
 def test_init_given_uri_with_more_than_two_slash_after_http_or_https_should_raise():
@@ -38,8 +38,8 @@ def test_init_given_uri_less_than_two_slash_after_http_or_https_should_raise():
 
 def test_init_given_uri_with_path():
     server = Server(uri="http://127.0.0.1:56747/account/saved")
-    assert server.get_host() == "127.0.0.1"
-    assert server.get_port() == 56747
+    assert server.host == "127.0.0.1"
+    assert server.port == 56747
 
 
 def test_init_given_uri_with_multiple_semiclon_before_port_should_raise():
@@ -54,8 +54,8 @@ def test_init_given_uri_without_http_or_https_should_raise():
 
 def test_init_given_host_port_scheme():
     server = Server(host="127.0.0.1", port=56747, scheme="https")
-    assert server.get_host() == "127.0.0.1"
-    assert server.get_port() == 56747
+    assert server.host == "127.0.0.1"
+    assert server.port == 56747
 
 
 def test_init_given_inconsistent_host_and_uri_should_raise():

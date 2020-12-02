@@ -61,7 +61,8 @@ class Server:
 
     def __init__(self, host: str = None, port: int = None, scheme: str = None, uri: str = None):
         if uri:
-            self.set_id(uri)
+            # self.set_id(uri)
+            self.id = uri
             if host and host != self.__host:
                 raise Exception("Input host, port or scheme is different to the input uri ")
             if port is not None and port != self.__port:
@@ -93,20 +94,6 @@ class Server:
         return None
 
     @classmethod
-    def get_scheme(cls, uri: str) -> str:
-        if not uri:
-            return None
-
-        scheme = None
-        uri = uri.lower()
-        if uri.startswith("http://"):
-            scheme = "http"
-        elif uri.startswith("https://"):
-            scheme = "https"
-
-        return scheme
-
-    @classmethod
     def get_host_port(cls, uri: str) -> tuple:
         if uri is None:
             return None
@@ -128,23 +115,58 @@ class Server:
 
         return (host, port)
 
-    def set_host(self, host: str):
+    @property
+    def host(self) -> str:
+        return self.__host
+
+    @host.setter
+    def host(self, host: str):
         if host is not None:
             self.__host = host
             self.__id = self.combine_id(host, self.__port)
 
-    def set_port(self, port: int):
+    @property
+    def port(self) -> int:
+        return self.__port
+
+    @port.setter
+    def port(self, port: int):
         self.__port = port
         if self.__host:
             self.__id = self.combine_id(self.__host, port)
 
-    def set_zone(self, zone: str):
+    @property
+    def zone(self) -> str:
+        return self.__zone
+
+    @zone.setter
+    def zone(self, zone: str):
         self.__zone = zone
 
-    def set_scheme(self, scheme: str):
+    @property
+    def scheme(self, uri: str) -> str:
+        if not uri:
+            return None
+
+        scheme = None
+        uri = uri.lower()
+        if uri.startswith("http://"):
+            scheme = "http"
+        elif uri.startswith("https://"):
+            scheme = "https"
+
+        return scheme
+
+    @scheme.setter
+    def scheme(self, scheme: str):
         self.__scheme = scheme
 
-    def set_id(self, uri: str):
+    @property
+    def id(self) -> str:
+        return self.__id
+
+    @id.setter
+    def id(self, uri: str):
         host_port = self.get_host_port(uri)
 
         if host_port is None:
@@ -154,32 +176,25 @@ class Server:
             self.__host = host_port[0]
             self.__port = host_port[1]
 
-    def set_alive(self, is_alive):
+    @property
+    def is_alive(self) -> bool:
+        return self.__is_alive
+
+    @is_alive.setter
+    def is_alive(self, is_alive):
         self.__is_alive = is_alive
 
-    def set_ready_to_serve(self, is_ready_to_serve: bool):
-        self.__is_ready_to_serve = is_ready_to_serve
-
-    def get_host(self) -> str:
-        return self.__host
-
-    def get_port(self) -> int:
-        return self.__port
-
-    def get_zone(self) -> str:
-        return self.__zone
-
-    def get_id(self) -> str:
-        return self.__id
-
-    def get_meta_info(self) -> MetaInfo:
-        return self.__simple_meta_info
-
+    @property
     def is_ready_to_serve(self) -> bool:
         return self.__is_ready_to_serve
 
-    def is_alive(self) -> bool:
-        return self.__is_alive
+    @is_ready_to_serve.setter
+    def is_ready_to_serve(self, is_ready_to_serve: bool):
+        self.__is_ready_to_serve = is_ready_to_serve
+
+    @property
+    def meta_info(self) -> MetaInfo:
+        return self.__simple_meta_info
 
     def __eq__(self, other):
         if type(self) == type(other):
