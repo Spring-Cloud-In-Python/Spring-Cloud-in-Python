@@ -53,7 +53,7 @@ class RoundRobinRule(AbstractLoadBalanceRule):
                     time.sleep(0)
                     continue
 
-                if server.is_alive() and server.is_ready_to_serve():
+                if server.is_alive and server.is_ready_to_serve:
                     return server
 
                 else:
