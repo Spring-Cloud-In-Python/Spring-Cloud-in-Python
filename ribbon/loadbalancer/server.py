@@ -72,7 +72,7 @@ class Server:
             raise Exception("Both host and port are required or You can give url only")
         else:
             self.__host = host
-            self.__port = port or 80
+            self.__port = port
             self.__id = self.combine_id(host, port)
             self.__scheme = scheme
 
