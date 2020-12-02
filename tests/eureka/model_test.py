@@ -10,6 +10,7 @@ from eureka.model.application_model import ApplicationModel
 from eureka.model.applications_model import ApplicationsModel
 from eureka.model.instance_info_model import InstanceInfoModel
 from eureka.model.lease_info_model import LeaseInfoModel
+from tests.eureka.client.discovery.shared.stubs import instance_info
 
 
 class TestToModel:
@@ -20,42 +21,13 @@ class TestToModel:
         ]
 
         self.instance_info_list = [
-            InstanceInfo(
-                instance_id="instance_1",
-                app_name="app_1",
-                app_group_name="app_group_name",
-                ip_address="127.0.0.1",
-                vip_address="stub-service",
-                secure_vip_address="stub-service",
-                lease_info=self.lease_info_list[0],
-                metadata={},
-                host_name="localhost",
-                action_type=InstanceInfo.ActionType.ADD,
-                status=InstanceInfo.Status.UP,
-            ),
-            InstanceInfo(
-                instance_id="instance_2",
-                app_name="app_1",
-                app_group_name="app_group_name",
-                ip_address="127.0.0.1",
-                vip_address="stub-service-2",
-                secure_vip_address="stub-service",
-                lease_info=LeaseInfo(),
-                metadata={},
-                host_name="localhost",
-            ),
-            InstanceInfo(
-                instance_id="instance_3",
-                app_name="app_2",
-                app_group_name="app_group_name",
-                ip_address="127.0.0.1",
-                vip_address="stub-service-2",
-                secure_vip_address="stub-service",
-                lease_info=LeaseInfo(),
-                metadata={},
-                host_name="localhost",
-            ),
+            instance_info(app_name="app_1", num=1147),
+            instance_info(app_name="app_1", num=1148),
+            instance_info(app_name="app_2", num=1149),
         ]
+        self.instance_info_list[0].action_type = InstanceInfo.ActionType.ADD
+        self.instance_info_list[0].status = InstanceInfo.Status.UP
+        self.instance_info_list[0].lease_info = self.lease_info_list[0]
 
         application_1 = Application("app_1")
         application_1.add_instance(self.instance_info_list[0])
@@ -77,7 +49,7 @@ class TestToModel:
     def test_instance_info_model(self):
         instance_info_model = InstanceInfoModel.from_entity(self.instance_info_list[0])
 
-        assert instance_info_model.instance_id == "instance_1"
+        assert instance_info_model.instance_id == "1147"
         assert instance_info_model.lease_info.lease_renewal_interval_in_secs == 1
         assert instance_info_model.action_type == "ADD"
         assert instance_info_model.status == "UP"
@@ -93,7 +65,7 @@ class TestToModel:
 
         assert len(applications_model.application_model_list) == 2
         assert applications_model.application_model_list[0].name == "app_1"
-        assert applications_model.application_model_list[0].instance_info_model_list[0].instance_id == "instance_1"
+        assert applications_model.application_model_list[0].instance_info_model_list[0].instance_id == "1147"
 
 
 class TestToEntity:
