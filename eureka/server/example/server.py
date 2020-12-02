@@ -5,7 +5,7 @@ __license__ = "Apache 2.0"
 
 # pypi/conda library
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, Response, status
 
 # scip plugin
 from eureka.model.application_model import ApplicationModel
@@ -26,7 +26,7 @@ def register_instance(request: InstanceInfoModel, app_id: str):
 
     registry.register(instance_info, DEFAULT_DURATION)
 
-    return {}
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @eureka_server.get("/eureka/v2/apps/{app_id}")
