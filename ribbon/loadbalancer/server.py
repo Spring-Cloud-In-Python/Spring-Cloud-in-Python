@@ -73,11 +73,11 @@ class Server:
         else:
             self.__host = host
             self.__port = port or 80
-            self.__serverId = self.combine_id(host, port)
+            self.__id = self.combine_id(host, port)
             self.__scheme = scheme
 
-        self.__isAliveFlag = False
-        self.__readyToServe = True
+        self.__is_alive = False
+        self.__is_ready_to_serve = True
         self.__zone = self.UNKNOWN_ZONE
 
     @classmethod
@@ -86,10 +86,10 @@ class Server:
 
     @classmethod
     def normalize_id(cls, uri: str) -> str:
-        hostPort = cls.get_host_port(uri)
+        host_port = cls.get_host_port(uri)
 
-        if hostPort:
-            return cls.combine_id(hostPort[0], hostPort[1])
+        if host_port:
+            return cls.combine_id(host_port[0], host_port[1])
         return None
 
     @classmethod
@@ -111,11 +111,11 @@ class Server:
         if uri is None:
             return None
 
-        uriPattern = r"https?:\/\/[^\/][^\/ :]*:\d+[\/]?.*"
+        uri_pattern = r"https?:\/\/[^\/][^\/ :]*:\d+[\/]?.*"
         uri = uri.lower()
         port = 80
 
-        if not re.fullmatch(uriPattern, uri):
+        if not re.fullmatch(uri_pattern, uri):
             raise Exception("Not a valid uri!")
 
         result = urlparse(uri)
@@ -131,12 +131,12 @@ class Server:
     def set_host(self, host: str):
         if host is not None:
             self.__host = host
-            self.__serverId = self.combine_id(host, self.__port)
+            self.__id = self.combine_id(host, self.__port)
 
     def set_port(self, port: int):
         self.__port = port
         if self.__host:
-            self.__serverId = self.combine_id(self.__host, port)
+            self.__id = self.combine_id(self.__host, port)
 
     def set_zone(self, zone: str):
         self.__zone = zone
@@ -145,23 +145,20 @@ class Server:
         self.__scheme = scheme
 
     def set_id(self, uri: str):
-        hostPort = self.get_host_port(uri)
+        host_port = self.get_host_port(uri)
 
-        if hostPort is None:
-            self.__serverId = None
+        if host_port is None:
+            self.__id = None
         else:
-            self.__serverId = self.combine_id(hostPort[0], hostPort[1])
-            self.__host = hostPort[0]
-            self.__port = hostPort[1]
+            self.__id = self.combine_id(host_port[0], host_port[1])
+            self.__host = host_port[0]
+            self.__port = host_port[1]
 
-    def set_alive(self, isAliveFlag):
-        self.__isAliveFlag = isAliveFlag
+    def set_alive(self, is_alive):
+        self.__is_alive = is_alive
 
-    def set_alive(self, isAliveFlag):
-        self.__isAliveFlag = isAliveFlag
-
-    def set_ready_to_serve(self, ready_to_serve: bool):
-        self.__readyToServe = ready_to_serve
+    def set_ready_to_serve(self, is_ready_to_serve: bool):
+        self.__is_ready_to_serve = is_ready_to_serve
 
     def get_host(self) -> str:
         return self.__host
@@ -173,29 +170,29 @@ class Server:
         return self.__zone
 
     def get_id(self) -> str:
-        return self.__serverId
+        return self.__id
 
     def get_meta_info(self) -> MetaInfo:
         return self.__simple_meta_info
 
     def is_ready_to_serve(self) -> bool:
-        return self.__readyToServe
+        return self.__is_ready_to_serve
 
     def is_alive(self) -> bool:
-        return self.__isAliveFlag
+        return self.__is_alive
 
     def __eq__(self, other):
         if type(self) == type(other):
-            return self.__serverId == other.get_id()
+            return self.__id == other.get_id()
         else:
             return False
 
     def __hash__(self):
-        hashCode = 7
-        serverId = self.get_id()
-        hashCode = 31 * hashCode + (None == serverId and 0 or self.__hash__(serverId))
+        hash_code = 7
+        server_id = self.get_id()
+        hash_code = 31 * hash_code + (None == server_id and 0 or self.__hash__(server_id))
 
-        return hashCode
+        return hash_code
 
     def __str__(self):
         return self.get_id()
