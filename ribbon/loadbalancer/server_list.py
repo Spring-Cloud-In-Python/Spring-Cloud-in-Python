@@ -19,13 +19,13 @@ from ribbon.loadbalancer.server import Server
 
 class ServerList(ABC):
     @abstractmethod
-    def get_initial_list_of_servers(self) -> Server:
+    def initial_list_of_servers(self) -> Server:
         pass
 
     @abstractmethod
-    def get_updated_list_of_servers(self) -> Server:
+    def updated_list_of_servers(self) -> Server:
         pass
 
     @abstractmethod
-    def get_filter_impl(self, serverListFilter: ServerListFilter):
+    def filter_impl(self, serverListFilter: ServerListFilter):
         pass
