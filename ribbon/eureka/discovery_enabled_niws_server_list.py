@@ -21,12 +21,12 @@ class DiscoveryEnabledNIWSServerList(ServerList):
         self.__vip_addresses = self.__split_vip_addresses(vip_addresses)
         self.__client_config = client_config or self._create_client_config()
         self.__client_name = self.__client_config.get_property("CLIENT_NAME")
-        self.__is_secure = self.__client_config.get_property("IS_SECURE")
-        self.__override_port = self.__client_config.get_property("PORT")
-        self.__prioritize_vip_address_based_servers = self.__client_config.get_property(
-            "PRIORITIZE_VIP_ADDRESS_BASED_SERVERS"
+        self.__is_secure = bool(self.__client_config.get_property("IS_SECURE"))
+        self.__override_port = int(self.__client_config.get_property("PORT"))
+        self.__prioritize_vip_address_based_servers = bool(
+            self.__client_config.get_property("PRIORITIZE_VIP_ADDRESS_BASED_SERVERS")
         )
-        self._should_use_ip_address = self.__client_config.get_property("USE_IPADDRESS_FOR_SERVER")
+        self._should_use_ip_address = bool(self.__client_config.get_property("USE_IPADDRESS_FOR_SERVER"))
 
         if bool(self.__client_config.get_property("FORCE_CLIENT_PORT_CONFIGURATION")) and self.isSecure:
             self.should_use_override_port = True
@@ -54,26 +54,25 @@ class DiscoveryEnabledNIWSServerList(ServerList):
     @property
     def filter(self):
         """
-        Not implement for minimum version
+        TODO: Not implement for minimum version
         """
         return None
 
     @filter.setter
     def filter(self):
         """
-        Not implement for minimum version
+        TODO: Not implement for minimum version
         """
         pass
 
     @property
     def initial_list_of_servers(self) -> DiscoveryEnabledServer:
-        return self.obtain_servers_via_discovery
+        return self.obtain_servers_via_discovery()
 
     @property
     def updated_list_of_servers(self) -> DiscoveryEnabledServer:
-        return self.obtain_servers_via_discovery
+        return self.obtain_servers_via_discovery()
 
-    @property
     def obtain_servers_via_discovery(self) -> List[Server]:
         server_list: List[Server] = []
 
@@ -84,25 +83,21 @@ class DiscoveryEnabledNIWSServerList(ServerList):
                 )
                 server_list = self.__extract_server_list(instance_info_list)
 
-                if len(server_list) and bool(self.__prioritize_vip_address_based_servers):
+                if len(server_list) and self.__prioritize_vip_address_based_servers:
                     break
 
         return server_list
 
     def __extract_server_list(self, instance_info_list):
-        server_list: List[Server] = []
-        for instance_info in instance_info_list:
-            if instance_info.status is InstanceInfo.Status.UP:
-                instance_info = self.__set_instance_info_port(instance_info)
-                des: DiscoveryEnabledServer = self._create_server(
-                    instance_info, self.__is_secure, self._should_use_ip_address
-                )
+        return [
+            self._create_server(
+                self.__set_instance_info_port(instance_info), self.__is_secure, self._should_use_ip_address
+            )
+            for instance_info in instance_info_list
+            if instance_info.status is InstanceInfo.Status.UP
+        ]
 
-                server_list.append(des)
-
-        return server_list
-
-    def __set_instance_info_port(self, instance_info):
+    def __set_instance_info_port(self, instance_info) -> InstanceInfo:
         if self.should_use_override_port:
             if self.__is_secure:
                 instance_info.secure_port = self.__override_port
@@ -120,11 +115,9 @@ class DiscoveryEnabledNIWSServerList(ServerList):
 
     @staticmethod
     def _create_server(
-        instance_info: InstanceInfo, is_secure: str, should_use_ip_address: str
+        instance_info: InstanceInfo, is_secure: bool, should_use_ip_address: bool
     ) -> DiscoveryEnabledServer:
-        server: DiscoveryEnabledServer = DiscoveryEnabledServer(
-            instance_info, bool(is_secure), bool(should_use_ip_address)
-        )
+        server: DiscoveryEnabledServer = DiscoveryEnabledServer(instance_info, is_secure, should_use_ip_address)
 
         return server
 
