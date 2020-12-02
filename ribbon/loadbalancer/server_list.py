@@ -27,5 +27,5 @@ class ServerList(ABC):
         pass
 
     @abstractmethod
-    def filter_impl(self, serverListFilter: ServerListFilter):
+    def filter(self, serverListFilter: ServerListFilter):
         pass

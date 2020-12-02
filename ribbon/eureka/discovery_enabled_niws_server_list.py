@@ -17,38 +17,49 @@ from ribbon.loadbalancer.server_list_filter import ServerListFilter
 
 class DiscoveryEnabledNIWSServerList(ServerList):
     def __init__(self, eureka_client=None, vip_addresses: str = None, client_config: ClientConfig = None):
-        self._eureka_client = eureka_client
-        self._vip_addresses = vip_addresses
-        self._client_config = client_config or self.__create_client_config()
-        self._client_name = self._client_config.get_property("CLIENT_NAME")
-        self._is_secure = self._client_config.get_property("IS_SECURE")
-        self._override_port = self._client_config.get_property("PORT")
-        self._prioritize_vip_address_based_servers = self._client_config.get_property(
+        self.__eureka_client = eureka_client
+        self.__vip_addresses = self.__split_vip_addresses(vip_addresses)
+        self.__client_config = client_config or self._create_client_config()
+        self.__client_name = self.__client_config.get_property("CLIENT_NAME")
+        self.__is_secure = self.__client_config.get_property("IS_SECURE")
+        self.__override_port = self.__client_config.get_property("PORT")
+        self.__prioritize_vip_address_based_servers = self.__client_config.get_property(
             "PRIORITIZE_VIP_ADDRESS_BASED_SERVERS"
         )
-        self._should_use_ip_address = self._client_config.get_property("USE_IPADDRESS_FOR_SERVER")
+        self._should_use_ip_address = self.__client_config.get_property("USE_IPADDRESS_FOR_SERVER")
 
-        if bool(self._client_config.get_property("FORCE_CLIENT_PORT_CONFIGURATION")) and self.isSecure:
+        if bool(self.__client_config.get_property("FORCE_CLIENT_PORT_CONFIGURATION")) and self.isSecure:
             self.should_use_override_port = True
         else:
             self.should_use_override_port = False
 
     @staticmethod
-    def __create_client_config():
+    def _create_client_config():
         client_config = ClientConfig()
         client_config.load_default_values()
         return client_config
 
     @property
-    def vip_addresses(self) -> str:
-        return self._vip_addresses
+    def eureka_client(self):
+        return self.__eureka_client
+
+    @property
+    def vip_addresses(self) -> List[str]:
+        return self.__vip_addresses
 
     @vip_addresses.setter
     def vip_addresses(self, vip_addresses: str):
-        self._vip_addresses = vip_addresses
+        self.__vip_addresses = self.__split_vip_addresses(vip_addresses)
 
     @property
-    def filter_impl(self, serverListFilter: ServerListFilter):
+    def filter(self):
+        """
+        Not implement for minimum version
+        """
+        return None
+
+    @filter.setter
+    def filter(self):
         """
         Not implement for minimum version
         """
@@ -66,15 +77,14 @@ class DiscoveryEnabledNIWSServerList(ServerList):
     def obtain_servers_via_discovery(self) -> List[Server]:
         server_list: List[Server] = []
 
-        if self._vip_addresses:
-            vip_addresses = self.__split_vip_addresses(self._vip_addresses)
-            for vip_address in vip_addresses:
-                instance_info_list: List[InstanceInfo] = self._eureka_client.get_instances_by_vip_address(
-                    vip_address, self._is_secure
+        if self.__vip_addresses and self.__eureka_client:
+            for vip_address in self.__vip_addresses:
+                instance_info_list: List[InstanceInfo] = self.__eureka_client.get_instances_by_vip_address(
+                    vip_address, self.__is_secure
                 )
                 server_list = self.__extract_server_list(instance_info_list)
 
-                if len(server_list) and bool(self._prioritize_vip_address_based_servers):
+                if len(server_list) and bool(self.__prioritize_vip_address_based_servers):
                     break
 
         return server_list
@@ -85,7 +95,7 @@ class DiscoveryEnabledNIWSServerList(ServerList):
             if instance_info.status is InstanceInfo.Status.UP:
                 instance_info = self.__set_instance_info_port(instance_info)
                 des: DiscoveryEnabledServer = self._create_server(
-                    instance_info, self._is_secure, self._should_use_ip_address
+                    instance_info, self.__is_secure, self._should_use_ip_address
                 )
 
                 server_list.append(des)
@@ -94,16 +104,19 @@ class DiscoveryEnabledNIWSServerList(ServerList):
 
     def __set_instance_info_port(self, instance_info):
         if self.should_use_override_port:
-            if self._is_secure:
-                instance_info.secure_port = self._override_port
+            if self.__is_secure:
+                instance_info.secure_port = self.__override_port
             else:
-                instance_info.port = self._override_port
+                instance_info.port = self.__override_port
 
         return instance_info
 
     @staticmethod
     def __split_vip_addresses(vip_addresses: str):
-        return vip_addresses.split(",")
+        if vip_addresses:
+            return vip_addresses.strip().replace(" ", "").split(",")
+        else:
+            return []
 
     @staticmethod
     def _create_server(
@@ -118,9 +131,9 @@ class DiscoveryEnabledNIWSServerList(ServerList):
     def __str__(self):
         msg = (
             f"DiscoveryEnabledNIWSServerList: \n"
-            f"ClientName: {self._client_config}\n"
-            f"Effective vipAddresses: {self._vip_addresses}\n"
-            f"IsSecure: {self._is_secure}\n"
+            f"ClientName: {self.__client_config}\n"
+            f"Effective vipAddresses: {self.__vip_addresses}\n"
+            f"IsSecure: {self.__is_secure}\n"
         )
 
         return msg
