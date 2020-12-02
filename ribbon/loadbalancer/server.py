@@ -61,7 +61,6 @@ class Server:
 
     def __init__(self, host: str = None, port: int = None, scheme: str = None, uri: str = None):
         if uri:
-            # self.set_id(uri)
             self.id = uri
             if host and host != self.__host:
                 raise Exception("Input host, port or scheme is different to the input uri ")
