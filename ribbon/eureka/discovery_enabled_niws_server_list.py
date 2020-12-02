@@ -28,7 +28,7 @@ class DiscoveryEnabledNIWSServerList(ServerList):
         )
         self._should_use_ip_address = bool(self.__client_config.get_property("USE_IPADDRESS_FOR_SERVER"))
 
-        if bool(self.__client_config.get_property("FORCE_CLIENT_PORT_CONFIGURATION")) and self.isSecure:
+        if bool(self.__client_config.get_property("FORCE_CLIENT_PORT_CONFIGURATION")) and self.__is_secure:
             self.should_use_override_port = True
         else:
             self.should_use_override_port = False
