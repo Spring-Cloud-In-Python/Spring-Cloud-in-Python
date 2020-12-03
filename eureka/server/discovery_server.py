@@ -34,6 +34,10 @@ def register_instance(request: InstanceInfoModel, app_id: str):
 
 @eureka_server.get("/eureka/v2/apps/{app_id}")
 def get_application(app_id: str) -> ApplicationModel:
+    application = registry.get_presenter().query_application(app_id)
+    if application is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+
     return registry.get_presenter().query_application(app_id)
 
 
