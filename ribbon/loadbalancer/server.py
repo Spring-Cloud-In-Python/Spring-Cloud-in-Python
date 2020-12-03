@@ -9,59 +9,46 @@ from abc import ABC, abstractmethod
 from urllib.parse import urlparse
 
 
+class MetaInfo(ABC):
+    @classmethod
+    @abstractmethod
+    def get_app_name(cls) -> str:
+        """
+        :return: str, the name of application that runs on this server, null if not available
+        """
+        pass
+
+    @classmethod
+    @abstractmethod
+    def get_server_group(cls) -> str:
+        """
+        :return: str, the group of the server, for example, auto scaling group ID in AWS.
+        """
+        pass
+
+    @classmethod
+    @abstractmethod
+    def get_service_id_for_discovery(cls) -> str:
+        """
+        :return: str, a virtual address used by the server to register with discovery service.
+        """
+        pass
+
+    @classmethod
+    @abstractmethod
+    def get_instance_id(cls) -> str:
+        """
+        :return: str, ID of the server
+        """
+        pass
+
+
 class Server:
-    class MetaInfo(ABC):
-        @classmethod
-        @abstractmethod
-        def get_app_name(cls) -> str:
-            """
-            :return: str, the name of application that runs on this server, null if not available
-            """
-            pass
-
-        @classmethod
-        @abstractmethod
-        def get_server_group(cls) -> str:
-            """
-            :return: str, the group of the server, for example, auto scaling group ID in AWS.
-            """
-            pass
-
-        @classmethod
-        @abstractmethod
-        def get_service_id_for_discovery(cls) -> str:
-            """
-            :return: str, a virtual address used by the server to register with discovery service.
-            """
-            pass
-
-        @classmethod
-        @abstractmethod
-        def get_instance_id(cls) -> str:
-            """
-            :return: str, ID of the server
-            """
-            pass
-
-    class __SimpleMetaInfo(MetaInfo):
-        def get_app_name(cls) -> str:
-            return None
-
-        def get_server_group(cls) -> str:
-            return None
-
-        def get_service_id_for_discovery(cls) -> str:
-            return None
-
-        def get_instance_id(cls) -> str:
-            return cls.__id
 
     UNKNOWN_ZONE = "UNKNOWN"
-    # actually it should be public and final, but here is only public not final
 
     def __init__(self, host: str = None, port: int = None, scheme: str = None, uri: str = None):
         if uri:
-            # self.set_id(uri)
             self.id = uri
             if host and host != self.__host:
                 raise Exception("Input host, port or scheme is different to the input uri ")
@@ -69,11 +56,11 @@ class Server:
                 raise Exception("Input host, port or scheme is different to the input uri ")
             if scheme is not None and scheme != self.__scheme:
                 raise Exception("Input host, port or scheme is different to the input uri ")
-        elif host is None or scheme is None:
-            raise Exception("Both host and scheme are required or You can give url only")
+        elif host is None or port is None:
+            raise Exception("Both host and port are required or You can give url only")
         else:
             self.__host = host
-            self.__port = port or 80
+            self.__port = port
             self.__id = self.combine_id(host, port)
             self.__scheme = scheme
 
