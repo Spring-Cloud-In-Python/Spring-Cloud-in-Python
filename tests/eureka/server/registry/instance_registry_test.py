@@ -5,8 +5,10 @@ __license__ = "Apache 2.0"
 
 # scip plugin
 from eureka.server.registry.instance_registry import InstanceRegistry
-from tests.eureka.client.discovery.shared.stubs import instance_info
 from eureka.server.registry.registry_presenter import RegistryPresenter
+from tests.eureka.client.discovery.shared.stubs import instance_info
+
+LEASE_DURATION = 10
 
 
 class TestInstanceRegistry:
@@ -18,18 +20,46 @@ class TestInstanceRegistry:
         ]
         self.instance_registry = InstanceRegistry()
 
-    def test_register(self):
-        self.instance_registry.register(self.instance_info_list[0], 10)
+    def test_register_and_cancel(self):
+        self.instance_registry.register(self.instance_info_list[0], LEASE_DURATION)
+        self.instance_registry.register(self.instance_info_list[1], LEASE_DURATION)
+        self.instance_registry.register(self.instance_info_list[2], LEASE_DURATION)
+        assert 2 == self.instance_registry.get_application("app_1").size()
+        assert 1 == self.instance_registry.get_application("app_2").size()
 
-        assert True
+        result = self.instance_registry.cancel(
+            self.instance_info_list[0].app_name, self.instance_info_list[0].instance_id
+        )
+        assert 1 == self.instance_registry.get_application("app_1").size()
+        assert result
+
+        result = self.instance_registry.cancel(
+            self.instance_info_list[0].app_name, self.instance_info_list[0].instance_id
+        )
+        assert 1 == self.instance_registry.get_application("app_1").size()
+        assert not result
+
+        self.instance_registry.register(self.instance_info_list[0], LEASE_DURATION)
+        assert 2 == self.instance_registry.get_application("app_1").size()
+
+        result = self.instance_registry.cancel(
+            self.instance_info_list[2].app_name, self.instance_info_list[2].instance_id
+        )
+        assert self.instance_registry.get_application("app_2") is None
+        assert result
+
+        applications = self.instance_registry.get_applications()
+        assert applications.size() == 2
+        assert applications.get_registered_application(self.instance_info_list[1].app_name).name == "app_1"
+        assert applications.get_registered_application(self.instance_info_list[2].app_name) is None
 
     def test_get_application(self):
-        self.instance_registry.register(self.instance_info_list[0], 10)
+        self.instance_registry.register(self.instance_info_list[0], LEASE_DURATION)
         application = self.instance_registry.get_application("app_1")
         assert application.name == "app_1"
         assert 1 == application.size()
 
-        self.instance_registry.register(self.instance_info_list[1], 10)
+        self.instance_registry.register(self.instance_info_list[1], LEASE_DURATION)
         application = self.instance_registry.get_application("app_1")
         assert 2 == application.size()
 
@@ -37,14 +67,15 @@ class TestInstanceRegistry:
         application = self.instance_registry.get_application("absent_app")
         assert application is None
 
-        # TODO
-        # Here should be another test after implementing registry.cancel():
-        # instance_registry.get_application("app") where instances in app have all been cancelled
+        instance_info_sample = self.instance_info_list[0]
+        self.instance_registry.register(instance_info_sample, LEASE_DURATION)
+        self.instance_registry.cancel(instance_info_sample.app_name, instance_info_sample.instance_id)
+        assert self.instance_registry.get_application(instance_info_sample.app_name) is None
 
     def test_get_applications(self):
-        self.instance_registry.register(self.instance_info_list[0], 10)
-        self.instance_registry.register(self.instance_info_list[1], 10)
-        self.instance_registry.register(self.instance_info_list[2], 10)
+        self.instance_registry.register(self.instance_info_list[0], LEASE_DURATION)
+        self.instance_registry.register(self.instance_info_list[1], LEASE_DURATION)
+        self.instance_registry.register(self.instance_info_list[2], LEASE_DURATION)
 
         applications = self.instance_registry.get_applications()
         assert 3 == applications.size()
