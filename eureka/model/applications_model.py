@@ -21,10 +21,9 @@ class ApplicationsModel(BaseModel):
 
     @staticmethod
     def from_entity(applications: Applications) -> ApplicationsModel:
-        application_model_list = []
-
-        for application in applications.get_registered_applications():
-            application_model_list.append(ApplicationModel.from_entity(application))
+        application_model_list = [
+            ApplicationModel.from_entity(application) for application in applications.get_registered_applications()
+        ]
 
         return ApplicationsModel(
             application_model_list=application_model_list,
