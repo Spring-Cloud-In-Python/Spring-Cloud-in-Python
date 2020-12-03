@@ -5,7 +5,7 @@ __license__ = "Apache 2.0"
 
 # pypi/conda library
 import uvicorn
-from fastapi import FastAPI, Response, status
+from fastapi import FastAPI, HTTPException, Response, status
 
 # scip plugin
 from eureka.model.application_model import ApplicationModel
@@ -22,7 +22,10 @@ registry = InstanceRegistry()
 @eureka_server.post("/eureka/v2/apps/{app_id}")
 def register_instance(request: InstanceInfoModel, app_id: str):
     instance_info = request.to_entity()
-    instance_info.app_name = app_id
+
+    if instance_info.app_name != app_id:
+        message = "Application name in the url and the request body should be the same."
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=message)
 
     registry.register(instance_info, DEFAULT_DURATION)
 
