@@ -4,6 +4,7 @@ __author__ = "MJ (tsngmj@gmail.com)"
 __license__ = "Apache 2.0"
 
 # scip plugin
+from eureka.client.app_info import InstanceInfo
 from ribbon.eureka.discovery_enabled_niws_server_list import DiscoveryEnabledNIWSServerList
 from ribbon.eureka.discovery_enabled_server import DiscoveryEnabledServer
 from tests.eureka.client.discovery.shared.stubs import instance_info
@@ -38,3 +39,5 @@ def test_init_with_fake_eureka_client():
     target_list = server_list.obtain_servers_via_discovery()
 
     assert isinstance(target_list[0], DiscoveryEnabledServer)
+    assert target_list[0].host == "localhost"
+    assert target_list[0].port == InstanceInfo.DEFAULT_PORT
