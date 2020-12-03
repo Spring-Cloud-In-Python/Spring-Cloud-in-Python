@@ -7,7 +7,7 @@ __license__ = "Apache 2.0"
 
 # standard library
 import json
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 # scip plugin
 from eureka.model.application_model import ApplicationModel
@@ -22,8 +22,11 @@ class RegistryPresenter:
     def __init__(self, registry: InstanceRegistry):
         self.registry = registry
 
-    def query_application(self, application_name: str) -> ApplicationModel:
+    def query_application(self, application_name: str) -> Optional[ApplicationModel]:
         application = self.registry.get_application(application_name)
+        if application is None:
+            return None
+
         application_model = ApplicationModel.from_entity(application)
 
         return application_model
