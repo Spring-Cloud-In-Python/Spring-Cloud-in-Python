@@ -9,6 +9,8 @@ license = "Apache-2.0"
 python = "^3.7"
 wrapt = "^1.12.1"
 loguru = "0.5.3"
+fastapi = "^0.62.0"
+uvicorn = "^0.12.3"
 
 [tool.poetry.dev-dependencies]
 pre-commit = "^2.7.1"
