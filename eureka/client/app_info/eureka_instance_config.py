@@ -32,7 +32,7 @@ class EurekaInstanceConfig(ABC):
 
     @property
     @abstractmethod
-    def is_instance_enabled_on_it(self) -> bool:
+    def is_instance_enabled_on_init(self) -> bool:
         raise NotImplemented
 
     @property
@@ -110,7 +110,7 @@ class DefaultEurekaInstanceConfig(EurekaInstanceConfig):
         self._app_name = app_name
 
     @property
-    def is_instance_enabled_on_it(self) -> bool:
+    def is_instance_enabled_on_init(self) -> bool:
         return False
 
     @property
