@@ -34,7 +34,7 @@ class TestInstanceRegistry:
 
     def test_get_absent_application(self):
         application = self.instance_registry.get_application("absent_app")
-        assert 0 == application.size()
+        assert application is None
 
         # TODO
         # Here should be another test after implementing registry.cancel():

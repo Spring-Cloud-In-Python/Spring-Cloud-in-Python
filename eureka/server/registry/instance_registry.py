@@ -7,6 +7,7 @@ __all__ = ["InstanceRegistry"]
 
 # standard library
 import threading
+from typing import Optional
 
 # scip plugin
 from eureka.client.app_info import InstanceInfo, LeaseInfo
@@ -87,7 +88,7 @@ class InstanceRegistry:
             registrant.action_type = InstanceInfo.ActionType.ADD
             registrant.set_last_updated_timestamp()
 
-    def get_application(self, application_name: str) -> Application:
+    def get_application(self, application_name: str) -> Optional[Application]:
         """
 
         Get the application information by name of the application.
@@ -103,7 +104,7 @@ class InstanceRegistry:
             application_map = self.registry.get(application_name)
 
             if application_map is None or application_map.size() == 0:
-                return Application(application_name)
+                return None
 
             for _, entry_lease in application_map.entry_set():
                 if application is None:
