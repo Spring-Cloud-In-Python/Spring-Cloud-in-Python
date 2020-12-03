@@ -102,7 +102,7 @@ class InstanceRegistry:
             application = None
             application_map = self.registry.get(application_name)
 
-            if application_map is None or application_map == 0:
+            if application_map is None or application_map.size() == 0:
                 return Application(application_name)
 
             for _, entry_lease in application_map.entry_set():
