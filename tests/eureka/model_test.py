@@ -13,6 +13,76 @@ from eureka.model.lease_info_model import LeaseInfoModel
 from tests.eureka.client.discovery.shared.stubs import instance_info
 
 
+def lease_info_model_template(
+    registration_timestamp=0,
+    last_renewal_timestamp=0,
+    eviction_timestamp=0,
+    service_up_timestamp=0,
+    lease_renewal_interval_in_secs=1,
+    lease_duration_in_secs=1,
+) -> LeaseInfoModel:
+    return LeaseInfoModel(
+        registration_timestamp=registration_timestamp,
+        last_renewal_timestamp=last_renewal_timestamp,
+        eviction_timestamp=eviction_timestamp,
+        service_up_timestamp=service_up_timestamp,
+        lease_renewal_interval_in_secs=lease_renewal_interval_in_secs,
+        lease_duration_in_secs=lease_duration_in_secs,
+    )
+
+
+def instance_info_model_template(
+    instance_id,
+    app_name,
+    app_group_name="app_group_name",
+    ip_address="127.0.0.1",
+    vip_address="stub-service",
+    secure_vip_address="stub-service",
+    metadata=None,
+    last_updated_timestamp=None,
+    last_dirty_timestamp=None,
+    action_type=None,
+    host_name="localhost",
+    is_coordinating_discovery_server=False,
+    is_secure_port_enabled=False,
+    is_unsecure_port_enabled=True,
+    port=7001,
+    secure_port=7002,
+    status="UP",
+    overridden_status="UNKNOWN",
+    is_instance_info_dirty=False,
+    lease_info=None,
+) -> InstanceInfoModel:
+    if metadata is None:
+        metadata = {}
+
+    if lease_info is None:
+        lease_info = lease_info_model_template()
+
+    return InstanceInfoModel(
+        instance_id=instance_id,
+        app_name=app_name,
+        app_group_name=app_group_name,
+        ip_address=ip_address,
+        vip_address=vip_address,
+        secure_vip_address=secure_vip_address,
+        metadata=metadata,
+        last_updated_timestamp=last_updated_timestamp,
+        last_dirty_timestamp=last_dirty_timestamp,
+        action_type=action_type,
+        host_name=host_name,
+        is_coordinating_discovery_server=is_coordinating_discovery_server,
+        is_secure_port_enabled=is_secure_port_enabled,
+        is_unsecure_port_enabled=is_unsecure_port_enabled,
+        port=port,
+        secure_port=secure_port,
+        status=status,
+        overridden_status=overridden_status,
+        is_instance_info_dirty=is_instance_info_dirty,
+        lease_info=lease_info,
+    )
+
+
 class TestToModel:
     def setup_method(self):
         self.lease_info_list = [
@@ -71,85 +141,28 @@ class TestToModel:
 class TestToEntity:
     def setup_method(self):
         self.lease_info_model_list = [
-            LeaseInfoModel(
-                **{
-                    "registration_timestamp": 0,
-                    "last_renewal_timestamp": 0,
-                    "eviction_timestamp": 0,
-                    "service_up_timestamp": 0,
-                    "lease_renewal_interval_in_secs": 1,
-                    "lease_duration_in_secs": 1,
-                }
-            ),
-            LeaseInfoModel(
-                **{
-                    "registration_timestamp": 0,
-                    "last_renewal_timestamp": 0,
-                    "eviction_timestamp": 0,
-                    "service_up_timestamp": 0,
-                    "lease_renewal_interval_in_secs": 30,
-                    "lease_duration_in_secs": 90,
-                }
-            ),
+            lease_info_model_template(lease_renewal_interval_in_secs=1, lease_duration_in_secs=1,),
+            lease_info_model_template(lease_renewal_interval_in_secs=30, lease_duration_in_secs=90,),
         ]
 
         self.instance_info_model_list = [
-            InstanceInfoModel(
-                **{
-                    "instance_id": "instance_1",
-                    "app_name": "app_1",
-                    "app_group_name": "app_group_name",
-                    "ip_address": "127.0.0.1",
-                    "vip_address": "stub-service",
-                    "secure_vip_address": "stub-service",
-                    "metadata": {},
-                    "last_updated_timestamp": None,
-                    "last_dirty_timestamp": None,
-                    "action_type": "ADD",
-                    "host_name": "localhost",
-                    "is_coordinating_discovery_server": False,
-                    "is_secure_port_enabled": False,
-                    "is_unsecure_port_enabled": True,
-                    "port": 8787,
-                    "secure_port": 7002,
-                    "status": "UP",
-                    "overridden_status": "UNKNOWN",
-                    "is_instance_info_dirty": False,
-                    "lease_info": self.lease_info_model_list[0],
-                }
+            instance_info_model_template(
+                "instance_1",
+                "app_1",
+                action_type="ADD",
+                port=8787,
+                status="UP",
+                overridden_status="UNKNOWN",
+                lease_info=self.lease_info_model_list[0],
             ),
-            {
-                "instance_id": "instance_2",
-                "app_name": "app_1",
-                "app_group_name": "app_group_name",
-                "ip_address": "127.0.0.1",
-                "vip_address": "stub-service-2",
-                "secure_vip_address": "stub-service",
-                "metadata": {},
-                "last_updated_timestamp": None,
-                "last_dirty_timestamp": None,
-                "action_type": None,
-                "host_name": "localhost",
-                "is_coordinating_discovery_server": False,
-                "is_secure_port_enabled": False,
-                "is_unsecure_port_enabled": True,
-                "port": 7001,
-                "secure_port": 7002,
-                "status": "UP",
-                "overridden_status": "UNKNOWN",
-                "is_instance_info_dirty": False,
-                "lease_info": self.lease_info_model_list[1],
-            },
+            instance_info_model_template("instance_2", "app_1", lease_info=self.lease_info_model_list[1]),
         ]
 
         application_model_1 = ApplicationModel(
-            **{
-                "name": "app_1",
-                "instance_info_model_list": [self.instance_info_model_list[0], self.instance_info_model_list[1]],
-            }
+            name="app_1", instance_info_model_list=[self.instance_info_model_list[0], self.instance_info_model_list[1]],
         )
 
-        application_model_2 = ApplicationModel(**{"name": "app_2", "instance_info_model_list": []})
+        application_model_2 = ApplicationModel(name="app_2", instance_info_model_list=[])
 
         self.application_model_list = [
             application_model_1,
@@ -165,15 +178,15 @@ class TestToEntity:
         assert 1 == lease_info.lease_renewal_interval_in_secs
 
     def test_instance_info_model(self):
-        instance_info = self.instance_info_model_list[0].to_entity()
+        instance_info_entity = self.instance_info_model_list[0].to_entity()
 
-        assert instance_info.instance_id == "instance_1"
-        assert instance_info.ip_address == "127.0.0.1"
-        assert instance_info.status == InstanceInfo.Status.UP
-        assert instance_info.last_updated_timestamp is None
-        assert instance_info.is_unsecure_port_enabled
-        assert instance_info.port == 8787
-        assert instance_info.action_type == InstanceInfo.ActionType.ADD
+        assert instance_info_entity.instance_id == "instance_1"
+        assert instance_info_entity.ip_address == "127.0.0.1"
+        assert instance_info_entity.status == InstanceInfo.Status.UP
+        assert instance_info_entity.last_updated_timestamp is None
+        assert instance_info_entity.is_unsecure_port_enabled
+        assert instance_info_entity.port == 8787
+        assert instance_info_entity.action_type == InstanceInfo.ActionType.ADD
 
     def test_application_model(self):
         application = self.application_model_list[0].to_entity()
