@@ -21,15 +21,24 @@ class LeaseInfoModel(BaseModel):
 
     @staticmethod
     def from_entity(lease_info: LeaseInfo) -> LeaseInfoModel:
-        obj = {}
-        for property_name in LeaseInfo.__slots__:
-            property_key = property_name[1:]  # skip the beginning "_"
 
-            obj[property_key] = getattr(lease_info, property_name)
-
-        return LeaseInfoModel(**obj)
+        return LeaseInfoModel(
+            registration_timestamp=lease_info.registration_timestamp,
+            last_renewal_timestamp=lease_info.last_renewal_timestamp,
+            eviction_timestamp=lease_info.eviction_timestamp,
+            service_up_timestamp=lease_info.service_up_timestamp,
+            lease_renewal_interval_in_secs=lease_info.lease_renewal_interval_in_secs,
+            lease_duration_in_secs=lease_info.lease_duration_in_secs,
+        )
 
     def to_entity(self) -> LeaseInfo:
-        lease_info = LeaseInfo(**self.dict())
+        lease_info = LeaseInfo(
+            registration_timestamp=self.registration_timestamp,
+            last_renewal_timestamp=self.last_renewal_timestamp,
+            eviction_timestamp=self.eviction_timestamp,
+            service_up_timestamp=self.service_up_timestamp,
+            lease_renewal_interval_in_secs=self.lease_renewal_interval_in_secs,
+            lease_duration_in_secs=self.lease_duration_in_secs,
+        )
 
         return lease_info
