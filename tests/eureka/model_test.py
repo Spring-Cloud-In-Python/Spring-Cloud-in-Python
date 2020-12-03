@@ -109,6 +109,7 @@ class TestToModel:
         applications = Applications()
         applications.add_application(application_1)
         applications.add_application(application_2)
+        applications.reconciliation_hash_code = "hash-code"
         self.applications = applications
 
     def test_lease_info_model(self):
@@ -136,6 +137,7 @@ class TestToModel:
         assert len(applications_model.application_model_list) == 2
         assert applications_model.application_model_list[0].name == "app_1"
         assert applications_model.application_model_list[0].instance_info_model_list[0].instance_id == "1147"
+        assert applications_model.reconciliation_hash_code == "hash-code"
 
 
 class TestToEntity:
@@ -169,7 +171,10 @@ class TestToEntity:
             application_model_2,
         ]
 
-        self.applications_model = ApplicationsModel(application_model_list=[application_model_1, application_model_2])
+        self.applications_model = ApplicationsModel(
+            application_model_list=[application_model_1, application_model_2],
+            reconciliation_hash_code="Pneumonoultramicroscopicsilicovolcanoconiosis",
+        )
 
     def test_lease_info_model(self):
         lease_info = self.lease_info_model_list[0].to_entity()
@@ -200,3 +205,4 @@ class TestToEntity:
 
         assert 2 == applications.size()
         assert 2 == applications.get_registered_application("app_1").size()
+        assert "Pneumonoultramicroscopicsilicovolcanoconiosis" == applications.reconciliation_hash_code
