@@ -25,6 +25,10 @@ INSTANCE_INFO_ENUM_TRANSFORM_TABLE = {
 DEFAULT_LEASE_INFO_MODEL = LeaseInfoModel.from_entity(LeaseInfo())
 
 
+def enum_value_if_not_none(enum):
+    return enum.value if enum is not None else None
+
+
 class InstanceInfoModel(BaseModel):
     instance_id: str
     app_name: str
@@ -49,36 +53,49 @@ class InstanceInfoModel(BaseModel):
 
     @staticmethod
     def from_entity(instance_info: InstanceInfo) -> InstanceInfoModel:
-        obj = {}
-        property_to_skip = ["_lease_info", "_is_instance_info_dirty"]
-        for property_name in instance_info.__slots__:
-            if property_name in property_to_skip:
-                continue
-
-            property_key = property_name[1:]  # skip the beginning "_"
-
-            value = getattr(instance_info, property_name)
-            if isinstance(value, Enum):
-                value = value.value
-
-            obj[property_key] = value
-
-        obj["lease_info"] = LeaseInfoModel.from_entity(instance_info.lease_info)
-
-        return InstanceInfoModel(**obj)
+        return InstanceInfoModel(
+            instance_id=instance_info.instance_id,
+            app_name=instance_info.app_name,
+            ip_address=instance_info.ip_address,
+            vip_address=instance_info.vip_address,
+            secure_vip_address=instance_info.secure_vip_address,
+            lease_info=LeaseInfoModel.from_entity(instance_info.lease_info),
+            host_name=instance_info.host_name,
+            app_group_name=instance_info.app_group_name,
+            metadata=instance_info.metadata,
+            last_updated_timestamp=instance_info.last_updated_timestamp,
+            last_dirty_timestamp=instance_info.last_dirty_timestamp,
+            action_type=enum_value_if_not_none(instance_info.action_type),
+            is_coordinating_discovery_server=instance_info.is_coordinating_discovery_server,
+            is_secure_port_enabled=instance_info.is_secure_port_enabled,
+            is_unsecure_port_enabled=instance_info.is_unsecure_port_enabled,
+            port=instance_info.port,
+            secure_port=instance_info.secure_port,
+            status=enum_value_if_not_none(instance_info.status),
+            overridden_status=enum_value_if_not_none(instance_info.overridden_status),
+            is_instance_info_dirty=instance_info.is_instance_info_dirty,
+        )
 
     def to_entity(self) -> InstanceInfo:
-        for property_name, enum_type in INSTANCE_INFO_ENUM_TRANSFORM_TABLE.items():
-            property_value = getattr(self, property_name)
-
-            if property_value is None:
-                continue
-
-            property_value = property_value.split(".")[-1]
-            setattr(self, property_name, enum_type(property_value))
-
-        obj = self.dict()
-        obj["lease_info"] = self.lease_info.to_entity()
-        instance_info = InstanceInfo(**obj)
-
-        return instance_info
+        return InstanceInfo(
+            instance_id=self.instance_id,
+            app_name=self.app_name,
+            ip_address=self.ip_address,
+            vip_address=self.vip_address,
+            secure_vip_address=self.secure_vip_address,
+            lease_info=self.lease_info.to_entity(),
+            host_name=self.host_name,
+            app_group_name=self.app_group_name,
+            metadata=self.metadata,
+            last_updated_timestamp=self.last_updated_timestamp,
+            last_dirty_timestamp=self.last_dirty_timestamp,
+            action_type=InstanceInfo.ActionType(self.action_type) if self.action_type is not None else None,
+            is_coordinating_discovery_server=self.is_coordinating_discovery_server,
+            is_secure_port_enabled=self.is_secure_port_enabled,
+            is_unsecure_port_enabled=self.is_unsecure_port_enabled,
+            port=self.port,
+            secure_port=self.secure_port,
+            status=InstanceInfo.Status(self.status),
+            overridden_status=InstanceInfo.Status(self.overridden_status),
+            is_instance_info_dirty=self.is_instance_info_dirty,
+        )
