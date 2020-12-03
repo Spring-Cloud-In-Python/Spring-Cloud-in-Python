@@ -37,7 +37,7 @@ class StubRegistry(InstanceRegistry):
     def stub_applications(self, value: Optional[Applications]):
         self.__stub_applications = value
 
-    def get_application(self, application_name: str) -> Application:
+    def get_application(self, application_name: str) -> Optional[Application]:
         return self.__stub_application
 
     def get_applications(self) -> Applications:
@@ -61,11 +61,10 @@ class TestRegistryPresenter:
         self.presenter = RegistryPresenter(self.stub_registry)
 
     def test_query_absent_application(self):
-        self.stub_registry.stub_application = Application("empty_app")
+        self.stub_registry.stub_application = None
         application_model = self.presenter.query_application("empty_app")
 
-        assert len(application_model.instance_info_model_list) == 0
-        assert application_model.name == "empty_app"
+        assert application_model is None
 
     def test_query_application(self):
         application = Application("app_name")
