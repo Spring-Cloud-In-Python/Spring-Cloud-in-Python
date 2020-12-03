@@ -31,7 +31,7 @@ class ApplicationModel(BaseModel):
 
         return ApplicationModel(**obj)
 
-    def to_entity(self) -> LeaseInfo:
+    def to_entity(self) -> Application:
         application = Application(self.name)
         for instance_info_model in self.instance_info_model_list:
             instance = instance_info_model.to_entity()
