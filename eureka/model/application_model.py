@@ -22,14 +22,12 @@ class ApplicationModel(BaseModel):
 
     @staticmethod
     def from_entity(application: Application) -> ApplicationModel:
-        obj = {"name": application.name}
-        instance_info_list = application.get_all_instances_from_local_cache()
-        instance_info_model_list = []
-        for instance in instance_info_list:
-            instance_info_model_list.append(InstanceInfoModel.from_entity(instance))
-        obj["instance_info_model_list"] = instance_info_model_list
+        instance_info_model_list = [
+            InstanceInfoModel.from_entity(instance_info)
+            for instance_info in application.get_all_instances_from_local_cache()
+        ]
 
-        return ApplicationModel(**obj)
+        return ApplicationModel(name=application.name, instance_info_model_list=instance_info_model_list)
 
     def to_entity(self) -> Application:
         application = Application(self.name)
