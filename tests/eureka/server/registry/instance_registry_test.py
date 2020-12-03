@@ -37,6 +37,10 @@ class TestInstanceRegistry:
         application = self.instance_registry.get_application("absent_app")
         assert 0 == application.size()
 
+        # TODO
+        # Here should be another test after implementing registry.cancel():
+        # instance_registry.get_application("app") where instances in app have all been cancelled
+
     def test_get_applications(self):
         self.instance_registry.register(self.instance_info_list[0], 10)
         self.instance_registry.register(self.instance_info_list[1], 10)
