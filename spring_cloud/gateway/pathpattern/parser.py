@@ -7,7 +7,7 @@ Reference: https://github.com/spring-projects/spring-framework/blob/8ac39a50feda
 # scip plugin
 from spring_cloud.utils.validate import not_none
 
-from .elements import LiteralPathElement, PathElement, SeparatorPathElement
+from .elements import LiteralPathElement, PathElement, SeparatorPathElement, WildcardTheRestPathElement
 from .pattern import PathPattern
 
 __author__ = "Waterball (johnny850807@gmail.com)"
@@ -16,6 +16,10 @@ __license__ = "Apache 2.0"
 __all__ = ["PathPatternParser"]
 
 SEPARATOR = "/"
+
+
+class PatternParserException(Exception):
+    pass
 
 
 class PathPatternParser:
@@ -68,7 +72,11 @@ class InternalPathPatternParser:
                 self.__push_path_element(
                     LiteralPathElement(self.path_element_start, self.__extract_path_element_text(), self.separator)
                 )
-            self.__push_path_element(SeparatorPathElement(self.pos, self.separator))
+            if self.peek_double_wildcard():
+                self.__push_path_element(WildcardTheRestPathElement(self.pos, self.separator))
+                self.pos += 2
+            else:
+                self.__push_path_element(SeparatorPathElement(self.pos, self.separator))
         else:
             if self.path_element_start == -1:
                 self.path_element_start = self.pos
@@ -88,3 +96,12 @@ class InternalPathPatternParser:
 
     def __extract_path_element_text(self):
         return self.path_pattern[self.path_element_start : self.pos]
+
+    def peek_double_wildcard(self):
+        if self.pos + 2 >= len(self.path_pattern):
+            return False
+        if self.path_pattern[self.pos + 1] != "*" or self.path_pattern[self.pos + 2] != "*":
+            return False
+        if self.pos + 3 < len(self.path_pattern) and self.path_pattern[self.pos + 3] == self.separator:
+            raise PatternParserException("No more pattern data allowed after '**' pattern element")
+        return self.pos + 3 == len(self.path_pattern)

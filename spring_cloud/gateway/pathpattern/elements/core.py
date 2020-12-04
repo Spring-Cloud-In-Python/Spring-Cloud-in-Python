@@ -52,11 +52,14 @@ class SeparatorPathElement(PathElement):
         return self.separator
 
 
-# TODO
 class WildcardTheRestPathElement(PathElement):
+    def __init__(self, pos: int, separator):
+        super().__init__(pos, separator)
+
     def matches(self, path_index: int, context: MatchingContext) -> bool:
-        pass
+        # If there is more data, it must start with the separator
+        return path_index >= context.path_length or context.is_separator(path_index)
 
     @property
     def text(self) -> str:
-        pass
+        return self.separator + "**"
