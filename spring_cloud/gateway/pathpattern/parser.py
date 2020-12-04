@@ -46,7 +46,14 @@ class InternalPathPatternParser:
         while self.pos < len(self.path_pattern):
             self.__parse_next_character()
 
-        return PathPattern(path_pattern, self.head_path_element)
+        # handle the final literal (without a trailing separator)
+        # e.g., `/api/users`, this part handles `users`
+        if self.path_element_start != -1:
+            self.__push_path_element(
+                LiteralPathElement(self.path_element_start, self.__extract_path_element_text(), self.separator)
+            )
+
+        return PathPattern(path_pattern, self.separator, self.head_path_element)
 
     def __reset_path_element_state(self):
         self.path_element_start = -1
@@ -56,6 +63,8 @@ class InternalPathPatternParser:
 
         if ch == self.separator:
             if self.path_element_start != -1:
+                # handle the literal before a separator
+                # e.g., while reading through `api/`, `api` will be extracted here
                 self.__push_path_element(
                     LiteralPathElement(self.path_element_start, self.__extract_path_element_text(), self.separator)
                 )

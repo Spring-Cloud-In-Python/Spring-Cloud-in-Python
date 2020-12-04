@@ -17,13 +17,13 @@ class PathElement(ABC):
         self.prev: Optional[PathElement] = None
 
     @abstractmethod
-    def matches(self, path_pos: int, matching_context):
+    def matches(self, path_index: int, matching_context) -> bool:
         raise NotImplemented
 
     @property
     @abstractmethod
-    def text(self):
+    def text(self) -> str:
         raise NotImplemented
 
-    def is_no_more_pattern(self) -> bool:
+    def has_no_next_element(self) -> bool:
         return self.next is None
