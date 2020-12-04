@@ -19,6 +19,7 @@ class TestInstanceRegistry:
 
     def test_register(self):
         self.instance_registry.register(self.instance_info_list[0], 10)
+        self.instance_registry.register(self.instance_info_list[0], 10)
 
         assert True
 

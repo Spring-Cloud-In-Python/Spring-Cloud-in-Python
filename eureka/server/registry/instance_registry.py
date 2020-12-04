@@ -79,7 +79,7 @@ class InstanceRegistry:
 
             lease = Lease(registrant, lease_duration)
             if existing_lease is not None:
-                lease.service_up_timestamp = existing_lease.holder.service_up_timestamp
+                lease.service_up_timestamp = existing_lease.service_up_timestamp
 
             application_map.put(instance_id, lease)
             if registrant.status == InstanceInfo.Status.UP:
