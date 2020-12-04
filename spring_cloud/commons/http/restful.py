@@ -5,6 +5,7 @@ A RESTful http client
 # standard library
 from abc import ABC, abstractmethod
 from typing import List
+from urllib.parse import ParseResult, urlparse
 
 # pypi/conda library
 from requests import request, sessions
@@ -22,6 +23,9 @@ class HttpRequest:
         self.params = params
         self.cookies = cookies
         self.json = json
+
+    def __str__(self):
+        return str(self.__dict__)
 
 
 class ClientHttpRequestInterceptor(ABC):
@@ -198,3 +202,17 @@ class RestTemplate:
         kwargs["cookies"] = http_request.cookies
         kwargs["json"] = http_request.json
         return http_request.url
+
+
+# DEMO
+class MyInterceptor(ClientHttpRequestInterceptor):
+    def intercept(self, http_request: HttpRequest):
+        url: ParseResult = urlparse(http_request.url)
+        replaced: ParseResult = url._replace(netloc="vocabulary.com")
+        http_request.url = replaced.geturl()
+        print(http_request)
+
+
+if __name__ == "__main__":
+    api = RestTemplate([MyInterceptor()])
+    print(api.get("http://google.com").text)
