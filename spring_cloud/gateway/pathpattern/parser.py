@@ -46,12 +46,12 @@ class InternalPathPatternParser:
         self.path_pattern = not_none(path_pattern)
         self.__reset_path_element_state()
 
-        # interpretation
+        # interpretation, char by char
         while self.pos < len(self.path_pattern):
             self.__parse_next_character()
 
-        # handle the final literal (without a trailing separator)
-        # e.g., `/api/users`, this part handles `users`
+        # handle the final literal (no trailing separator)
+        # e.g., `/api/users`, the `users` part is handled here
         if self.path_element_start != -1:
             self.__push_path_element(
                 LiteralPathElement(self.path_element_start, self.__extract_path_element_text(), self.separator)
@@ -67,12 +67,12 @@ class InternalPathPatternParser:
 
         if ch == self.separator:
             if self.path_element_start != -1:
-                # handle the literal before a separator
-                # e.g., while reading through `api/`, `api` will be extracted here
+                # handle the literal followed by a separator
+                # e.g., `api/`, `api` will be extracted here
                 self.__push_path_element(
                     LiteralPathElement(self.path_element_start, self.__extract_path_element_text(), self.separator)
                 )
-            if self.peek_double_wildcard():
+            if self.peek_double_wildcard():  # peek '/**'
                 self.__push_path_element(WildcardTheRestPathElement(self.pos, self.separator))
                 self.pos += 2
             else:
@@ -98,6 +98,10 @@ class InternalPathPatternParser:
         return self.path_pattern[self.path_element_start : self.pos]
 
     def peek_double_wildcard(self):
+        """
+        Returns:
+            (bool) whether the following characters are '/**'
+        """
         if self.pos + 2 >= len(self.path_pattern):
             return False
         if self.path_pattern[self.pos + 1] != "*" or self.path_pattern[self.pos + 2] != "*":

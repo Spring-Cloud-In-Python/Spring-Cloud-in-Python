@@ -15,6 +15,14 @@ __all__ = ["PathPattern", "MatchingContext", "PathContainer"]
 
 
 class PathContainer:
+    """
+    A simple structure that represents a path by Separator and PathSegment.
+
+    For example:
+        The path '/api/users' will be represented
+            as [Separator, PathSegment('api'), Separator, PathSegment('users')]
+    """
+
     @staticmethod
     def from_path(path: str, separator="/"):
         segments = path.split(separator)[1:]  # skip the first separator
@@ -45,6 +53,10 @@ class PathContainer:
 
 
 class MatchingContext:
+    """
+    The helper for pattern matching.
+    """
+
     def __init__(self, path_container: PathContainer, path_pattern):
         self.path_pattern = path_pattern
         self.path_container = path_container
