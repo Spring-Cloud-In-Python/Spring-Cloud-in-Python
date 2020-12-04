@@ -13,6 +13,7 @@ from spring_cloud.ribbon.ribbon_server import RibbonServer
 
 
 class DiscoveryEnabledServer(object):
+    # TODO this class is expected to be implemented by Ribbon but currently fake it for the code's execution.
     pass
 
 
@@ -37,9 +38,9 @@ class RibbonLoadBalancerClient(LoadBalancerClient):
         return server.get_port() in [443, 8443]
 
     def get_server(self, load_balancer: LoadBalancer, hint: object) -> Server:
-        if not load_balancer:
+        if load_balancer is None:
             return None
-        if not hint:
+        if hint is None:
             hint = "default"
         return load_balancer.choose_server(hint)
 
