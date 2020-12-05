@@ -341,7 +341,8 @@ class DefaultEurekaClientConfig(EurekaClientConfig):
 
     @property
     def registry_fetch_interval_in_secs(self) -> int:
-        return 30
+        # Make it smaller for testing.
+        return 5
 
     @property
     def instance_info_replication_interval_in_secs(self) -> int:
@@ -393,11 +394,11 @@ class DefaultEurekaClientConfig(EurekaClientConfig):
 
     @property
     def should_disable_delta(self) -> bool:
-        return False
+        return True
 
     @property
     def eureka_server_service_urls(self) -> List[str]:
-        return ["http://localhost:8080/eureka/v2/"]
+        return ["http://localhost:8000/eureka/v2/"]
 
     @property
     def should_filter_only_up_instance(self) -> bool:
@@ -413,7 +414,7 @@ class DefaultEurekaClientConfig(EurekaClientConfig):
 
     @property
     def should_enforce_fetch_registry_on_init(self) -> bool:
-        return False
+        return True
 
     @property
     def heartbeat_executor_thread_pool_size(self) -> int:
@@ -437,7 +438,7 @@ class DefaultEurekaClientConfig(EurekaClientConfig):
 
     @property
     def should_enforce_registration_on_init(self) -> bool:
-        return False
+        return True
 
     @property
     def eureka_transport_config(self) -> EurekaTransportConfig:

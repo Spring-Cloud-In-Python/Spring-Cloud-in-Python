@@ -4,7 +4,8 @@ __author__ = "Haribo (haribo1558599@gmail.com)"
 __license__ = "Apache 2.0"
 
 # scip plugin
-from eureka.client.app_info import InstanceInfo, LeaseInfo
+from eureka.client.app_info.instance_info import InstanceInfo
+from eureka.client.app_info.lease_info import LeaseInfo
 from eureka.utils.timestamp import current_timestamp
 
 
