@@ -13,12 +13,12 @@ from spring_cloud.utils.dot_map import DotMap
 DefaultClientConfig = DotMap(
     {
         "PRIORITIZE_VIP_ADDRESS_BASED_SERVERS": True,
-        "NFLOADBALANCER_PING_CLASSNAME": "com.netflix.loadbalancer.DummyPing",
-        "NFLOADBALANCER_RULE_CLASSNAME": "com.netflix.loadbalancer.AvailabilityFilteringRule",
-        "NFLOADBALANCER_CLASSNAME": "com.netflix.loadbalancer.ZoneAwareLoadBalancer",
-        "USEIPADDRESS_FOR_SERVER": False,
-        "CLIENT_CLASSNAME": "com.netflix.niws.client.http.RestClient",
-        "VIPADDRESS_RESOLVER_CLASSNAME": "com.netflix.client.SimpleVipAddressResolver",
+        "NF_LOAD_BALANCER_PING_CLASS_NAME": "com.netflix.loadbalancer.DummyPing",
+        "NF_LOAD_BALANCER_RULE_CLASS_NAME": "com.netflix.loadbalancer.AvailabilityFilteringRule",
+        "NF_LOAD_BALANCER_CLASS_NAME": "com.netflix.loadbalancer.ZoneAwareLoadBalancer",
+        "USE_IPADDRESS_FOR_SERVER": False,
+        "CLIENT_CLASS_NAME": "com.netflix.niws.client.http.RestClient",
+        "VIP_ADDRESS_RESOLVER_CLASS_NAME": "com.netflix.client.SimpleVipAddressResolver",
         "PRIME_CONNECTIONS_URI": "/",
         "MAX_TOTAL_TIME_TO_PRIME_CONNECTIONS": 30000,
         "MAX_RETRIES_PER_SERVER_PRIME_CONNECTION": 9,
@@ -43,15 +43,15 @@ DefaultClientConfig = DotMap(
         "PRIME_CONNECTIONS_CLASS": "com.netflix.niws.client.http.HttpPrimeConnection",
         "SEVER_LIST_CLASS": "com.netflix.loadbalancer.ConfigurationBasedServerList",
         "SERVER_LIST_UPDATER_CLASS": "com.netflix.loadbalancer.PollingServerListUpdater",
-        "CONNECTION_IDLE_TIMERTASK_REPEAT_IN_MSECS": 30000,
-        "CONNECTIONIDLE_TIME_IN_MSECS": 30000,
+        "CONNECTION_IDLE_TIMER_TASK_REPEAT_IN_MSECS": 30000,
+        "CONNECTION_IDLE_TIME_IN_MSECS": 30000,
         "POOL_MAX_THREADS": 200,
         "POOL_MIN_THREADS": 1,
         "POOL_KEEP_ALIVE_TIME": 900,
         "ENABLE_ZONE_AFFINITY": False,
         "ENABLE_ZONE_EXCLUSIVITY": False,
         "PORT": 7001,
-        "ENABLE_LOADBALANCER": True,
+        "ENABLE_LOAD_BALANCER": True,
         "PROPERTY_NAME_SPACE": "ribbon",
         "OK_TO_RETRY_ON_ALL_OPERATIONS": False,
         "ENABLE_NIWS_EVENT_LOGGING": True,
@@ -67,7 +67,7 @@ class ClientConfig:
         self.__enable_dynamic_properties = False
 
     def load_default_values(self):
-        self.__properties = DefaultClientConfig
+        self.__properties.update(DefaultClientConfig)
 
     def add_property(self, key: str, val: object):
         self.__properties[key] = val
