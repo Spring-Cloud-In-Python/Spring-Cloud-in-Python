@@ -11,6 +11,7 @@ wrapt = "^1.12.1"
 loguru = "0.5.3"
 fastapi = "^0.62.0"
 uvicorn = "^0.12.3"
+requests = "^2.25.0"
 
 [tool.poetry.dev-dependencies]
 pre-commit = "^2.7.1"
