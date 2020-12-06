@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 # standard library
-import random, threading
+import random
+import threading
 from typing import Callable, NoReturn
 
 # pypi/conda library
