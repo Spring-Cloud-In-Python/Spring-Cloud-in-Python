@@ -14,30 +14,30 @@ ribbon_server2 = RibbonServer(service_id="1", server=server2, secure=True)
 
 
 def test_get_instance_id():
-    assert ribbon_server2.instance_id() == server2.get_id()
+    assert ribbon_server2.instance_id == server2.id
 
 
 def test_get_service_id():
-    assert ribbon_server.service_id() == "1"
+    assert ribbon_server.service_id == "1"
 
 
 def test_get_host():
-    assert ribbon_server.host() == server_.get_host()
+    assert ribbon_server.host == server_.host
 
 
 def test_get_port():
-    assert ribbon_server.port() == server_.get_port()
+    assert ribbon_server.port == server_.port
 
 
 def test_secure():
-    assert ribbon_server.secure() == True
+    assert ribbon_server.secure == True
 
 
 def test_get_uri():
-    host_ = ribbon_server.host()
-    port_ = ribbon_server.port()
-    assert ribbon_server.uri() == f"https://{host_}{port_}"
+    host_ = ribbon_server.host
+    port_ = ribbon_server.port
+    assert ribbon_server.uri == f"https://{host_}{port_}"
 
 
 def test_get_scheme():
-    assert ribbon_server.scheme() == "https"
+    assert ribbon_server.scheme == "https"

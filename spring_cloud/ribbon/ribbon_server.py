@@ -18,28 +18,50 @@ class RibbonServer(ServiceInstance):
         self.__server = server
         self.__secure = secure
 
+    @property
     def instance_id(self) -> str:
-        return self.__server.get_id()
+        return self.__server.id
 
+    @property
     def service_id(self) -> str:
         return self.__service_id
 
+    @property
     def host(self) -> str:
-        return self.__server.get_host()
+        return self.__server.host
 
+    @property
     def port(self) -> int:
-        return self.__server.get_port()
+        return self.__server.port
 
+    @property
     def secure(self) -> bool:
         return self.__secure
 
+    @property
     def uri(self) -> str:
         scheme = "https" if self.secure else "http"
-        uri = "{}://{}{}".format(scheme, self.host(), self.port())
+        uri = "{}://{}{}".format(scheme, self.host, self.port)
         return uri
 
+    @property
     def server(self) -> Server:
         return self.__server
 
+    @property
     def scheme(self) -> str:
-        return self.__server.get_scheme(self.uri())
+        return self.__server.scheme
+
+    def __eq__(self, o):
+        if isinstance(o, RibbonServer):
+            return (
+                self.uri == o.uri
+                and self.service_id == o.service_id
+                and self.instance_id == o.instance_id
+                and self.host == o.host
+                and self.port == o.port
+                and self.secure == o.secure
+                and self.scheme == o.scheme
+            )
+
+        return False
