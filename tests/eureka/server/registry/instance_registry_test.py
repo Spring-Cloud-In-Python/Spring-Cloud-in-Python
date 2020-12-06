@@ -5,8 +5,8 @@ __license__ = "Apache 2.0"
 
 # scip plugin
 from eureka.server.registry.instance_registry import InstanceRegistry
-from tests.eureka.client.discovery.shared.stubs import instance_info
 from eureka.server.registry.registry_presenter import RegistryPresenter
+from tests.eureka.client.discovery.shared.stubs import instance_info
 
 
 class TestInstanceRegistry:
