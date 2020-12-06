@@ -32,9 +32,9 @@ function hadolint_runner(){
             -v "$(pwd):/root" \
             -w /root \
             --rm \
-            hadolint/hadolint /bin/hadolint --config ./scripts/pre_commit/configs/hadolint/hadolint.yml "$@"
+            hadolint/hadolint /bin/hadolint --config ./ops/hooks/configs/hadolint/hadolint.yml "$@"
     else
-        $hadolint --config ./scripts/pre_commit/configs/hadolint/hadolint.yml "$@"
+        $hadolint --config ./ops/hooks/configs/hadolint/hadolint.yml "$@"
     fi
 }
 
