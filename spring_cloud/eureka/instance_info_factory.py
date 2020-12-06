@@ -5,12 +5,12 @@ __license__ = "Apache 2.0"
 
 # scip plugin
 from eureka.client.app_info import InstanceInfo, LeaseInfo
-from eureka.client.app_info.eureka_instance_config import DefaultEurekaInstanceConfig
+from eureka.client.app_info.eureka_instance_config import DefaultEurekaInstanceConfig, EurekaInstanceConfig
 from spring_cloud.utils.validate import not_none
 
 
 class InstanceInfoFactory:
-    def create(self, config: DefaultEurekaInstanceConfig):
+    def create(self, config: EurekaInstanceConfig):
         lease_info = LeaseInfo(
             lease_renewal_interval_in_secs=config.lease_renewal_interval_in_secs,
             lease_duration_in_secs=config.lease_expiration_duration_in_secs,
