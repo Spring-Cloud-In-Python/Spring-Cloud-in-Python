@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # standard library
-import random
+import random, threading
 from typing import Callable, NoReturn
 
 # pypi/conda library
@@ -48,3 +48,37 @@ class ConcurrentCircularList:
 
     def shuffle(self):
         random.shuffle(self._circular_list)
+
+
+class ConcurrentMap:
+    def __init__(self):
+        self.lock = threading.RLock()
+        self.map = {}
+
+    def get(self, key: str):
+        with self.lock:
+            if key not in self.map:
+                return None
+
+            return self.map[key]
+
+    def put(self, key: str, value):
+        with self.lock:
+            self.map[key] = value
+
+            return self.map[key]
+
+    def put_if_absent(self, key: str, value):
+        with self.lock:
+            if key not in self.map:
+                self.map[key] = value
+
+            return self.map[key]
+
+    def entry_set(self):
+        with self.lock:
+            return list(self.map.items())
+
+    def size(self) -> int:
+        with self.lock:
+            return len(self.map)
