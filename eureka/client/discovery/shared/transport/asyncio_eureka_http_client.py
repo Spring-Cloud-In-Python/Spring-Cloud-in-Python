@@ -18,9 +18,9 @@ from eureka.client.discovery.shared.transport.eureka_http_response import Eureka
 
 
 class AsyncIOEurekaHttpClient(EurekaHttpClient):
-    def __init__(self, service_url: str, session_timeout: int = 300):
+    def __init__(self, service_url: str, connection_timeout: int = 300):
         self._session = None
-        self._session_timeout = session_timeout
+        self._connection_timeout = connection_timeout
         self._is_shutdown = False
         self._service_url = service_url
 
@@ -33,7 +33,9 @@ class AsyncIOEurekaHttpClient(EurekaHttpClient):
             eureka_http_response = None
             try:
                 url = urljoin(self._service_url, f"apps/{instance.app_name}")
-                async with session.post(url, data=InstanceInfoModel.from_entity(instance).json()) as response:
+                async with session.post(
+                    url, data=InstanceInfoModel.from_entity(instance).json(), timeout=self._connection_timeout
+                ) as response:
                     eureka_http_response = EurekaHttpResponse(
                         status_code=response.status, headers=dict(response.headers)
                     )
@@ -56,7 +58,7 @@ class AsyncIOEurekaHttpClient(EurekaHttpClient):
             eureka_http_response = None
             try:
                 url = urljoin(self._service_url, "apps")
-                async with session.get(url) as response:
+                async with session.get(url, timeout=self._connection_timeout) as response:
                     data = await response.json()
                     applications_model = ApplicationsModel(**data)
                     eureka_http_response = EurekaHttpResponse(
@@ -81,7 +83,7 @@ class AsyncIOEurekaHttpClient(EurekaHttpClient):
             try:
                 session = self._get_session(self._is_shutdown)
                 url = urljoin(self._service_url, f"apps/{instance.app_name}/{instance.instance_id}")
-                async with session.delete(url) as response:
+                async with session.delete(url, timeout=self._connection_timeout) as response:
                     eureka_http_response = EurekaHttpResponse(
                         status_code=response.status, headers=dict(response.headers)
                     )
@@ -97,7 +99,7 @@ class AsyncIOEurekaHttpClient(EurekaHttpClient):
 
     def _get_session(self, is_shutdown: bool):
         if not is_shutdown and not self._session:
-            self._session = aiohttp.ClientSession(timeout=self._session_timeout)
+            self._session = aiohttp.ClientSession()
         return self._session
 
     async def shutdown(self):
