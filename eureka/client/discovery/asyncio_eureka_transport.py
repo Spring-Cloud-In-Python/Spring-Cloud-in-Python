@@ -18,10 +18,14 @@ class AsyncIOEurekaTransport(EurekaTransport):
         await asyncio.create_task(self._registration_task(), name="registration_task")
 
     async def _registration_task(self) -> bool:
-        instance_ = self._discovery_client.application_info_manager.instance_info
-        eureka_http_response = await self.registration_client.register(instance_)
+        try:
+            instance_ = self._discovery_client.application_info_manager.instance_info
+            eureka_http_response = await self.registration_client.register(instance_)
 
-        return eureka_http_response.status_code == HTTPStatus.NO_CONTENT if eureka_http_response else False
+            return eureka_http_response.status_code == HTTPStatus.NO_CONTENT if eureka_http_response else False
+        except asyncio.TimeoutError:
+            # TODO: add logging
+            pass
 
     async def refresh_local_registry(self):
         eureka_client_config = self._discovery_client.eureka_client_config
@@ -38,23 +42,38 @@ class AsyncIOEurekaTransport(EurekaTransport):
         await asyncio.create_task(coroutine_supervisor.start())
 
     async def _supervised_refresh_local_registry_task(self, eureka_client_config: EurekaClientConfig, discovery_client):
-        eureka_http_response = await asyncio.create_task(
-            self.query_client.get_applications(), name="refresh_local_registry_task"
-        )
+        # We do shuffle on temporary registry instead of client's cached registry to avoid inconsistency in registry
+        # when the timeout error or cancelled error happens during shuffle.
+        registry_received_from_eureka_server = None
+        try:
+            eureka_http_response = await asyncio.create_task(
+                self.query_client.get_applications(), name="refresh_local_registry_task"
+            )
 
-        if eureka_http_response and eureka_http_response.status_code == HTTPStatus.OK:
-            if eureka_client_config.should_disable_delta:
-                discovery_client.applications = eureka_http_response.entity
-                discovery_client.applications.shuffle_instances(eureka_client_config.should_filter_only_up_instance)
+            if eureka_http_response and eureka_http_response.status_code == HTTPStatus.OK:
+                if eureka_client_config.should_disable_delta:
+                    registry_received_from_eureka_server = eureka_http_response.entity
+                    registry_received_from_eureka_server.shuffle_instances(
+                        eureka_client_config.should_filter_only_up_instance
+                    )
+        except (asyncio.TimeoutError, asyncio.CancelledError):
+            # TODO: add logging
+            pass
+        else:
+            discovery_client.applications = registry_received_from_eureka_server
 
     async def send_heart_beat(self):
         pass
 
     async def unregister(self):
-        instance_ = self._discovery_client.application_info_manager.instance_info
-        eureka_http_response = await self.registration_client.cancel(instance_)
+        try:
+            instance_ = self._discovery_client.application_info_manager.instance_info
+            eureka_http_response = await self.registration_client.cancel(instance_)
 
-        if not eureka_http_response or eureka_http_response != HTTPStatus.NO_CONTENT:
+            if not eureka_http_response or eureka_http_response != HTTPStatus.NO_CONTENT:
+                # TODO: add logging
+                pass
+        except asyncio.TimeoutError:
             # TODO: add logging
             pass
 
