@@ -24,6 +24,14 @@ class AsyncIOEurekaHttpClient(EurekaHttpClient):
         self._is_shutdown = False
         self._service_url = service_url
 
+    @property
+    def connection_timeout(self) -> int:
+        return self._connection_timeout
+
+    @connection_timeout.setter
+    def connection_timeout(self, connection_timeout: int):
+        self._connection_timeout = connection_timeout
+
     async def register(self, instance: InstanceInfo) -> Union[EurekaHttpResponse, None]:
         # scip plugin
         from eureka.model.instance_info_model import InstanceInfoModel
