@@ -18,8 +18,9 @@ from eureka.client.discovery.shared.transport.eureka_http_response import Eureka
 
 
 class AsyncIOEurekaHttpClient(EurekaHttpClient):
-    def __init__(self, service_url: str):
+    def __init__(self, service_url: str, session_timeout: int = 300):
         self._session = None
+        self._session_timeout = session_timeout
         self._is_shutdown = False
         self._service_url = service_url
 
@@ -36,9 +37,13 @@ class AsyncIOEurekaHttpClient(EurekaHttpClient):
                     eureka_http_response = EurekaHttpResponse(
                         status_code=response.status, headers=dict(response.headers)
                     )
+            except asyncio.TimeoutError:
+                # TODO: add logging
+                raise
             except RuntimeError as e:
                 # Session may be closed by other coroutine during registration task.
-                print(e)
+                # TODO: add logging
+                pass
             finally:
                 return eureka_http_response
 
@@ -59,9 +64,13 @@ class AsyncIOEurekaHttpClient(EurekaHttpClient):
                         headers=dict(response.headers),
                         entity=applications_model.to_entity(),
                     )
+            except asyncio.TimeoutError:
+                # TODO: add logging
+                raise
             except RuntimeError as e:
                 # Session may be closed by other coroutine during refresh registry task.
-                print(e)
+                # TODO: add logging
+                pass
             finally:
                 return eureka_http_response
 
@@ -76,15 +85,19 @@ class AsyncIOEurekaHttpClient(EurekaHttpClient):
                     eureka_http_response = EurekaHttpResponse(
                         status_code=response.status, headers=dict(response.headers)
                     )
+            except asyncio.TimeoutError:
+                # TODO: add logging
+                raise
             except RuntimeError as e:
                 # Session may be closed by other coroutine during cancel task.
-                print(e)
+                # TODO: add logging
+                pass
             finally:
                 return eureka_http_response
 
     def _get_session(self, is_shutdown: bool):
         if not is_shutdown and not self._session:
-            self._session = aiohttp.ClientSession()
+            self._session = aiohttp.ClientSession(timeout=self._session_timeout)
         return self._session
 
     async def shutdown(self):
