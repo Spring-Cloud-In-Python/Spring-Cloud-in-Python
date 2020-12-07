@@ -27,7 +27,7 @@ class TestCoroutineSupervisor:
             store["value"] = "already run"
 
         coroutine_supervisor = CoroutineSupervisor(
-            timeout=5, exponential_back_off_bound=100, interval=0.01, max_num_of_tasks=5, coroutine=func
+            timeout=5, exponential_back_off_bound=100, interval=0.01, max_num_of_timeout=5, coroutine=func
         )
         self.event_loop.run_until_complete(self.run_coroutine_supervisor(coroutine_supervisor, wait=0.1))
 
@@ -45,7 +45,7 @@ class TestCoroutineSupervisor:
             assert previous_count + 1 == store["count"]
 
         coroutine_supervisor = CoroutineSupervisor(
-            timeout=5, exponential_back_off_bound=100, interval=0.01, max_num_of_tasks=5, coroutine=func
+            timeout=5, exponential_back_off_bound=100, interval=0.01, max_num_of_timeout=5, coroutine=func
         )
         self.event_loop.run_until_complete(self.run_coroutine_supervisor(coroutine_supervisor, wait=1))
 
@@ -88,37 +88,21 @@ class TestCoroutineSupervisor:
         async def func():
             await asyncio.sleep(0.3)
 
-        coroutine_supervisor = CoroutineSupervisor(
-            timeout=0.01, exponential_back_off_bound=100, interval=0.01, max_num_of_tasks=5, coroutine=func
-        )
-
-        async def run():
-            await coroutine_supervisor.start()
-            await asyncio.sleep(0.3)
-            assert coroutine_supervisor.current_num_of_tasks > 1
-            await coroutine_supervisor.stop()
-
-        self.event_loop.run_until_complete(run())
-
-    def test_max_number_of_running_tasks(self):
-        async def func():
-            await asyncio.sleep(0.3)
-
-        max_num_of_tasks = 5
-
+        max_num_of_timeout = 5
         coroutine_supervisor = CoroutineSupervisor(
             timeout=0.01,
             exponential_back_off_bound=100,
             interval=0.01,
-            max_num_of_tasks=max_num_of_tasks,
+            max_num_of_timeout=max_num_of_timeout,
             coroutine=func,
         )
 
         async def run():
-            await coroutine_supervisor.start()
-            await asyncio.sleep(0.3)
-            assert coroutine_supervisor.current_num_of_tasks == max_num_of_tasks
-            await coroutine_supervisor.stop()
+            try:
+                await coroutine_supervisor.start()
+                await asyncio.sleep(0.3)
+            except RuntimeError as e:
+                assert e == f"Supervised coroutine exceeded maximum consecutive number of timeout: {max_num_of_timeout}"
 
         self.event_loop.run_until_complete(run())
 

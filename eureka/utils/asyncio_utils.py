@@ -14,10 +14,10 @@ class CoroutineSupervisor:
         timeout: float,
         exponential_back_off_bound: int,
         interval: float,
-        max_num_of_tasks: int,
+        max_num_of_timeout: int,
         coroutine: Callable[..., Awaitable],
         *args,
-        **kwargs
+        **kwargs,
     ):
 
         self._coroutine = coroutine
@@ -27,8 +27,8 @@ class CoroutineSupervisor:
         self._max_delay = self._timeout * exponential_back_off_bound
         self._interval = interval
 
-        self._current_num_of_tasks = 0
-        self._max_num_of_tasks = max_num_of_tasks
+        self._timeout_counter = 0
+        self._max_num_of_timeout = max_num_of_timeout
 
         self._started = False
         self._running = False
@@ -37,11 +37,11 @@ class CoroutineSupervisor:
         self._handler = None
 
     @property
-    def current_num_of_tasks(self) -> int:
-        return self._current_num_of_tasks
+    def timeout_counter(self) -> int:
+        return self._timeout_counter
 
     @property
-    def timeout(self):
+    def timeout(self) -> float:
         return self._timeout
 
     async def start(self):
@@ -77,11 +77,16 @@ class CoroutineSupervisor:
         self._handler = self._event_loop.call_later(self._interval, self._run)
 
         # Throttle periodic call
-        if self._running or self._current_num_of_tasks >= self._max_num_of_tasks:
+        if self._running:
             return
 
+        if self._timeout_counter >= self._max_num_of_timeout:
+            self.stop()
+            raise RuntimeError(
+                f"Supervised coroutine exceeded maximum consecutive number of timeout: {self._max_num_of_timeout}"
+            )
+
         self._running = True
-        self._current_num_of_tasks += 1
         self._task = asyncio.create_task(self._runner())
 
     async def _runner(self):
@@ -90,19 +95,12 @@ class CoroutineSupervisor:
 
         try:
             task = asyncio.create_task(self._coroutine(*self._args, **self._kwargs))
+            await asyncio.wait_for(task, timeout=self._timeout)
 
-            # Since it'll cause unknown error if the running coroutine was interrupted,
-            # we shield the coroutine to prevent it from cancellation after timeout;
-            # therefore, there are more than one coroutine running concurrently
-            # when timeout occurs.
-            await asyncio.wait_for(
-                asyncio.shield(self._decrement_current_num_of_tasks_after_done(task)), timeout=self._timeout
-            )
+            # Reset timeout counter once a task succeeded
+            self._timeout_counter = 0
         except (asyncio.TimeoutError, asyncio.CancelledError):
             self._timeout = min(self._timeout * 2, self._max_delay)
+            self._timeout_counter += 1
         finally:
             self._running = False
-
-    async def _decrement_current_num_of_tasks_after_done(self, task):
-        await task
-        self._current_num_of_tasks -= 1
