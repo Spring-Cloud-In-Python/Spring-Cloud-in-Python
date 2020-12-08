@@ -15,8 +15,11 @@ dispatcher_handler = DispatcherHandler()
 
 
 class HTTPRequestHandler(SimpleHTTPRequestHandler, HttpResponseHandler):
-    def write_body(self, body: bytearray):
+    def send_body(self, body: bytearray):
         self.wfile.write(body)
+
+    def send_status_code(self, status_code: int):
+        self.send_response(status_code)
 
     def handle_(self):
         http_request = DefaultServerHttpRequest(self.headers, self.path, self.server, self.command, self.rfile)

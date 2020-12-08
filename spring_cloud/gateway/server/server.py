@@ -15,7 +15,7 @@ from spring_cloud.utils.validate import not_none
 
 class HttpResponseHandler(ABC):
     @abstractmethod
-    def send_response(self, status_code: int):
+    def send_status_code(self, status_code: int):
         raise NotImplemented
 
     @abstractmethod
@@ -27,11 +27,7 @@ class HttpResponseHandler(ABC):
         raise NotImplemented
 
     @abstractmethod
-    def write_body(self, body: bytearray):
-        raise NotImplemented
-
-    @abstractmethod
-    def flush_headers(self):
+    def send_body(self, body: bytearray):
         raise NotImplemented
 
 
@@ -73,16 +69,16 @@ class ServerHTTPResponse:
 
     def commit(self):
         not_none(self.__status_code)
-        self.__handler.send_response(self.__status_code)
+        self.__handler.send_status_code(self.__status_code)
         self.add_cookie_header()
         for key, value in self.__headers.items():
             self.__handler.send_header(key, value)
         self.__handler.end_headers()
-        self.__handler.write_body(self.__body)
+        self.__handler.send_body(self.__body)
 
     def add_cookie_header(self):
         cookies = [f"{key}={value}" for key, value in self.__cookies.items()]
-        self.__headers["Cookie"] = ";".join(cookies)
+        self.__headers["Cookie"] = "; ".join(cookies)
 
 
 class ServerWebExchange(ABC):
