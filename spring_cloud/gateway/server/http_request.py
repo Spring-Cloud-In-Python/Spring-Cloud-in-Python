@@ -5,7 +5,6 @@ from __future__ import annotations
 import re
 from abc import ABC, abstractmethod
 from email.message import Message
-from io import BufferedReader
 from socketserver import BaseServer
 from typing import Dict
 
@@ -92,34 +91,31 @@ class DefaultServerHttpRequest(ServerHTTPRequest):
         cookies = {}
         value = self.__headers.get("Cookie")
         if value:
-            for segment in re.split(";\\s?", value):
-                cookie = re.split("\\s?=\\s?", segment)
-                cookies[cookie[0]] = cookie[1]
+            for segment in re.split(r"\s*;\s*", value):
+                key, value = re.split(r"\s*=\s*", segment)[:2]
+                cookies[key] = value
         return cookies
 
     @property
     def method(self) -> str:
         return self.__method
 
+    # TODO: the current version doesn't support https
     @property
     def uri(self) -> str:
         return f"http://{self.host}:{self.port}"
 
     @property
     def headers(self) -> Dict[str, str]:
-        headers = {}
-        for key in self.__headers.keys():
-            headers[key] = self.__headers.get(key)
-        return headers
+        return self.__headers
 
     @property
     def body(self) -> bytes:
-        content = self.__headers.get("Content-Length")
-        if content is None:
-            return b""
-        else:
+        if "Content-Length" in self.__headers.keys():
             content_len = int(self.__headers.get("Content-Length"))
             return self.__rfile.read(content_len)
+        else:
+            return b""
 
     @property
     def host(self) -> str:

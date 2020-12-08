@@ -2,26 +2,45 @@
 from __future__ import annotations
 
 # standard library
-from http.server import HTTPServer, SimpleHTTPRequestHandler
+from abc import ABC, abstractmethod
+from typing import Dict
 
 __author__ = "Chaoyuuu (chaoyu2330@gmail.com)"
 __license__ = "Apache 2.0"
 
-# standard library
-from abc import ABC, abstractmethod
-from typing import Dict
-
 # scip plugin
-from spring_cloud.gateway.server.http_request import DefaultServerHttpRequest, ServerHTTPRequest
+from spring_cloud.gateway.server.http_request import ServerHTTPRequest
 from spring_cloud.utils.validate import not_none
 
 
+class HttpResponseHandler(ABC):
+    @abstractmethod
+    def send_response(self, status_code: int):
+        raise NotImplemented
+
+    @abstractmethod
+    def send_header(self, key: str, value: str):
+        raise NotImplemented
+
+    @abstractmethod
+    def end_headers(self):
+        raise NotImplemented
+
+    @abstractmethod
+    def write_body(self, body: bytearray):
+        raise NotImplemented
+
+    @abstractmethod
+    def flush_headers(self):
+        raise NotImplemented
+
+
 class ServerHTTPResponse:
-    def __init__(self, handler: HTTPRequestHandler):
-        self.__status_code = 200
+    def __init__(self, handler: HttpResponseHandler):
+        self.__status_code = None
         self.__cookies = {}
         self.__headers = {}
-        self.__body = ""
+        self.__body = bytearray()
         self.__handler = handler
 
     @property
@@ -45,27 +64,25 @@ class ServerHTTPResponse:
     def add_header(self, key: str, value: str):
         self.__headers[key] = value
 
-    def set_body(self, body: str):
-        self.__body = body
+    @property
+    def body(self):
+        return self.__body
+
+    def set_body(self, body: bytearray):
+        self.__body.extend(body)
 
     def commit(self):
+        not_none(self.__status_code)
         self.__handler.send_response(self.__status_code)
-        self.add_cookie_headers()
-        for key in self.__headers.keys():
-            self.__handler.send_header(key, self.__headers.get(key))
+        self.add_cookie_header()
+        for key, value in self.__headers.items():
+            self.__handler.send_header(key, value)
         self.__handler.end_headers()
-        self.__handler.wfile.write(bytes(self.__body, "utf-8"))
+        self.__handler.write_body(self.__body)
 
-    def add_cookie_headers(self):
-        cookies = [f"{key} = {self.__cookies.get(key)}" for key in self.__cookies.keys()]
-        header_value = ""
-        if len(cookies) != 0:
-            for cookie in cookies:
-                if len(cookies) == 1:
-                    header_value = f"{cookie}"
-                else:
-                    header_value = f"{cookie}; {header_value}"
-            self.__headers["Cookie"] = header_value
+    def add_cookie_header(self):
+        cookies = [f"{key}={value}" for key, value in self.__cookies.items()]
+        self.__headers["Cookie"] = ";".join(cookies)
 
 
 class ServerWebExchange(ABC):
@@ -81,7 +98,7 @@ class ServerWebExchange(ABC):
 
     @property
     @abstractmethod
-    def attribute(self) -> Dict[str, object]:
+    def attributes(self) -> Dict[str, object]:
         raise NotImplemented
 
     def mutate(self) -> ServerWebExchange.Builder:
@@ -128,15 +145,15 @@ class MutativeServerWebExchange(ServerWebExchange):
 
     @property
     def request(self) -> ServerHTTPRequest:
-        return self.__request if self.__request else self.__delegate.request
+        return self.__request or self.__delegate.request
 
     @property
     def response(self) -> ServerHTTPResponse:
-        return self.__response if self.__response else self.__delegate.response
+        return self.__response or self.__delegate.response
 
     @property
-    def attribute(self) -> Dict[str, object]:
-        return self.__delegate.attribute
+    def attributes(self) -> Dict[str, object]:
+        return self.__delegate.attributes
 
 
 class DefaultServerWebExchange(ServerWebExchange):
@@ -150,19 +167,11 @@ class DefaultServerWebExchange(ServerWebExchange):
         return self.__request
 
     @property
-    def request_header(self) -> Dict[str, str]:
-        return self.__request.headers
-
-    @property
     def response(self) -> ServerHTTPResponse:
         return self.__response
 
     @property
-    def response_header(self) -> Dict[str, str]:
-        return self.__response.headers
-
-    @property
-    def attribute(self) -> Dict[str, object]:
+    def attributes(self) -> Dict[str, object]:
         return self.__attributes
 
     def get_required_attribute(self, name: str) -> object:
@@ -171,74 +180,4 @@ class DefaultServerWebExchange(ServerWebExchange):
     # TODO: will be implement if we need this in future
     @property
     def checkNotModified(self) -> bool:
-        pass
-
-
-class HTTPRequestHandler(SimpleHTTPRequestHandler):
-    def handle_(self):
-        http_request = DefaultServerHttpRequest(self.headers, self.path, self.server, self.command, self.rfile)
-        http_response = ServerHTTPResponse(self)
-        exchange = DefaultServerWebExchange(http_request, http_response)
-        # scip plugin
-        from spring_cloud.gateway.handler.handler import DispatcherHandler
-
-        DispatcherHandler().handle(exchange)
-
-    def do_GET(self):
-        self.handle_()
-
-    def do_POST(self):
-        self.handle_()
-
-    def do_PUT(self):
-        self.handle_()
-
-    def do_PATCH(self):
-        self.handle_()
-
-    def do_DELETE(self):
-        self.handle_()
-
-    def de_COPY(self):
-        self.handle_()
-
-    def do_HEAD(self):
-        self.handle_()
-
-    def do_OPTIONS(self):
-        self.handle_()
-
-    def de_LINK(self):
-        self.handle_()
-
-    def de_UNLINK(self):
-        self.handle_()
-
-    def de_LOCK(self):
-        self.handle_()
-
-    def de_UNLOCK(self):
-        self.handle_()
-
-    def de_PROPFIND(self):
-        self.handle_()
-
-    def de_VIEW(self):
-        self.handle_()
-
-
-if __name__ == "__main__":
-
-    hostName = "localhost"
-    serverPort = 8888
-
-    webServer = HTTPServer((hostName, serverPort), HTTPRequestHandler)
-    print("Server started http://%s:%s" % (hostName, serverPort))
-
-    try:
-        webServer.serve_forever()
-    except KeyboardInterrupt:
-        pass
-
-    webServer.server_close()
-    print("Server stopped.")
+        raise NotImplemented
