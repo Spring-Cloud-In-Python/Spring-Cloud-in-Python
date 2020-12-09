@@ -27,7 +27,7 @@ class ConcurrentCircularList:
         Returns: iterator of the original list instead of self to avoid infinite loop.
 
         """
-        return self._circular_list
+        return iter(self._circular_list)
 
     @synchronized
     def __next__(self):
