@@ -83,3 +83,13 @@ class ConcurrentMap:
     def size(self) -> int:
         with self.lock:
             return len(self.map)
+
+    def remove(self, key: str):
+        with self.lock:
+            if key not in self.map:
+                return None
+
+            removed = self.map[key]
+            del self.map[key]
+
+            return removed

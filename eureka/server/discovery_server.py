@@ -32,6 +32,16 @@ def register_instance(request: InstanceInfoModel, app_id: str):
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
+@eureka_server.delete("/eureka/v2/apps/{app_id}/{instance_id}")
+def cancel_instance(app_id: str, instance_id: str):
+    result = registry.cancel(app_id, instance_id)
+
+    if not result:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Cancellation failed.")
+
+    return Response(status_code=status.HTTP_200_OK)
+
+
 @eureka_server.get("/eureka/v2/apps/{app_id}")
 def get_application(app_id: str) -> ApplicationModel:
     application = registry.get_presenter().query_application(app_id)
