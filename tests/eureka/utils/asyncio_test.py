@@ -105,6 +105,3 @@ class TestCoroutineSupervisor:
                 assert e == f"Supervised coroutine exceeded maximum consecutive number of timeout: {max_num_of_timeout}"
 
         self.event_loop.run_until_complete(run())
-
-    def tear_down(self):
-        self.event_loop.close()
