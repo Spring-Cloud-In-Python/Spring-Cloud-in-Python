@@ -47,11 +47,10 @@ class AfterRoutePredicate(Predicate):
 class PathRoutePredicate(Predicate):
     def __init__(self, config: PathRoutePredicate.Config):
         self.config = config
-        self.parser = PathPatternParser()
 
     def test(self, exchange: ServerWebExchange) -> bool:
         request_path = exchange.request.path
-        path_pattern = self.parser.parse(self.config.pattern)
+        path_pattern = PathPatternParser.parse(self.config.pattern)
         return path_pattern.matches(request_path)
 
     class Config:
@@ -66,9 +65,12 @@ class CookieRoutePredicate(Predicate):
     def test(self, exchange: ServerWebExchange) -> bool:
         http_request_cookies = exchange.request.cookies
         for key, value in http_request_cookies.items():
-            if re.match(self.config.cookie_name, key) and re.match(self.config.cookie_regexp, value):
+            if self.__match_cookie(key, value):
                 return True
         return False
+
+    def __match_cookie(self, key: str, value: str):
+        return re.match(self.config.cookie_name, key) and re.match(self.config.cookie_regexp, value)
 
     class Config:
         def __init__(self, cookie_name=None, cookie_regexp=None):
