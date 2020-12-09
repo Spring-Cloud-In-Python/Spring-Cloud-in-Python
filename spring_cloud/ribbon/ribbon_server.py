@@ -62,6 +62,7 @@ class RibbonServer(ServiceInstance):
                 and self.port == o.port
                 and self.secure == o.secure
                 and self.scheme == o.scheme
+                and self.server == o.server
             )
 
         return False

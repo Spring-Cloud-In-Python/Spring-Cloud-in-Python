@@ -12,12 +12,12 @@ from ribbon.loadbalancer.server import Server
 from spring_cloud.commons.client import ServiceInstance
 from spring_cloud.commons.client.loadbalancer import LoadBalancerClient
 from spring_cloud.ribbon.ribbon_server import RibbonServer
+from spring_cloud.ribbon.spring_client_factory import SpringClientFactory
 
 
 class RibbonLoadBalancerClient(LoadBalancerClient):
-    def __init__(self, load_balancers: Dict[str, LoadBalancer] = None, client_configs: Dict[str, ClientConfig] = None):
-        self.__load_balancers = load_balancers
-        self.__client_configs = client_configs
+    def __init__(self, client_factory: SpringClientFactory):
+        self.__client_factory = client_factory
 
     def choose(self, service_id: str, request=None) -> Union[ServiceInstance, None]:
         """
@@ -33,7 +33,7 @@ class RibbonLoadBalancerClient(LoadBalancerClient):
 
     def is_secure(self, server: Server, service_id: str) -> bool:
         config = self.get_client_config(service_id)
-        if config is not None:
+        if config is not None and config.get_property("is_secure") is not None:
             return config.get_property("is_secure")
         if isinstance(server, DiscoveryEnabledServer):
             return server.instance_info.is_port_enabled(InstanceInfo.PortType.SECURE)
@@ -47,10 +47,10 @@ class RibbonLoadBalancerClient(LoadBalancerClient):
         return load_balancer.choose_server(hint)
 
     def get_load_balancer(self, service_id: str) -> LoadBalancer:
-        return self.__load_balancers[service_id]
+        return self.__client_factory.get_load_balancer(service_id)
 
     def get_client_config(self, service_id: str) -> Union[ClientConfig, None]:
-        return self.__client_configs[service_id]
+        return self.__client_factory.get_client_config(service_id)
 
     def execute(self):
         # TODO not sure if we really need this, this was designed by spring cloud

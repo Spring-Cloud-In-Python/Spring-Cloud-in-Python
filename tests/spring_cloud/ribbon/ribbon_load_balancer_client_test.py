@@ -10,8 +10,10 @@ from ribbon.eureka.discovery_enabled_server import DiscoveryEnabledServer
 from ribbon.loadbalancer.server import Server
 from spring_cloud.ribbon.ribbon_load_balancer_client import RibbonLoadBalancerClient
 from spring_cloud.ribbon.ribbon_server import RibbonServer
+from spring_cloud.ribbon.spring_client_factory import SpringClientFactory
 
 server_ = Server(host="127.0.0.1", port=56747, scheme="https")
+server = Server(host="127.0.0.1", port=443, scheme="https")
 
 
 class LoadBalancer:
@@ -25,7 +27,8 @@ client_config1 = ClientConfig()
 client_config2 = ClientConfig()
 load_balancers = {"1": load_balancer1, "2": load_balancer2}
 client_configs = {"1": client_config1, "2": client_config2}
-ribbon_load_balancer_client = RibbonLoadBalancerClient(load_balancers=load_balancers, client_configs=client_configs)
+spring_client_factory = SpringClientFactory()
+ribbon_load_balancer_client = RibbonLoadBalancerClient(spring_client_factory)
 ribbon_server = RibbonServer(service_id="1", server=server_, secure=True)
 instance_info = InstanceInfo(
     instance_id="instance_id",
@@ -46,17 +49,13 @@ def test_get_server():
     assert ribbon_load_balancer_client.get_server(lb) == server_
 
 
-def test_get_load_balancer():
-    assert ribbon_load_balancer_client.get_load_balancer("1") == load_balancers["1"]
-
-
-def test_is_secure_when_config():
-    assert ribbon_load_balancer_client.is_secure(server_, "1") == True
-
-
 def test_is_secure_when_discovery_enabled_server():
-    assert ribbon_load_balancer_client.is_secure(server=discovery_enable_server, service_id="1") == False
+    assert ribbon_load_balancer_client.is_secure(discovery_enable_server, "1") == False
 
 
-def test_choose():
-    assert ribbon_server == ribbon_load_balancer_client.choose("1")
+def test_is_secure_by_checking_port():
+    assert ribbon_load_balancer_client.is_secure(server_, "1") == False
+
+
+def test_is_secure_by_checking_port_():
+    assert ribbon_load_balancer_client.is_secure(server, "1") == True
