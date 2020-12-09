@@ -20,7 +20,7 @@ class BaseLoadBalancer(LoadBalancer):
         self.__logger = getLogger()
         self.__name = name or "LoadBalancer"
         self.__rule = rule or RoundRobinRule()
-        self.__server_list: List[Server] = []
+        self.__servers: List[Server] = []
         self.__counter = 0
         self._ping_interval_time_in_sec = 10
         self._max_total_ping_time_in_sec = 5
@@ -36,7 +36,7 @@ class BaseLoadBalancer(LoadBalancer):
         """
         if server:
             server.is_alive = True
-            self.__server_list.append(server)
+            self.__servers.append(server)
 
     def add_servers(self, servers: List[Server] = None):
         """
@@ -45,7 +45,7 @@ class BaseLoadBalancer(LoadBalancer):
         if servers:
             for server in servers:
                 server.is_alive = True
-            self.__server_list.extend(servers)
+            self.__servers.extend(servers)
 
     def choose_server(self, key: object) -> Server:
         if self.__rule.loadbalancer is None:
@@ -58,10 +58,10 @@ class BaseLoadBalancer(LoadBalancer):
             server.is_alive = False
 
     def get_reachable_servers(self) -> List[Server]:
-        return [server for server in self.__server_list if server.is_alive]
+        return [server for server in self.__servers if server.is_alive]
 
     def get_all_servers(self) -> List[Server]:
-        return self.__server_list
+        return self.__servers
 
     @property
     def client_config(self):
@@ -84,18 +84,18 @@ class BaseLoadBalancer(LoadBalancer):
         self.__rule = rule
 
     @property
-    def server_list(self):
-        return self.__server_list
+    def servers(self):
+        return self.__servers
 
-    @server_list.setter
-    def server_list(self, server_list: List[Server]):
+    @servers.setter
+    def servers(self, servers: List[Server]):
         """
         Todo: Minimum version assume all server is alive when first add into the list
         """
-        for server in server_list:
+        for server in servers:
             server.is_alive = True
 
-        self.server_list = server_list
+        self.servers = servers
 
     @property
     def counter(self):

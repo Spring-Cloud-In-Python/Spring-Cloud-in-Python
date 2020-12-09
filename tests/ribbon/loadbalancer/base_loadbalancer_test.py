@@ -14,7 +14,7 @@ def test_init_without_given_any_params():
 
     assert lb.name == "LoadBalancer"
     assert lb.rule.loadbalancer is None
-    assert lb.server_list == []
+    assert lb.servers == []
     assert lb.counter == 0
 
 
