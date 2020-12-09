@@ -131,21 +131,18 @@ class Server:
         self.__zone = zone
 
     @property
-    def scheme(self, uri: str) -> str:
-        if not uri:
-            return None
-
-        scheme = None
-        uri = uri.lower()
-        if uri.startswith("http://"):
-            scheme = "http"
-        elif uri.startswith("https://"):
-            scheme = "https"
-
-        return scheme
+    def scheme(self) -> str:
+        return self.__scheme
 
     @scheme.setter
     def scheme(self, scheme: str):
+        if scheme:
+            scheme = scheme.lower()
+            if scheme.startswith("http://"):
+                scheme = "http"
+            elif scheme.startswith("https://"):
+                scheme = "https"
+
         self.__scheme = scheme
 
     @property

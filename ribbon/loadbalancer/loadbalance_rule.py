@@ -20,13 +20,5 @@ Round Robin, Response Time based etc.
 
 class LoadBalanceRule(ABC):
     @abstractmethod
-    def choose(self, key: object) -> Server:
-        pass
-
-    @abstractmethod
-    def set_loadbalancer(self, lb: LoadBalancer):
-        pass
-
-    @abstractmethod
-    def get_loadbalancer(self):
+    def choose(self, lb: LoadBalancer = None, key: object = None) -> Server:
         pass

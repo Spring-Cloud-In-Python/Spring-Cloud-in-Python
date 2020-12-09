@@ -10,14 +10,14 @@ import warnings
 from typing import List
 
 # scip plugin
-from ribbon.loadbalancer.abstract_loadbalance_rule import AbstractLoadBalanceRule
+from ribbon.loadbalancer.loadbalance_rule import LoadBalanceRule
 from ribbon.loadbalancer.loadbalancer import LoadBalancer
 from ribbon.loadbalancer.server import Server
 from spring_cloud.utils.atomic import AtomicInteger
 from spring_cloud.utils.logging import getLogger
 
 
-class RoundRobinRule(AbstractLoadBalanceRule):
+class RoundRobinRule(LoadBalanceRule):
     __AVAILABLE_ONLY_SERVERS = True
     __ALL_SERVERS = False
 
@@ -26,7 +26,7 @@ class RoundRobinRule(AbstractLoadBalanceRule):
         self.__lb = lb
         self.__nextServerCyclicCounter = AtomicInteger()
 
-    def choose(self, lb: LoadBalancer = None) -> Server:
+    def choose(self, lb: LoadBalancer = None, key: object = None) -> Server:
         lb = lb or self.__lb
 
         server: Server = None
@@ -76,3 +76,11 @@ class RoundRobinRule(AbstractLoadBalanceRule):
             nextIndex = (currIndex + 1) % modulo
             if self.__nextServerCyclicCounter.compare_and_set(currIndex, nextIndex):
                 return nextIndex
+
+    @property
+    def loadbalancer(self):
+        return self.__lb
+
+    @loadbalancer.setter
+    def loadbalancer(self, lb: LoadBalancer):
+        self.__lb = lb
