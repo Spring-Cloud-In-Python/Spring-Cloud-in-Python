@@ -102,9 +102,8 @@ class InstanceRegistry:
 
             cancelled_lease.cancel()
             instance_info = cancelled_lease.holder
-            if instance_info is not None:
-                instance_info.action_type = InstanceInfo.ActionType.DELETED
-                instance_info.set_last_updated_timestamp()
+            instance_info.action_type = InstanceInfo.ActionType.DELETED
+            instance_info.set_last_updated_timestamp()
 
         return True
 
