@@ -1,0 +1,47 @@
+version: "3"
+services:
+  api-gateway-svc:
+    build:
+      context: ../
+      dockerfile: integration_tests/Dockerfile
+    environment:
+      port: 80
+    ports:
+      - 80
+    networks:
+      - app
+    command: "python3 integration_tests/app/api_gateway.py"
+  service-registry-svc:
+    build:
+      context: ../
+      dockerfile: integration_tests/Dockerfile
+    environment:
+      port: 10000
+    networks:
+      - app
+    command: "python3 integration_tests/app/service_registry.py"
+  user-svc-1: &svc-base
+    build:
+      context: ../
+      dockerfile: integration_tests/Dockerfile
+    environment:
+      port: 80
+    networks:
+      - app
+    command: "python3 integration_tests/app/user_service.py"
+  user-svc-2:
+    <<: *svc-base
+  user-svc-3:
+    <<: *svc-base
+  message-svc:
+    build:
+      context: ../
+      dockerfile: integration_tests/Dockerfile
+    environment:
+      port: 80
+    networks:
+      - app
+    command: "python3 integration_tests/app/message_service.py"
+
+networks:
+  app:
