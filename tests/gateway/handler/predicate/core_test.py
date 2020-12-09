@@ -8,6 +8,7 @@ __license__ = "Apache 2.0"
 
 # scip plugin
 from spring_cloud.gateway.handler.predicate.core import AfterRoutePredicate, CookieRoutePredicate, PathRoutePredicate
+from spring_cloud.gateway.server import DefaultServerWebExchange, ServerHTTPResponse, StaticServerHttpRequest
 
 
 class TestAfterRoutePredicate:
@@ -18,17 +19,23 @@ class TestAfterRoutePredicate:
     def given_now(self, now: datetime):
         self.predicate.now_datetime_func = lambda: now
 
+    def given_http_exchange(self):
+        request = StaticServerHttpRequest()
+        response_handler = Mock()
+        response = ServerHTTPResponse(response_handler)
+        self.exchange = DefaultServerWebExchange(request, response)
+
     def test_when_now_datatime_is_after_config_datetime_Then_return_T(self):
         self.given_config_datetime(datetime(2020, 11, 1))
         self.given_now(datetime(2020, 11, 11))
-        value = self.predicate.test("whatever")
-        assert value
+        self.given_http_exchange()
+        assert self.predicate.test(self.exchange)
 
     def test_When_now_datetime_is_not_after_config_datetime_Then_return_F(self):
         self.given_config_datetime(datetime(2020, 12, 1))
         self.given_now(datetime(2020, 11, 11))
-        value = self.predicate.test("whatever")
-        assert not value
+        self.given_http_exchange()
+        assert not self.predicate.test(self.exchange)
 
 
 class TestPathRoutePredicate:
@@ -36,21 +43,21 @@ class TestPathRoutePredicate:
         self.config = PathRoutePredicate.Config(pattern)
         self.predicate = PathRoutePredicate(self.config)
 
-    def given_request_url(self, request_url: str):
-        self.http_request = Mock()
-        self.http_request.path_patterns = request_url
+    def given_http_request_path(self, path: str):
+        request = StaticServerHttpRequest(path=path)
+        response_handler = Mock()
+        response = ServerHTTPResponse(response_handler)
+        self.exchange = DefaultServerWebExchange(request, response)
 
-    def test_Given_url_When_match_pattern_Then_return_T(self):
-        self.given_config_pattern("/get")
-        self.given_request_url("http://localhost:8080/get")
-        value = self.predicate.test(self.http_request)
-        assert value
+    def test_Given_path_When_match_pattern_Then_return_T(self):
+        self.given_config_pattern("/api/users/**")
+        self.given_http_request_path("/api/users/1")
+        assert self.predicate.test(self.exchange)
 
-    def test_Given_url_When_not_match_pattern_Then_return_F(self):
-        self.given_config_pattern("/test")
-        self.given_request_url("http://localhost:8080/get")
-        value = self.predicate.test(self.http_request)
-        assert not value
+    def test_Given_path_When_not_match_pattern_Then_return_F(self):
+        self.given_config_pattern("/api/users/**")
+        self.given_http_request_path("/api/messages")
+        assert not self.predicate.test(self.exchange)
 
 
 class TestCookieRoutePredicate:
@@ -58,24 +65,33 @@ class TestCookieRoutePredicate:
         self.config = CookieRoutePredicate.Config(cookie_name, cookie_value)
         self.predicate = CookieRoutePredicate(self.config)
 
-    def give_http_cookies(self, http_cookies=None):
-        self.http_request = Mock()
-        self.http_request.cookies = http_cookies
+    def give_http_cookies(self, cookies={}):
+        request = StaticServerHttpRequest(cookies=cookies)
+        response_handler = Mock()
+        response = ServerHTTPResponse(response_handler)
+        self.exchange = DefaultServerWebExchange(request, response)
 
     def test_Given_cookies_from_config_When_match_cookie_Then_return_T(self):
         self.given_config_cookie("my_cookie", "ch.p")
-        self.give_http_cookies({"your_cookie": ["sugar"], "my_cookie": ["ch.p", "cookie"]})
-        value = self.predicate.test(self.http_request)
-        assert value
+        self.give_http_cookies({"your_cookie": "sugar", "my_cookie": "ch.p"})
+        assert self.predicate.test(self.exchange)
 
     def test_Given_cookies_from_config_When_not_match_cookie_Then_return_F(self):
         self.given_config_cookie("my_cookie", "ch.p")
-        self.give_http_cookies({"your_cookie": ["sugar"], "his_cookie": ["chocolate", "truffle"]})
-        value = self.predicate.test(self.http_request)
-        assert not value
+        self.give_http_cookies({"your_cookie": "sugar", "his_cookie": "chocolate"})
+        assert not self.predicate.test(self.exchange)
 
-    def test_Given_no_cookies_from_config_When_test_Should_be_F(self):
+    def test_Given_cookies_from_config_in_regex_When_match_cookie_Then_return_T(self):
+        self.given_config_cookie("my_cookie", r"chocolate[0-9]+")
+        self.give_http_cookies({"your_cookie": "sugar", "my_cookie": "chocolate123"})
+        assert self.predicate.test(self.exchange)
+
+    def test_Given_cookies_from_config_in_regex_When_not_match_cookie_Then_return_F(self):
+        self.given_config_cookie("my_cookie", r"chocolate[0-9]+")
+        self.give_http_cookies({"your_cookie": "sugar", "his_cookie": "chocolate"})
+        assert not self.predicate.test(self.exchange)
+
+    def test_Given_no_cookies_from_exchange_When_test_Should_be_F(self):
         self.given_config_cookie("my_cookie", "ch.p")
         self.give_http_cookies()
-        value = self.predicate.test(self.http_request)
-        assert not value
+        assert not self.predicate.test(self.exchange)

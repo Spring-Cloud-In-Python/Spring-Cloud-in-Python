@@ -51,11 +51,12 @@ class TestRouteLocatorBuilder:
 
         routes = route_locator.get_routes()
         assert len(routes) == 2
-        route_1 = routes[0]
-        assert route_1.route_id == "test1"
-        assert len(route_1.filter) == 1
-        assert route_1.uri == "http://a_cat"
-        route_2 = routes[1]
-        assert len(route_2.filter) == 2
-        assert route_2.uri == "http://a_dog"
-        assert route_2.metadata["A"] == "Apple"
+        route_0 = routes[0]
+        assert route_0.route_id == "test1"
+        assert len(route_0.filters) == 1
+        assert route_0.uri == "http://a_cat"
+
+        route_1 = routes[1]
+        assert len(route_1.filters) == 2
+        assert route_1.uri == "http://a_dog"
+        assert route_1.metadata["A"] == "Apple"
