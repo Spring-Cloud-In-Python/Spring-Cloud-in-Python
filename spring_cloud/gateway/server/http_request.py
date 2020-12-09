@@ -192,3 +192,56 @@ class MutatedServerHttpRequest(ServerHTTPRequest):
     @property
     def body(self) -> bytes:
         return self.__body
+
+
+class StaticServerHttpRequest(ServerHTTPRequest):
+    def __init__(
+        self,
+        headers: Dict[str, str] = {},
+        path: str = "/get",
+        method: str = "GET",
+        cookies: Dict[str, str] = {},
+        port: int = 8888,
+        host: str = "127.0.0.1",
+        body: bytearray = b"",
+    ):
+        self.__headers = headers
+        self.__path = path
+        self.__method = method
+        self.__cookies = cookies
+        self.__port = port
+        self.__host = host
+        self.__body = body
+
+    @property
+    def path(self) -> str:
+        return self.__path
+
+    @property
+    def cookies(self) -> Dict[str, str]:
+        return self.__cookies
+
+    @property
+    def method(self) -> str:
+        return self.__method
+
+    # TODO: the current version doesn't support https
+    @property
+    def uri(self) -> str:
+        return f"http://{self.host}:{self.port}"
+
+    @property
+    def headers(self) -> Dict[str, str]:
+        return self.__headers
+
+    @property
+    def body(self) -> bytes:
+        return self.__body
+
+    @property
+    def host(self) -> str:
+        return self.__host
+
+    @property
+    def port(self) -> int:
+        return self.__port
