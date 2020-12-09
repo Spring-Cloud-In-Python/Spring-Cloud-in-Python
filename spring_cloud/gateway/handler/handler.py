@@ -19,7 +19,7 @@ from spring_cloud.utils.logging import getLogger
 
 
 class FilteringWebHandler:
-    def __init__(self, global_filters):
+    def __init__(self, global_filters: List[GlobalFilter]):
         self.__global_filters = self.load_filters(global_filters)
 
     def load_filters(self, global_filters: List[GlobalFilter]):
@@ -27,7 +27,7 @@ class FilteringWebHandler:
 
     # TODO: gateway_filters must be sorted by order
     def handle(self, exchange: ServerWebExchange) -> None:
-        route = exchange.get_required_attribute(GATEWAY_ROUTE_ATTR)
+        route: Route = exchange.attributes[GATEWAY_ROUTE_ATTR]
         gateway_filters = route.filters
         gateway_filters.extend(self.__global_filters)
         return DefaultGatewayFilterChain(gateway_filters).filter(exchange)
@@ -46,8 +46,8 @@ class DefaultGatewayFilterChain(GatewayFilterChain):
         self.__index = index or 0
         self.__gateway_filters = filters
 
-    @classmethod
-    def create(cls, gateway_filters, index: int):
+    @staticmethod
+    def create(gateway_filters: List[GatewayFilter], index: int):
         return DefaultGatewayFilterChain(gateway_filters, index)
 
     def filter(self, exchange: ServerWebExchange) -> None:
@@ -73,11 +73,11 @@ class RoutePredicateHandlerMapping:
         Test routes' predicate and pass the matched Route to FilteringWebHandler by exchange's attribute
         Returns: FilteringWebHandler, this is for DispatchHandler to do in a fluent way
         """
-        exchange.attribute[GATEWAY_HANDLER_MAPPER_ATTR] = "RoutePredicateHandlerMapping"
+        exchange.attributes[GATEWAY_HANDLER_MAPPER_ATTR] = "RoutePredicateHandlerMapping"
         route = self.lookup_route(exchange)
-        exchange.attribute.pop(GATEWAY_PREDICATE_ROUTE_ATTR, None)
+        exchange.attributes.pop(GATEWAY_PREDICATE_ROUTE_ATTR, None)
         self.logger.debug(f"Mapping [{self.get_exchange_desc(exchange)}] to {route}")
-        exchange.attribute[GATEWAY_ROUTE_ATTR] = route
+        exchange.attributes[GATEWAY_ROUTE_ATTR] = route
 
         if route is None:
             return None

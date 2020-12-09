@@ -7,21 +7,21 @@ from .predicate import Predicate
 
 
 class OrGatewayPredicate(Predicate):
-    def __init__(self, p1: Predicate, p2: Predicate):
-        self.p1 = p1
-        self.p2 = p2
+    def __init__(self, left: Predicate, right: Predicate):
+        self.left = left
+        self.right = right
 
     def test(self, obj) -> bool:
-        return self.p1.test(obj) or self.p2.test(obj)
+        return self.left.test(obj) or self.right.test(obj)
 
 
 class AndGatewayPredicate(Predicate):
-    def __init__(self, p1: Predicate, p2: Predicate):
-        self.p1 = p1
-        self.p2 = p2
+    def __init__(self, left: Predicate, right: Predicate):
+        self.left = left
+        self.right = right
 
     def test(self, obj) -> bool:
-        return self.p1.test(obj) and self.p2.test(obj)
+        return self.left.test(obj) and self.right.test(obj)
 
 
 class NegateGatewayPredicate(Predicate):
@@ -32,12 +32,12 @@ class NegateGatewayPredicate(Predicate):
         return not self.p.test(obj)
 
 
-def AND(p1: Predicate, p2: Predicate) -> Predicate:
-    return AndGatewayPredicate(p1, p2)
+def AND(left: Predicate, right: Predicate) -> Predicate:
+    return AndGatewayPredicate(left, right)
 
 
-def OR(p1: Predicate, p2: Predicate) -> Predicate:
-    return OrGatewayPredicate(p1, p2)
+def OR(left: Predicate, right: Predicate) -> Predicate:
+    return OrGatewayPredicate(left, right)
 
 
 def NOT(p: Predicate) -> Predicate:

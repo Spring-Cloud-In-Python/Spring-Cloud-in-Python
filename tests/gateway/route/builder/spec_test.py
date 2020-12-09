@@ -7,12 +7,18 @@ __license__ = "Apache 2.0"
 from datetime import datetime
 
 # scip plugin
+from spring_cloud.gateway.handler.predicate.core import AfterRoutePredicate, CookieRoutePredicate, PathRoutePredicate
+from spring_cloud.gateway.handler.predicate.operator_gateway_predicate import (
+    AndGatewayPredicate,
+    NegateGatewayPredicate,
+    OrGatewayPredicate,
+)
 from spring_cloud.gateway.route import Route
 from spring_cloud.gateway.route.builder.route_locator import RouteLocatorBuilder
 from spring_cloud.gateway.route.builder.spec import PredicateSpec
 
 
-class TestSpec:
+class TestRouteBuilder:
     def given_predicate_spec_and_gateway_filter_spec(self):
         self.route_builder = Route.Builder()
         self.builder = RouteLocatorBuilder.Builder()
@@ -35,3 +41,37 @@ class TestSpec:
             .uri("http://a_cat")
         )
         assert isinstance(route_builder, Route.Builder)
+
+
+class TestPredicateLogicalTreeInRoutes:
+    def given_route(self):
+        builder = RouteLocatorBuilder()
+        self.route_locator = (
+            builder.routes()
+            .route(lambda p: p.path("/get").and_().not_(lambda d: d.cookie("key", "value")).uri("http://a_cat"))
+            .route(
+                lambda p: p.path("/get")
+                .or_()
+                .cookie("key", "value")
+                .and_()
+                .after(datetime(2020, 11, 11))
+                .uri("http://a_cat")
+            )
+            .build()
+        )
+
+    def test_predicate_logical_tree(self):
+        self.given_route()
+        routes = self.route_locator.get_routes()
+        route_predicate_0 = routes[0].predicate
+        assert isinstance(route_predicate_0, AndGatewayPredicate)
+        assert isinstance(route_predicate_0.left, PathRoutePredicate)
+        assert isinstance(route_predicate_0.right, NegateGatewayPredicate)
+        assert isinstance(route_predicate_0.right.p, CookieRoutePredicate)
+
+        route_predicate_1 = routes[1].predicate
+        assert isinstance(route_predicate_1, AndGatewayPredicate)
+        assert isinstance(route_predicate_1.left, OrGatewayPredicate)
+        assert isinstance(route_predicate_1.right, AfterRoutePredicate)
+        assert isinstance(route_predicate_1.left.left, PathRoutePredicate)
+        assert isinstance(route_predicate_1.left.right, CookieRoutePredicate)
