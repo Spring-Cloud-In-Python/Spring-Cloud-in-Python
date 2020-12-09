@@ -21,24 +21,28 @@ class TestInstanceRegistry:
         self.instance_registry = InstanceRegistry()
 
     def test_register_and_cancel(self):
+        # Test for registering.
         self.instance_registry.register(self.instance_info_list[0], LEASE_DURATION)
         self.instance_registry.register(self.instance_info_list[1], LEASE_DURATION)
         self.instance_registry.register(self.instance_info_list[2], LEASE_DURATION)
         assert 2 == self.instance_registry.get_application("app_1").size()
         assert 1 == self.instance_registry.get_application("app_2").size()
 
+        # Test for simple cancellation.
         result = self.instance_registry.cancel(
             self.instance_info_list[0].app_name, self.instance_info_list[0].instance_id
         )
         assert 1 == self.instance_registry.get_application("app_1").size()
         assert result
 
+        # The second cancellation of the instance should return False and make no change to the registry.
         result = self.instance_registry.cancel(
             self.instance_info_list[0].app_name, self.instance_info_list[0].instance_id
         )
         assert 1 == self.instance_registry.get_application("app_1").size()
         assert not result
 
+        # Test for adding the instance which has been removed before.
         self.instance_registry.register(self.instance_info_list[0], LEASE_DURATION)
         assert 2 == self.instance_registry.get_application("app_1").size()
 
@@ -48,6 +52,7 @@ class TestInstanceRegistry:
         assert self.instance_registry.get_application("app_2") is None
         assert result
 
+        # Test for the cancellation of an application does not affect the remain applications.
         applications = self.instance_registry.get_applications()
         assert applications.size() == 2
         assert applications.get_registered_application(self.instance_info_list[1].app_name).name == "app_1"
