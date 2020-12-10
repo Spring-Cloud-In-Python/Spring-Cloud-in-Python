@@ -15,6 +15,7 @@ from spring_cloud.gateway.server import (
     GATEWAY_ROUTE_ATTR,
     ServerWebExchange,
 )
+from spring_cloud.utils.functional_operators import filter_get_first
 from spring_cloud.utils.logging import getLogger
 
 
@@ -71,7 +72,7 @@ class RoutePredicateHandlerMapping:
     def get_handler(self, exchange: ServerWebExchange) -> Optional[FilteringWebHandler]:
         """
         Test routes' predicate and pass the matched Route to FilteringWebHandler by exchange's attribute
-        Returns: FilteringWebHandler, this is for DispatchHandler to do in a fluent way
+        Returns: FilteringWebHandler, this is for DispatchHandler to continue the fluent flow.
         """
         exchange.attributes[GATEWAY_HANDLER_MAPPER_ATTR] = "RoutePredicateHandlerMapping"
         route = self.lookup_route(exchange)
@@ -89,13 +90,14 @@ class RoutePredicateHandlerMapping:
         if here is no matched route, return None
         """
         routes = self.__route_locator.get_routes()
-        for route in routes:
-            if route.predicate.test(exchange):
-                self.logger.debug(f"Route matched: {route.route_id}")
-                return route
+        route = filter_get_first(lambda route: route.predicate.test(exchange), routes)
 
-        self.logger.error(f"Error applying predicate for route")
-        return None
+        if route:
+            self.logger.info(f"Route matched: {route.route_id}")
+            return route
+        else:
+            self.logger.info(f"No route matched.")
+            return None
 
     # TODO: return exchange.request information for debug
     def get_exchange_desc(self, exchange: ServerWebExchange):

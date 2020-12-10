@@ -43,8 +43,8 @@ class TestRouteBuilder:
         assert isinstance(route_builder, Route.Builder)
 
 
-class TestPredicateLogicalTreeInRoutes:
-    def given_route(self):
+class TestPredicateSyntaxTreeInRoutes:
+    def given_route_locator(self):
         builder = RouteLocatorBuilder()
         self.route_locator = (
             builder.routes()
@@ -60,8 +60,8 @@ class TestPredicateLogicalTreeInRoutes:
             .build()
         )
 
-    def test_predicate_logical_tree(self):
-        self.given_route()
+    def test_predicate_syntax_tree_should_match(self):
+        self.given_route_locator()
         routes = self.route_locator.get_routes()
         route_predicate_0 = routes[0].predicate
         assert isinstance(route_predicate_0, AndGatewayPredicate)
