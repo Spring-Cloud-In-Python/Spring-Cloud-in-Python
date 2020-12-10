@@ -85,10 +85,16 @@ class TestCoroutineSupervisor:
         assert "expected_kwarg" == store["value"], "After run arg should be 'expected'."
 
     def test_timeout(self):
+        store = dict(timeout=False)
+        max_num_of_timeout = 3
+
+        def logger(msg: str):
+            store["timeout"] = True
+            print(msg)
+
         async def func():
             await asyncio.sleep(0.3)
 
-        max_num_of_timeout = 5
         coroutine_supervisor = CoroutineSupervisor(
             timeout=0.01,
             exponential_back_off_bound=100,
@@ -96,12 +102,11 @@ class TestCoroutineSupervisor:
             max_num_of_timeout=max_num_of_timeout,
             coroutine=func,
         )
+        coroutine_supervisor.add_timeout_callback(logger, "Exceed maximum num of timeout")
 
         async def run():
-            try:
-                await coroutine_supervisor.start()
-                await asyncio.sleep(0.3)
-            except RuntimeError as e:
-                assert e == f"Supervised coroutine exceeded maximum consecutive number of timeout: {max_num_of_timeout}"
+            await coroutine_supervisor.start()
+            await asyncio.sleep(2)
 
         self.event_loop.run_until_complete(run())
+        assert store["timeout"]

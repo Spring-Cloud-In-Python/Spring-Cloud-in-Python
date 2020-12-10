@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # standard library
 import asyncio
+import functools
 from contextlib import suppress
 from typing import Awaitable, Callable
 
@@ -29,6 +30,7 @@ class CoroutineSupervisor:
 
         self._timeout_counter = 0
         self._max_num_of_timeout = max_num_of_timeout
+        self._timeout_callback = None
 
         self._started = False
         self._running = False
@@ -57,6 +59,8 @@ class CoroutineSupervisor:
         if not self._started:
             return
 
+        self._started = False
+
         if self._handler:
             self._handler.cancel()
             self._handler = None
@@ -81,10 +85,13 @@ class CoroutineSupervisor:
             return
 
         if self._timeout_counter >= self._max_num_of_timeout:
-            self.stop()
-            raise RuntimeError(
-                f"Supervised coroutine exceeded maximum consecutive number of timeout: {self._max_num_of_timeout}"
-            )
+            # Break the recursive call to _run()
+            self._started = False
+
+            if self._timeout_callback:
+                self._timeout_callback()
+
+            return
 
         self._running = True
         self._task = asyncio.create_task(self._runner())
@@ -104,3 +111,6 @@ class CoroutineSupervisor:
             self._timeout_counter += 1
         finally:
             self._running = False
+
+    def add_timeout_callback(self, func: Callable, *args, **kwargs):
+        self._timeout_callback = functools.partial(func, *args, **kwargs)
