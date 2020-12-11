@@ -80,3 +80,20 @@ class TestConcurrentMap:
 
         map.put("2", 2)
         assert 2 == map.size()
+
+    def test_remove(self):
+        concurrent_map = ConcurrentMap()
+        concurrent_map.put("1", 1)
+        removed = concurrent_map.remove("1")
+        assert concurrent_map.get("1") is None
+        assert removed == 1
+
+        concurrent_map.put("1", 2)
+        assert concurrent_map.get("1") == 2
+
+        removed = concurrent_map.remove("1")
+        assert concurrent_map.get("1") is None
+        assert removed == 2
+
+        concurrent_map.put_if_absent("1", 3)
+        assert concurrent_map.get("1") == 3

@@ -39,7 +39,7 @@ class Route:
         return self.__predicate
 
     @property
-    def filter(self) -> []:
+    def filters(self) -> []:
         return self.__gateway_filters
 
     @property

@@ -22,9 +22,11 @@ class TestLease:
         pass
 
     def test_initial_lease_not_expired(self):
+        patch_timestamp(100)
         dummy_lease_info = self.DummyLeaseInfo()
-        lease = Lease(dummy_lease_info, 0)
+        lease = Lease(dummy_lease_info, 10)
 
+        patch_timestamp(200)
         assert not lease.is_expired()
 
     def test_setters(self):

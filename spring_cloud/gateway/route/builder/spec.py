@@ -5,13 +5,13 @@ from __future__ import annotations
 import re
 import uuid
 from datetime import datetime
-from typing import List, TypeVar
+from typing import Callable, List, TypeVar
 
 __author__ = "Chaoyuuu (chaoyu2330@gmail.com)"
 __license__ = "Apache 2.0"
 
 # standard library
-from abc import ABC, abstractmethod
+from abc import ABC
 
 # scip plugin
 from spring_cloud.gateway.filter import GatewayFilter
@@ -33,7 +33,6 @@ from spring_cloud.gateway.route import Route
 from spring_cloud.gateway.route.builder.route_locator import RouteLocatorBuilder
 from spring_cloud.utils.validate import not_none
 
-RouteLocatorBuilder = TypeVar("RouteLocatorBuilder")
 Datetime = TypeVar("Datetime", bound=datetime)
 
 
@@ -42,7 +41,7 @@ class UriSpec(ABC):
      A specification to add a URI to a route.
     """
 
-    def __init__(self, route_builder: Route.Builder, builder: RouteLocatorBuilder):
+    def __init__(self, route_builder: Route.Builder, builder: RouteLocatorBuilder.Builder):
         self.route_builder = route_builder
         self.builder = builder
 
@@ -55,7 +54,7 @@ class UriSpec(ABC):
 
 
 class PredicateSpec(UriSpec):
-    def __init__(self, route_builder: Route.Builder, builder: RouteLocatorBuilder):
+    def __init__(self, route_builder: Route.Builder, builder: RouteLocatorBuilder.Builder):
         super().__init__(route_builder, builder)
 
     def order(self, order: int) -> PredicateSpec:
@@ -123,7 +122,7 @@ class BooleanSpec(UriSpec):
         self.route_builder.negate_()
         return BooleanSpec(self.route_builder, self.builder)
 
-    def filters(self, f_) -> UriSpec:
+    def filters(self, f_: Callable[[GatewayFilterSpec], UriSpec]) -> UriSpec:
         """
         Args:
             f_: lambda: GatewayFilterSpec -> UriSpec
@@ -145,7 +144,7 @@ class BooleanSpec(UriSpec):
                 self.route_builder.negate_()
             return BooleanSpec(self.route_builder, self.builder)
 
-        def not_(self, p_) -> BooleanSpec:
+        def not_(self, p_: Callable[[PredicateSpec], BooleanSpec]) -> BooleanSpec:
             """
             Args:
                 p_: lambda: PredicateSpec -> BooleanSpec

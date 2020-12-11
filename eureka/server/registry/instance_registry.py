@@ -90,6 +90,23 @@ class InstanceRegistry:
             registrant.action_type = InstanceInfo.ActionType.ADD
             registrant.set_last_updated_timestamp()
 
+    def cancel(self, application_name: str, instance_id: str) -> bool:
+        with self.lock:
+            application_map = self.registry.get(application_name)
+            cancelled_lease = None
+            if application_map is not None:
+                cancelled_lease = application_map.remove(instance_id)
+
+            if cancelled_lease is None:
+                return False
+
+            cancelled_lease.cancel()
+            instance_info = cancelled_lease.holder
+            instance_info.action_type = InstanceInfo.ActionType.DELETED
+            instance_info.set_last_updated_timestamp()
+
+        return True
+
     def get_application(self, application_name: str) -> Optional[Application]:
         """
 
