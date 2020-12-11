@@ -7,6 +7,7 @@ from typing import Dict, Union
 from eureka.client.app_info import InstanceInfo
 from ribbon.client.config.client_config import ClientConfig
 from ribbon.eureka.discovery_enabled_server import DiscoveryEnabledServer
+from ribbon.loadbalancer.base_loadbalancer import BaseLoadBalancer
 from ribbon.loadbalancer.loadbalancer import LoadBalancer
 from ribbon.loadbalancer.server import Server
 from spring_cloud.commons.client import ServiceInstance
@@ -19,7 +20,7 @@ class RibbonLoadBalancerClient(LoadBalancerClient):
     def __init__(self, client_factory: SpringClientFactory):
         self.__client_factory = client_factory
 
-    def choose(self, service_id: str, request=None) -> Union[ServiceInstance, None]:
+    def choose(self, service_id: str, request=None) -> Union[RibbonServer, None]:
         """
         Select a server using a 'key'.
         :param service_id: (str)
@@ -33,7 +34,7 @@ class RibbonLoadBalancerClient(LoadBalancerClient):
 
     def is_secure(self, server: Server, service_id: str) -> bool:
         config = self.get_client_config(service_id)
-        if config is not None and config.get_property("is_secure") is not None:
+        if config.get_property("is_secure") is not None:
             return config.get_property("is_secure")
         if isinstance(server, DiscoveryEnabledServer):
             return server.instance_info.is_port_enabled(InstanceInfo.PortType.SECURE)
@@ -42,8 +43,7 @@ class RibbonLoadBalancerClient(LoadBalancerClient):
     def get_server(self, load_balancer: LoadBalancer, hint=None) -> Union[Server, None]:
         if load_balancer is None:
             return None
-        if hint is None:
-            hint = "default"
+
         return load_balancer.choose_server(hint)
 
     def get_load_balancer(self, service_id: str) -> LoadBalancer:
