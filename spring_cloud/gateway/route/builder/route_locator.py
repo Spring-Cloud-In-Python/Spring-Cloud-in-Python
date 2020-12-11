@@ -47,14 +47,6 @@ class CachingRouteLocator(RouteLocator):
         return self.__cache_manager.get(self.CACHE_NAME).on_cache_miss(lambda: self.delegate.get_routes())
 
 
-class RouteLocatorImpl(RouteLocator):
-    def __init__(self, route_builders: List[Route.Builder]):
-        self.__route_builders = route_builders
-
-    def get_routes(self) -> List[Route]:
-        return [route_builder.build() for route_builder in self.__route_builders]
-
-
 class RouteLocatorBuilder:
     def routes(self) -> RouteLocatorBuilder.Builder:
         return self.Builder()
@@ -83,4 +75,4 @@ class RouteLocatorBuilder:
             return self
 
         def build(self) -> RouteLocator:
-            return RouteLocatorImpl(self.__route_builders)
+            return StaticRouteLocator([route_builder.build() for route_builder in self.__route_builders])
