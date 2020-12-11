@@ -9,13 +9,42 @@ __author__ = "Chaoyuuu (chaoyu2330@gmail.com)"
 __license__ = "Apache 2.0"
 
 # scip plugin
+from spring_cloud.commons.helpers import CacheManager
 from spring_cloud.gateway.route import Route
+from spring_cloud.utils.functional_operators import flat_map
 
 
 class RouteLocator(ABC):
     @abstractmethod
     def get_routes(self) -> List[Route]:
         pass
+
+
+class StaticRouteLocator(RouteLocator):
+    def __init__(self, routes: List[Route]):
+        self.routes = routes
+
+    def get_routes(self) -> List[Route]:
+        return self.routes
+
+
+class CompositeRouteLocator(RouteLocator):
+    def __init__(self, delegates: List[RouteLocator]):
+        self.delegates = delegates
+
+    def get_routes(self) -> List[Route]:
+        return flat_map(lambda r: r.get_routes(), self.delegates)
+
+
+class CachingRouteLocator(RouteLocator):
+    CACHE_NAME = "CachingRouteLocator/CacheKey"
+
+    def __init__(self, cache_manager: CacheManager, delegate: RouteLocator):
+        self.delegate = delegate
+        self.__cache_manager = cache_manager
+
+    def get_routes(self) -> List[Route]:
+        return self.__cache_manager.get(self.CACHE_NAME).on_cache_miss(lambda: self.delegate.get_routes())
 
 
 class RouteLocatorImpl(RouteLocator):
