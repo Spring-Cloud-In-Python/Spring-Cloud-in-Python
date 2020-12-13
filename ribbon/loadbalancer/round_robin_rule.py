@@ -10,8 +10,8 @@ import warnings
 from typing import List
 
 # scip plugin
-from ribbon.loadbalancer.loadbalance_rule import LoadBalanceRule
-from ribbon.loadbalancer.loadbalancer import LoadBalancer
+from ribbon.loadbalancer.load_balance_rule import LoadBalanceRule
+from ribbon.loadbalancer.load_balancer import LoadBalancer
 from ribbon.loadbalancer.server import Server
 from spring_cloud.utils.atomic import AtomicInteger
 from spring_cloud.utils.logging import getLogger

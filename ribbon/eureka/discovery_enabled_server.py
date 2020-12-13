@@ -30,7 +30,9 @@ class DiscoveryEnabledServerMetaInfo(MetaInfo):
 
 
 class DiscoveryEnabledServer(Server):
-    def __init__(self, instance_info: InstanceInfo, use_secure_port: bool = False, use_ip_address: bool = False):
+    def __init__(
+        self, instance_info: InstanceInfo, use_secure_port: bool = False, use_ip_address: bool = False, uri: str = None
+    ):
         if use_ip_address:
             super(DiscoveryEnabledServer, self).__init__(host=instance_info.ip_address, port=instance_info.port)
         else:
