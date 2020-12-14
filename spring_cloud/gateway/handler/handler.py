@@ -6,7 +6,9 @@ __author__ = "Chaoyuuu (chaoyu2330@gmail.com)"
 __license__ = "Apache 2.0"
 
 # scip plugin
-from spring_cloud.gateway.filter import GatewayFilter, GatewayFilterChain, GlobalFilter
+from spring_cloud.commons.http import RestTemplate
+from spring_cloud.gateway.filter import GatewayFilter, GatewayFilterChain, GlobalFilter, StaticGatewayFilterChain
+from spring_cloud.gateway.filter.global_filter import RestTemplateRouteFilter
 from spring_cloud.gateway.route import Route
 from spring_cloud.gateway.route.builder.route_locator import RouteLocator
 from spring_cloud.gateway.server import (
