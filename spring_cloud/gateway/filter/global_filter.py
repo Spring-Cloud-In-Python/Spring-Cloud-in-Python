@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # standard library
+from abc import ABC, abstractmethod
 from typing import Dict
 
 # pypi/conda library
@@ -15,7 +16,13 @@ from spring_cloud.gateway.server import ServerWebExchange
 from spring_cloud.gateway.server.utils import is_already_routed, set_already_routed
 
 
-class RestTemplateRouteFilter:
+class GlobalFilter(ABC):
+    @abstractmethod
+    def filter(self, exchange: ServerWebExchange, chain: GatewayFilterChain):
+        return NotImplemented
+
+
+class RestTemplateRouteFilter(ABC):
     def __init__(self, rest_template: RestTemplate):
         self.api = rest_template
 
@@ -24,7 +31,6 @@ class RestTemplateRouteFilter:
             return chain.filter(exchange)
         set_already_routed(exchange)
 
-        # url = exchange.attributes[GATEWAY_REQUEST_URL_ATTR]
         method = exchange.request.method
         url = self.compose_url(exchange.request.uri, exchange.request.path)
         # TODO: Add HttpHeadersFilters
