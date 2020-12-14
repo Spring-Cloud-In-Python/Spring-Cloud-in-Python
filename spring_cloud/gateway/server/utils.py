@@ -15,7 +15,7 @@ GATEWAY_ALREADY_ROUTED_ATTR = "gatewayAlreadyRoutedAttr"
 
 # TODO: We won't use this currently, so just return False
 def is_already_routed(exchange: ServerWebExchange):
-    return True if exchange.attributes.get(GATEWAY_ALREADY_ROUTED_ATTR) else False
+    return exchange.attributes.get(GATEWAY_ALREADY_ROUTED_ATTR) or False
 
 
 def set_already_routed(exchange: ServerWebExchange):
