@@ -22,7 +22,7 @@ class GlobalFilter(ABC):
         return NotImplemented
 
 
-class RestTemplateRouteFilter(ABC):
+class RestTemplateRouteFilter(GlobalFilter):
     def __init__(self, rest_template: RestTemplate):
         self.api = rest_template
 
