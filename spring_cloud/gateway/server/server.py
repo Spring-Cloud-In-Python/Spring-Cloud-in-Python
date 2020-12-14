@@ -27,7 +27,7 @@ class HttpResponseHandler(ABC):
         raise NotImplemented
 
     @abstractmethod
-    def send_body(self, body: bytearray):
+    def send_body(self, body: bytes):
         raise NotImplemented
 
 
@@ -36,7 +36,7 @@ class ServerHTTPResponse:
         self.__status_code = None
         self.__cookies = {}
         self.__headers = {}
-        self.__body = bytearray()
+        self.__body = bytes()
         self.__handler = handler
 
     @property
@@ -60,12 +60,15 @@ class ServerHTTPResponse:
     def add_header(self, key: str, value: str):
         self.__headers[key] = value
 
+    def set_headers(self, **headers: Dict[str, str]):
+        self.__headers = {**headers, **self.__headers}
+
     @property
     def body(self):
         return self.__body
 
-    def set_body(self, body: bytearray):
-        self.__body.extend(body)
+    def set_body(self, body: bytes):
+        self.__body = body
 
     def commit(self):
         not_none(self.__status_code)

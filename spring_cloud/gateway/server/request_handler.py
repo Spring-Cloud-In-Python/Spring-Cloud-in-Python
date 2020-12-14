@@ -15,7 +15,7 @@ dispatcher_handler = DispatcherHandler()
 
 
 class HTTPRequestHandler(SimpleHTTPRequestHandler, HttpResponseHandler):
-    def send_body(self, body: bytearray):
+    def send_body(self, body: bytes):
         self.wfile.write(body)
 
     def send_status_code(self, status_code: int):

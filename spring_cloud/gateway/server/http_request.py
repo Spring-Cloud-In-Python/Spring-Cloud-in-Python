@@ -26,6 +26,11 @@ class ServerHTTPRequest(ABC):
 
     @property
     @abstractmethod
+    def query(self) -> Dict[str, str]:
+        raise NotImplemented
+
+    @property
+    @abstractmethod
     def cookies(self) -> Dict[str, str]:
         raise NotImplemented
 
@@ -84,7 +89,17 @@ class DefaultServerHttpRequest(ServerHTTPRequest):
 
     @property
     def path(self) -> str:
-        return self.__path
+        return self.__path.split(r"?")[0]
+
+    @property
+    def query(self) -> Dict[str, str]:
+        token = self.__path.split(r"?")
+        query = {}
+        if len(token) == 2:
+            for segment in re.split(r"\s*&\s*", token[1]):
+                key, value = re.split(r"\s*=\s*", segment)[:2]
+                query[key] = value
+        return query
 
     @property
     def cookies(self) -> Dict[str, str]:
@@ -107,7 +122,7 @@ class DefaultServerHttpRequest(ServerHTTPRequest):
 
     @property
     def headers(self) -> Dict[str, str]:
-        return self.__headers
+        return dict(self.__headers._headers)
 
     @property
     def body(self) -> bytes:
@@ -135,6 +150,7 @@ class DefaultServerHttpRequestBuilder(ServerHTTPRequest.Builder):
         self.__body = original.body
         self.__original_request = original
         self.__path = original.path
+        self.__query = original.query
 
     def method(self, method_: str) -> ServerHTTPRequest.Builder:
         self.__method = method_
@@ -154,13 +170,20 @@ class DefaultServerHttpRequestBuilder(ServerHTTPRequest.Builder):
 
     def build(self) -> ServerHTTPRequest:
         return MutatedServerHttpRequest(
-            self.__method, self.__body, self.__original_request, self.__uri, self.__path, self.__headers
+            self.__uri, self.__headers, self.__method, self.__body, self.__original_request, self.__path, self.__query
         )
 
 
 class MutatedServerHttpRequest(ServerHTTPRequest):
     def __init__(
-        self, method: str, body: bytes, request: ServerHTTPRequest, uri: str, path: str, headers: Dict[str, str]
+        self,
+        uri: str,
+        headers: Dict[str, str],
+        method: str,
+        body: bytes,
+        request: ServerHTTPRequest,
+        path: str,
+        query: Dict[str, str],
     ):
         self.__method = method
         self.__body = body
@@ -168,10 +191,15 @@ class MutatedServerHttpRequest(ServerHTTPRequest):
         self.__uri = uri
         self.__path = path
         self.__headers = headers
+        self.__query = query
 
     @property
     def path(self) -> str:
         return self.__path
+
+    @property
+    def query(self) -> Dict[str, str]:
+        return self.__query
 
     @property
     def cookies(self) -> Dict[str, str]:
@@ -204,6 +232,7 @@ class StaticServerHttpRequest(ServerHTTPRequest):
         port: int = 8888,
         host: str = "127.0.0.1",
         body: bytearray = b"",
+        query: Dict[str, str] = {},
     ):
         self.__headers = headers
         self.__path = path
@@ -212,10 +241,15 @@ class StaticServerHttpRequest(ServerHTTPRequest):
         self.__port = port
         self.__host = host
         self.__body = body
+        self.__query = query
 
     @property
     def path(self) -> str:
         return self.__path
+
+    @property
+    def query(self) -> Dict[str, str]:
+        return self.__query
 
     @property
     def cookies(self) -> Dict[str, str]:
