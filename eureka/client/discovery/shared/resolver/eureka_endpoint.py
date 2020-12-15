@@ -41,12 +41,7 @@ class DefaultEndpoint(EurekaEndpoint):
 
     def __init__(self, service_url: str):
         self._service_url = service_url
-        self._parsed_url = None
-
-        try:
-            self._parsed_url = urlparse(self._service_url)
-        except Exception:
-            raise ValueError("Malformed service_url: " + self._service_url)
+        self._parsed_url = urlparse(self._service_url)
 
     @property
     def service_url(self) -> str:

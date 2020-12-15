@@ -3,8 +3,6 @@
 __author__ = "Haribo (haribo1558599@gmail.com)"
 __license__ = "Apache 2.0"
 
-# standard library
-import asyncio
 
 # scip plugin
 from eureka.client.discovery.shared.resolver import EurekaEndpoint
