@@ -19,11 +19,8 @@ class DiscoveryServer(ABC):
     def __init__(self, server_config: Optional[ServerConfig] = DefaultServerConfig()):
         self._config = server_config
 
-    def initialize(self):
-        pass
-
     @abstractmethod
-    def initial(self):
+    def initialize(self):
         pass
 
     @abstractmethod
