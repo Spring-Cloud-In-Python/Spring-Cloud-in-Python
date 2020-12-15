@@ -3,62 +3,40 @@
 __author__ = "Daniel1147 (sxn91401@gmail.com)"
 __license__ = "Apache 2.0"
 
+# standard library
+from abc import ABC, abstractmethod
+from typing import Optional
+
 # pypi/conda library
 import uvicorn
-from fastapi import FastAPI, HTTPException, Response, status
 
 # scip plugin
-from eureka.model.application_model import ApplicationModel
-from eureka.model.applications_model import ApplicationsModel
-from eureka.model.instance_info_model import InstanceInfoModel
-from eureka.server.registry.instance_registry import InstanceRegistry
-
-DEFAULT_DURATION = 30
-
-eureka_server = FastAPI()
-registry = InstanceRegistry()
+from eureka.server.app import app, sole_registry
+from eureka.server.server_config import DefaultServerConfig, ServerConfig
 
 
-@eureka_server.post("/eureka/v2/apps/{app_id}")
-def register_instance(request: InstanceInfoModel, app_id: str):
-    instance_info = request.to_entity()
+class DiscoveryServer(ABC):
+    def __init__(self, server_config: Optional[ServerConfig] = DefaultServerConfig()):
+        self._config = server_config
 
-    if instance_info.app_name != app_id:
-        message = "Application name in the url and the request body should be the same."
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=message)
-
-    registry.register(instance_info, DEFAULT_DURATION)
-
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
+    @abstractmethod
+    def run(self, host: Optional[str], port: Optional[int]):
+        return NotImplemented
 
 
-@eureka_server.delete("/eureka/v2/apps/{app_id}/{instance_id}")
-def cancel_instance(app_id: str, instance_id: str):
-    result = registry.cancel(app_id, instance_id)
+class UvicornDiscoveryServer(DiscoveryServer):
+    def __init__(self, server_config: Optional[ServerConfig] = DefaultServerConfig()):
+        super().__init__(server_config)
+        self._registry = sole_registry
+        self._app = app
 
-    if not result:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Cancellation failed.")
+    def run(self, host: Optional[str] = None, port: Optional[int] = None):
+        host = host if host is not None else self._config.host
+        port = port if port is not None else self._config.port
 
-    return Response(status_code=status.HTTP_200_OK)
-
-
-@eureka_server.get("/eureka/v2/apps/{app_id}")
-def get_application(app_id: str) -> ApplicationModel:
-    application = registry.get_presenter().query_application(app_id)
-    if application is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-
-    return registry.get_presenter().query_application(app_id)
-
-
-@eureka_server.get("/eureka/v2/apps")
-def get_applications() -> ApplicationsModel:
-    return registry.get_presenter().query_applications()
+        uvicorn.run(self._app, host=host, port=port)
 
 
 if __name__ == "__main__":
-    # standard library
-    import os
-
-    port = int(os.getenv("port"))
-    uvicorn.run(eureka_server, host="0.0.0.0", port=port)
+    discovery_server = UvicornDiscoveryServer()
+    discovery_server.run()
