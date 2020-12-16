@@ -212,7 +212,6 @@ class RestTemplate:
         Returns:
             thr url (str)
         """
-        logging
         http_request = HttpRequest(method=method, url=url, **kwargs)
         for interceptor in self.__interceptors:
             interceptor.intercept(http_request)
