@@ -4,18 +4,24 @@ A RESTful http client
 """
 # standard library
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, Tuple
 from urllib.parse import ParseResult, urlparse
 
 # pypi/conda library
-from requests import request, sessions
+from requests import sessions
+
+# scip plugin
+from spring_cloud.utils import logging
 
 __author__ = "Waterball (johnny850807@gmail.com)"
 __license__ = "Apache 2.0"
 
 
 class HttpRequest:
-    def __init__(self, url=None, params=None, headers=None, files=None, data=None, cookies=None, json=None, **kwargs):
+    def __init__(
+        self, method: str, url: str, params=None, headers=None, files=None, data=None, cookies=None, json=None, **kwargs
+    ):
+        self.__method = method
         self.url = url
         self.headers = headers
         self.files = files
@@ -23,6 +29,14 @@ class HttpRequest:
         self.params = params
         self.cookies = cookies
         self.json = json
+
+    @property
+    def method(self):
+        return self.__method
+
+    @method.setter
+    def method(self, method: str):
+        raise Exception("You can't set the http method.")
 
     def __str__(self):
         return str(self.__dict__)
@@ -49,6 +63,7 @@ class RestTemplate:
         if interceptors is None:
             interceptors = []
         self.__interceptors = interceptors
+        self.__logger = logging.getLogger("spring_cloud.http.RestTemplate")
 
     def request(self, method, url, **kwargs):
         """Constructs and sends a :class:`Request <Request>`.
@@ -87,6 +102,8 @@ class RestTemplate:
           >>> req
           <Response [200]>
         """
+        self.__logger.info(f"[{method.upper()}] {url}")
+        self.__logger.debug(str(kwargs))
 
         # By using the 'with' statement we are sure the session is closed, thus we
         # avoid leaving sockets open which can trigger a ResourceWarning in some
@@ -105,8 +122,9 @@ class RestTemplate:
         """
 
         kwargs.setdefault("allow_redirects", True)
-        url = self.__intercept_request(url, params, kwargs)
-        return request("get", url, params=params, **kwargs)
+        kwargs["params"] = params
+        url, kwargs = self.__intercept_request("get", url, kwargs)
+        return self.request("get", url, **kwargs)
 
     def options(self, url, **kwargs):
         r"""Sends an OPTIONS request.
@@ -117,8 +135,8 @@ class RestTemplate:
         """
 
         kwargs.setdefault("allow_redirects", True)
-        url = self.__intercept_request(url, None, kwargs)
-        return request("options", url, **kwargs)
+        url, kwargs = self.__intercept_request("options", url, kwargs)
+        return self.request("options", url, **kwargs)
 
     def head(self, url, **kwargs):
         r"""Sends a HEAD request.
@@ -131,8 +149,8 @@ class RestTemplate:
         """
 
         kwargs.setdefault("allow_redirects", False)
-        url = self.__intercept_request(url, None, kwargs)
-        return request("head", url, **kwargs)
+        url, kwargs = self.__intercept_request("head", url, kwargs)
+        return self.request("head", url, **kwargs)
 
     def post(self, url, data=None, json=None, **kwargs):
         r"""Sends a POST request.
@@ -144,9 +162,10 @@ class RestTemplate:
         :return: :class:`Response <Response>` object
         :rtype: requests.Response
         """
-
-        url = self.__intercept_request(url, None, kwargs)
-        return request("post", url, data=data, json=json, **kwargs)
+        kwargs["data"] = data
+        kwargs["json"] = json
+        url, kwargs = self.__intercept_request("post", url, kwargs)
+        return self.request("post", url, **kwargs)
 
     def put(self, url, data=None, **kwargs):
         r"""Sends a PUT request.
@@ -158,9 +177,9 @@ class RestTemplate:
         :return: :class:`Response <Response>` object
         :rtype: requests.Response
         """
-
-        url = self.__intercept_request(url, None, kwargs)
-        return request("put", url, data=data, **kwargs)
+        kwargs["data"] = data
+        url, kwargs = self.__intercept_request("put", url, kwargs)
+        return self.request("put", url, **kwargs)
 
     def patch(self, url, data=None, **kwargs):
         r"""Sends a PATCH request.
@@ -172,9 +191,9 @@ class RestTemplate:
         :return: :class:`Response <Response>` object
         :rtype: requests.Response
         """
-
-        url = self.__intercept_request(url, None, kwargs)
-        return request("patch", url, data=data, **kwargs)
+        kwargs["data"] = data
+        url, kwargs = self.__intercept_request("patch", url, kwargs)
+        return self.request("patch", url, **kwargs)
 
     def delete(self, url, **kwargs):
         r"""Sends a DELETE request.
@@ -184,24 +203,33 @@ class RestTemplate:
         :rtype: requests.Response
         """
 
-        url = self.__intercept_request(url, None, kwargs)
-        return request("delete", url, **kwargs)
+        url, kwargs = self.__intercept_request("delete", url, kwargs)
+        return self.request("delete", url, **kwargs)
 
-    def __intercept_request(self, url, params, kwargs) -> str:
+    def __intercept_request(self, method, url, kwargs) -> Tuple[str, dict]:
         """
         Intercept the request and return the url after intercepted
         Returns:
             thr url (str)
         """
-        http_request = HttpRequest(url=url, params=params, **kwargs)
+        http_request = HttpRequest(method=method, url=url, **kwargs)
         for interceptor in self.__interceptors:
             interceptor.intercept(http_request)
-        kwargs["headers"] = http_request.headers
-        kwargs["files"] = http_request.files
-        kwargs["data"] = http_request.data
-        kwargs["cookies"] = http_request.cookies
-        kwargs["json"] = http_request.json
-        return http_request.url
+
+            # replace the attributes with the intercepted one if exists
+            if http_request.params:
+                kwargs["params"] = http_request.params
+            if http_request.headers:
+                kwargs["headers"] = http_request.headers
+            if http_request.files:
+                kwargs["files"] = http_request.files
+            if http_request.data:
+                kwargs["data"] = http_request.data
+            if http_request.cookies:
+                kwargs["cookies"] = http_request.cookies
+            if http_request.json:
+                kwargs["json"] = http_request.json
+        return http_request.url, kwargs
 
 
 # DEMO
@@ -210,9 +238,28 @@ class MyInterceptor(ClientHttpRequestInterceptor):
         url: ParseResult = urlparse(http_request.url)
         replaced: ParseResult = url._replace(netloc="vocabulary.com")
         http_request.url = replaced.geturl()
-        print(http_request)
+        if http_request.method == "get":
+            http_request.params = {"get": "True"}
+        if http_request.method == "options":
+            http_request.cookies = {"options": "True"}
+        if http_request.method == "head":
+            http_request.params = {"head": "True"}
+        if http_request.method == "post":
+            http_request.json = '{"post": True}'
+        if http_request.method == "patch":
+            http_request.data = b"patch"
+        if http_request.method == "put":
+            http_request.data = b"put"
+        if http_request.method == "delete":
+            http_request.headers = {"delete": "True"}
 
 
 if __name__ == "__main__":
     api = RestTemplate([MyInterceptor()])
-    print(api.get("http://google.com").text)
+    api.get("http://google.com/get")
+    api.post("http://google.com/post")
+    api.patch("http://google.com/patch")
+    api.put("http://google.com/put")
+    api.delete("http://google.com/delete")
+    api.options("http://google.com/options")
+    api.head("http://google.com/head")
