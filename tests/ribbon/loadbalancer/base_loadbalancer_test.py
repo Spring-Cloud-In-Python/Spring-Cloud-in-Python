@@ -22,7 +22,7 @@ def test_init_with_given_config():
     config = ClientConfig()
     config.add_property("ClientName", "MJ_is_awesome")
     config.add_property("NFLoadBalancerPingInterval", 100)
-    config.add_property("NFLoadBalancerMaxTotalPingTime", 200)
+    config.add_property("NFLoadBalancerMaxTotalPingTime", 200)      
 
     lb = BaseLoadBalancer(config=config)
 
