@@ -25,7 +25,7 @@ class AsyncIOEurekaHttpClient(EurekaHttpClient):
         self._is_shutdown = False
         self._service_url = service_url
 
-        self._logger = getLogger()
+        self._logger = getLogger("eureka.client.discovery.asyncio_eureka_http_client")
 
     @property
     def connection_timeout(self) -> int:
