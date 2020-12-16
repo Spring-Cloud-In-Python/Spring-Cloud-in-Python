@@ -5,6 +5,7 @@ from __future__ import annotations
 import re
 import uuid
 from datetime import datetime
+from enum import Enum
 from typing import Callable, List, TypeVar
 
 __author__ = "Chaoyuuu (chaoyu2330@gmail.com)"
@@ -103,6 +104,12 @@ class PredicateSpec(UriSpec):
         return self.predicate(CookieRoutePredicateFactory().apply(config))
 
 
+class Operator(Enum):
+    AND = "AND"
+    OR = "OR"
+    NEGATE = "NEGATE"
+
+
 class BooleanSpec(UriSpec):
     """
     A spec used to apply logical operators.
@@ -113,10 +120,10 @@ class BooleanSpec(UriSpec):
         self.predicate = route_builder.predicate
 
     def and_(self) -> BooleanOpSpec:
-        return self.BooleanOpSpec(self.route_builder, self.builder, "AND")
+        return self.BooleanOpSpec(self.route_builder, self.builder, Operator.AND)
 
     def or_(self) -> BooleanOpSpec:
-        return self.BooleanOpSpec(self.route_builder, self.builder, "OR")
+        return self.BooleanOpSpec(self.route_builder, self.builder, Operator.OR)
 
     def negate_(self) -> BooleanSpec:
         self.route_builder.negate_()
@@ -130,17 +137,18 @@ class BooleanSpec(UriSpec):
         return f_(GatewayFilterSpec(self.route_builder, self.builder))
 
     class BooleanOpSpec(PredicateSpec):
-        def __init__(self, route_builder: Route.Builder, builder: RouteLocatorBuilder.Builder, operator: str):
+        def __init__(self, route_builder: Route.Builder, builder: RouteLocatorBuilder.Builder, operator: Operator):
             super().__init__(route_builder, builder)
             self.operator = operator
 
         def predicate(self, predicate: Predicate) -> BooleanSpec:
+
             not_none(self.operator)
-            if re.match(self.operator, "AND") is not None:
+            if self.operator == Operator.AND:
                 self.route_builder.and_(predicate)
-            elif re.match(self.operator, "OR") is not None:
+            elif self.operator == Operator.OR:
                 self.route_builder.or_(predicate)
-            elif re.match(self.operator, "NEGATE") is not None:
+            elif self.operator == Operator.NEGATE:
                 self.route_builder.negate_()
             return BooleanSpec(self.route_builder, self.builder)
 
@@ -149,10 +157,10 @@ class BooleanSpec(UriSpec):
             Args:
                 p_: lambda: PredicateSpec -> BooleanSpec
             """
-            return p_(BooleanSpec.NotOpSpec(self.route_builder, self.builder, "NEGATE"))
+            return p_(BooleanSpec.NotOpSpec(self.route_builder, self.builder, self.operator))
 
     class NotOpSpec(BooleanOpSpec):
-        def __init__(self, route_builder: Route.Builder, builder: RouteLocatorBuilder.Builder, operator: str):
+        def __init__(self, route_builder: Route.Builder, builder: RouteLocatorBuilder.Builder, operator: Operator):
             super().__init__(route_builder, builder, operator)
 
         def predicate(self, predicate) -> BooleanSpec:

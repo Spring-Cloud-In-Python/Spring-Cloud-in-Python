@@ -15,7 +15,7 @@ __license__ = "Apache 2.0"
 
 
 class HttpRequest:
-    def __init__(self, url=None, headers=None, files=None, data=None, params=None, cookies=None, json=None, **kwargs):
+    def __init__(self, url=None, params=None, headers=None, files=None, data=None, cookies=None, json=None, **kwargs):
         self.url = url
         self.headers = headers
         self.files = files
@@ -99,7 +99,7 @@ class RestTemplate:
         :param url: URL for the new :class:`Request` object.
         :param params: (optional) Dictionary, list of tuples or bytes to send
             in the query string for the :class:`Request`.
-        :param \*\*kwargs: Optional arguments that ``request`` takes.
+        :param **kwargs: Optional arguments that ``request`` takes.
         :return: :class:`Response <Response>` object
         :rtype: requests.Response
         """
@@ -111,7 +111,7 @@ class RestTemplate:
     def options(self, url, **kwargs):
         r"""Sends an OPTIONS request.
         :param url: URL for the new :class:`Request` object.
-        :param \*\*kwargs: Optional arguments that ``request`` takes.
+        :param **kwargs: Optional arguments that ``request`` takes.
         :return: :class:`Response <Response>` object
         :rtype: requests.Response
         """
@@ -123,7 +123,7 @@ class RestTemplate:
     def head(self, url, **kwargs):
         r"""Sends a HEAD request.
         :param url: URL for the new :class:`Request` object.
-        :param \*\*kwargs: Optional arguments that ``request`` takes. If
+        :param **kwargs: Optional arguments that ``request`` takes. If
             `allow_redirects` is not provided, it will be set to `False` (as
             opposed to the default :meth:`request` behavior).
         :return: :class:`Response <Response>` object
@@ -140,7 +140,7 @@ class RestTemplate:
         :param data: (optional) Dictionary, list of tuples, bytes, or file-like
             object to send in the body of the :class:`Request`.
         :param json: (optional) json data to send in the body of the :class:`Request`.
-        :param \*\*kwargs: Optional arguments that ``request`` takes.
+        :param **kwargs: Optional arguments that ``request`` takes.
         :return: :class:`Response <Response>` object
         :rtype: requests.Response
         """
@@ -154,7 +154,7 @@ class RestTemplate:
         :param data: (optional) Dictionary, list of tuples, bytes, or file-like
             object to send in the body of the :class:`Request`.
         :param json: (optional) json data to send in the body of the :class:`Request`.
-        :param \*\*kwargs: Optional arguments that ``request`` takes.
+        :param **kwargs: Optional arguments that ``request`` takes.
         :return: :class:`Response <Response>` object
         :rtype: requests.Response
         """
@@ -168,7 +168,7 @@ class RestTemplate:
         :param data: (optional) Dictionary, list of tuples, bytes, or file-like
             object to send in the body of the :class:`Request`.
         :param json: (optional) json data to send in the body of the :class:`Request`.
-        :param \*\*kwargs: Optional arguments that ``request`` takes.
+        :param **kwargs: Optional arguments that ``request`` takes.
         :return: :class:`Response <Response>` object
         :rtype: requests.Response
         """
@@ -179,7 +179,7 @@ class RestTemplate:
     def delete(self, url, **kwargs):
         r"""Sends a DELETE request.
         :param url: URL for the new :class:`Request` object.
-        :param \*\*kwargs: Optional arguments that ``request`` takes.
+        :param **kwargs: Optional arguments that ``request`` takes.
         :return: :class:`Response <Response>` object
         :rtype: requests.Response
         """
@@ -193,7 +193,7 @@ class RestTemplate:
         Returns:
             thr url (str)
         """
-        http_request = HttpRequest(url, params, **kwargs)
+        http_request = HttpRequest(url=url, params=params, **kwargs)
         for interceptor in self.__interceptors:
             interceptor.intercept(http_request)
         kwargs["headers"] = http_request.headers
