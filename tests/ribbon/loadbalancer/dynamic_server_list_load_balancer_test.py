@@ -48,11 +48,15 @@ def test_choose_a_server_with_given_three_alive_server():
     lb.server_list.eureka_client = FakeEurekaClient()
     lb.update_list_of_servers()
 
-    assert len(lb.get_reachable_servers()) == 3
-    assert lb.choose_server("uselessKey").port == 200
-    assert lb.choose_server("uselessKey").port == 300
-    assert lb.choose_server("uselessKey").port == 100
+    choices = set()
+    choices.add(lb.choose_server("uselessKey").port)
+    choices.add(lb.choose_server("uselessKey").port)
+    choices.add(lb.choose_server("uselessKey").port)
 
+    assert len(lb.get_reachable_servers()) == 3
+    assert 100 in choices
+    assert 200 in choices
+    assert 300 in choices
 
 def test_choose_a_server_with_given_two_alive_and_one_not_alive_server():
     lb = DynamicServerListLoadBalancer()
