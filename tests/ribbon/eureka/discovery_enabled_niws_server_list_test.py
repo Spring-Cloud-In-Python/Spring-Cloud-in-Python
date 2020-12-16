@@ -11,7 +11,7 @@ from tests.eureka.client.discovery.shared.stubs import instance_info
 
 
 class FakeEurekaClient:
-    def get_instances_by_vip_address(self, vip_address, is_secure: bool):
+    def get_instances_by_virtual_host_name(self, vip_address, is_secure: bool):
         return [
             instance_info(app_name="instance_1", num=1, vip_address="stub-service"),
             instance_info(app_name="instance_2", num=1, vip_address="stub-service"),

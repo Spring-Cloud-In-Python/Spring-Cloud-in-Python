@@ -8,7 +8,7 @@ __license__ = "Apache 2.0"
 from abc import ABC, abstractmethod
 
 # scip plugin
-from ribbon.loadbalancer.loadbalancer import LoadBalancer
+from ribbon.loadbalancer.load_balancer import LoadBalancer
 from ribbon.loadbalancer.server import Server
 
 """
