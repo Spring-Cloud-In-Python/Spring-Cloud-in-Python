@@ -5,7 +5,7 @@ __license__ = "Apache 2.0"
 
 # scip plugin
 from ribbon.client.config.client_config import ClientConfig
-from ribbon.loadbalancer.base_loadbalancer import BaseLoadBalancer
+from ribbon.loadbalancer.base_load_balancer import BaseLoadBalancer
 from ribbon.loadbalancer.server import Server
 
 

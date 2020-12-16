@@ -10,8 +10,8 @@ from typing import List
 import pytest
 
 # scip plugin
-from ribbon.loadbalancer.loadbalancer import LoadBalancer
-from ribbon.loadbalancer.roundrobin_rule import RoundRobinRule
+from ribbon.loadbalancer.load_balancer import LoadBalancer
+from ribbon.loadbalancer.round_robin_rule import RoundRobinRule
 from ribbon.loadbalancer.server import Server
 
 

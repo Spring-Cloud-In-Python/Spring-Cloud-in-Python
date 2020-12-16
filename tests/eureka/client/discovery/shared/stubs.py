@@ -7,7 +7,7 @@ __author__ = "Haribo (haribo1558599@gmail.com)"
 __license__ = "Apache 2.0"
 
 
-def instance_info(app_name: str = "example-app", num: int = 0, vip_address: str = "stub-service"):
+def instance_info(app_name: str = "example-app", num: int = 0, vip_address: str = "stub-service", port: int = 7001):
     return InstanceInfo(
         instance_id=str(num),
         app_name=app_name,
@@ -18,4 +18,5 @@ def instance_info(app_name: str = "example-app", num: int = 0, vip_address: str 
         lease_info=LeaseInfo(),
         metadata={},
         host_name="localhost",
+        port=port,
     )

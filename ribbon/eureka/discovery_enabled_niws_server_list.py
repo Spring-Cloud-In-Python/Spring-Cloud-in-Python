@@ -12,7 +12,6 @@ from ribbon.client.config.client_config import ClientConfig
 from ribbon.eureka.discovery_enabled_server import DiscoveryEnabledServer
 from ribbon.loadbalancer.server import Server
 from ribbon.loadbalancer.server_list import ServerList
-from ribbon.loadbalancer.server_list_filter import ServerListFilter
 
 
 class DiscoveryEnabledNIWSServerList(ServerList):
@@ -42,6 +41,13 @@ class DiscoveryEnabledNIWSServerList(ServerList):
     @property
     def eureka_client(self):
         return self.__eureka_client
+
+    @eureka_client.setter
+    def eureka_client(self, eureka_client):
+        """
+        TODO: Will be removed when eureka_client's type resolved.
+        """
+        self.__eureka_client = eureka_client
 
     @property
     def vip_addresses(self) -> List[str]:
@@ -78,7 +84,7 @@ class DiscoveryEnabledNIWSServerList(ServerList):
 
         if self.__vip_addresses and self.__eureka_client:
             for vip_address in self.__vip_addresses:
-                instance_info_list: List[InstanceInfo] = self.__eureka_client.get_instances_by_vip_address(
+                instance_info_list: List[InstanceInfo] = self.__eureka_client.get_instances_by_virtual_host_name(
                     vip_address, self.__is_secure
                 )
                 server_list = self.__extract_server_list(instance_info_list)
