@@ -58,6 +58,7 @@ def test_choose_a_server_with_given_three_alive_server():
     assert 200 in choices
     assert 300 in choices
 
+
 def test_choose_a_server_with_given_two_alive_and_one_not_alive_server():
     lb = DynamicServerListLoadBalancer()
     lb.server_list.vip_addresses = "127.0.0.1"  # if server_list's vip_addresses is empty we won't get any server
