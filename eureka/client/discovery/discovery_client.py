@@ -8,9 +8,6 @@ import asyncio
 from abc import ABC, abstractmethod
 from typing import List
 
-# pypi/conda library
-import uvloop
-
 # scip plugin
 from eureka.client.app_info.application_info_manager import ApplicationInfoManager
 from eureka.client.app_info.instance_info import InstanceInfo
@@ -29,7 +26,7 @@ class DiscoveryClient(EurekaClient):
         self._eureka_client_config = eureka_client_config
         self._eureka_transport_config = DefaultEurekaTransportConfig()
 
-        self._event_loop = uvloop.new_event_loop()
+        self._event_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self._event_loop)
 
         # scip plugin
@@ -56,7 +53,7 @@ class DiscoveryClient(EurekaClient):
         t.start()
 
     def _run_periodic_background_tasks(self):
-        event_loop = uvloop.new_event_loop()
+        event_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(event_loop)
         event_loop.create_task(self._periodic_background_tasks())
         event_loop.run_forever()
