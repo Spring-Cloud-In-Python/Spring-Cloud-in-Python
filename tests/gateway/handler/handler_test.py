@@ -24,26 +24,26 @@ class TestRoutePredicateHandlerMapping:
         filtering_web_handler = Mock()
         self.predicate_handler = RoutePredicateHandlerMapping(filtering_web_handler, route_locator)
 
-    def given_http_request(self, path: str):
-        request = StaticServerHttpRequest(path=path)
+    def given_http_request(self, url: str):
+        request = StaticServerHttpRequest(url_=url)
         handler = Mock()
         response = ServerHTTPResponse(handler)
         self.exchange = DefaultServerWebExchange(request, response)
 
     def test_Given_routes_with_path_predicate_When_lookup_route_Then_return_matched_route(self):
         self.given_routes_with_path_predicate(path1="/users", path2="/api/users/**")
-        self.given_http_request("/api/users/1")
+        self.given_http_request("http://localhost:8888/api/users/1")
         route = self.predicate_handler.lookup_route(self.exchange)
         assert route.route_id == "route2"
 
     def test_Given_routes_with_no_matched_When_lookup_route_Then_return_None(self):
         self.given_routes_with_path_predicate(path1="/users", path2="/api")
-        self.given_http_request("/api/users/1")
+        self.given_http_request("http://localhost:8888/api/users/1")
         route = self.predicate_handler.lookup_route(self.exchange)
         assert route is None
 
     def test_Given_routes_both_matched_the_predicate_When_lookup_route_Then_return_the_first_matched_route(self):
         self.given_routes_with_path_predicate(path1="/api/users/1", path2="/api/users/1")
-        self.given_http_request("/api/users/1")
+        self.given_http_request("http://localhost:8888/api/users/1")
         route = self.predicate_handler.lookup_route(self.exchange)
         assert route.route_id == "route1"

@@ -43,20 +43,20 @@ class TestPathRoutePredicate:
         self.config = PathRoutePredicate.Config(pattern)
         self.predicate = PathRoutePredicate(self.config)
 
-    def given_http_request_path(self, path: str):
-        request = StaticServerHttpRequest(path=path)
+    def given_http_request_url(self, url: str):
+        request = StaticServerHttpRequest(url_=url)
         response_handler = Mock()
         response = ServerHTTPResponse(response_handler)
         self.exchange = DefaultServerWebExchange(request, response)
 
     def test_Given_path_When_match_pattern_Then_return_T(self):
         self.given_config_pattern("/api/users/**")
-        self.given_http_request_path("/api/users/1")
+        self.given_http_request_url("http://localhost:8888/api/users/1")
         assert self.predicate.test(self.exchange)
 
     def test_Given_path_When_not_match_pattern_Then_return_F(self):
         self.given_config_pattern("/api/users/**")
-        self.given_http_request_path("/api/messages")
+        self.given_http_request_url("http://localhost:8888/api/messages")
         assert not self.predicate.test(self.exchange)
 
 

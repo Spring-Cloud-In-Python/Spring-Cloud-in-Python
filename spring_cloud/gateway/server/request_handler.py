@@ -22,7 +22,9 @@ class HTTPRequestHandler(SimpleHTTPRequestHandler, HttpResponseHandler):
         self.send_response(status_code)
 
     def handle_(self):
-        http_request = DefaultServerHttpRequest(self.headers, self.path, self.server, self.command, self.rfile)
+        http_request = DefaultServerHttpRequest(
+            self.headers, self.path, self.server, self.command, self.rfile, self.request
+        )
         http_response = ServerHTTPResponse(self)
         exchange = DefaultServerWebExchange(http_request, http_response)
         dispatcher_handler.handle(exchange)
