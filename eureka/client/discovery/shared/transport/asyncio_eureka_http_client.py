@@ -15,6 +15,7 @@ import aiohttp
 from eureka.client.app_info import InstanceInfo
 from eureka.client.discovery.shared.transport.eureka_http_client import EurekaHttpClient
 from eureka.client.discovery.shared.transport.eureka_http_response import EurekaHttpResponse
+from spring_cloud.utils.logging import getLogger
 
 
 class AsyncIOEurekaHttpClient(EurekaHttpClient):
@@ -23,6 +24,8 @@ class AsyncIOEurekaHttpClient(EurekaHttpClient):
         self._connection_timeout = connection_timeout
         self._is_shutdown = False
         self._service_url = service_url
+
+        self._logger = getLogger()
 
     @property
     def connection_timeout(self) -> int:
@@ -39,8 +42,8 @@ class AsyncIOEurekaHttpClient(EurekaHttpClient):
         session = self._get_session(self._is_shutdown)
         if session:
             eureka_http_response = None
+            url = urljoin(self._service_url, f"apps/{instance.app_name}")
             try:
-                url = urljoin(self._service_url, f"apps/{instance.app_name}")
                 async with session.post(
                     url, data=InstanceInfoModel.from_entity(instance).json(), timeout=self._connection_timeout
                 ) as response:
@@ -48,12 +51,12 @@ class AsyncIOEurekaHttpClient(EurekaHttpClient):
                         status_code=response.status, headers=dict(response.headers)
                     )
             except asyncio.TimeoutError:
-                # TODO: add logging
+                self._logger.error(
+                    f"Connection timeout reached while registering instance {instance.instance_id} with {url}"
+                )
                 raise
-            except RuntimeError as e:
-                # Session may be closed by other coroutine during registration task.
-                # TODO: add logging
-                pass
+            except RuntimeError:
+                self._logger.warning(f"Session was closed while registering instance {instance.instance_id} with {url}")
             finally:
                 return eureka_http_response
 
@@ -64,8 +67,8 @@ class AsyncIOEurekaHttpClient(EurekaHttpClient):
         session = self._get_session(self._is_shutdown)
         if session:
             eureka_http_response = None
+            url = urljoin(self._service_url, "apps")
             try:
-                url = urljoin(self._service_url, "apps")
                 async with session.get(url, timeout=self._connection_timeout) as response:
                     data = await response.json()
                     applications_model = ApplicationsModel(**data)
@@ -75,12 +78,10 @@ class AsyncIOEurekaHttpClient(EurekaHttpClient):
                         entity=applications_model.to_entity(),
                     )
             except asyncio.TimeoutError:
-                # TODO: add logging
+                self._logger.error(f"Connection timeout reached while fetching full registry with {url}")
                 raise
-            except RuntimeError as e:
-                # Session may be closed by other coroutine during refresh registry task.
-                # TODO: add logging
-                pass
+            except RuntimeError:
+                self._logger.warning(f"Session was closed while fetching full registry with {url}")
             finally:
                 return eureka_http_response
 
@@ -88,20 +89,22 @@ class AsyncIOEurekaHttpClient(EurekaHttpClient):
         session = self._get_session(self._is_shutdown)
         if session:
             eureka_http_response = None
+            url = urljoin(self._service_url, f"apps/{instance.app_name}/{instance.instance_id}")
             try:
                 session = self._get_session(self._is_shutdown)
-                url = urljoin(self._service_url, f"apps/{instance.app_name}/{instance.instance_id}")
                 async with session.delete(url, timeout=self._connection_timeout) as response:
                     eureka_http_response = EurekaHttpResponse(
                         status_code=response.status, headers=dict(response.headers)
                     )
             except asyncio.TimeoutError:
-                # TODO: add logging
+                self._logger.error(
+                    f"Connection timeout reached while unregistering instance {instance.instance_id} with {url}"
+                )
                 raise
-            except RuntimeError as e:
-                # Session may be closed by other coroutine during cancel task.
-                # TODO: add logging
-                pass
+            except RuntimeError:
+                self._logger.warning(
+                    f"Session was closed while unregistering instance {instance.instance_id} with {url}"
+                )
             finally:
                 return eureka_http_response
 

@@ -341,7 +341,6 @@ class DefaultEurekaClientConfig(EurekaClientConfig):
 
     @property
     def registry_fetch_interval_in_secs(self) -> int:
-        # Make it smaller for testing.
         return 5
 
     @property
