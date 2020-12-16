@@ -29,15 +29,9 @@ class DiscoveryClient(EurekaClient):
         self._eureka_client_config = eureka_client_config
         self._eureka_transport_config = DefaultEurekaTransportConfig()
 
-        # Here we use asyncio.set_event_loop(asyncio.new_event_loop()) instead of
-        # asyncio.get_event_loop() to avoid the following scenario:
-        # When one discovery client closed the event loop, another discovery client
-        # will raise "[RuntimeError] Event loop is closed" if both of them are running
-        # in the same (main) thread.
         self._event_loop = uvloop.new_event_loop()
         asyncio.set_event_loop(self._event_loop)
 
-        # Resolve circular import error
         # scip plugin
         from eureka.client.discovery.asyncio_eureka_transport import AsyncIOEurekaTransport
 
