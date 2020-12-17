@@ -13,9 +13,9 @@ from spring_cloud.gateway.server.server import HttpResponseHandler
 
 
 class HTTPRequestHandler(SimpleHTTPRequestHandler, HttpResponseHandler):
-    def __init__(self, dispatcher_handler: DispatcherHandler, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, *args, dispatcher_handler, directory=None, **kwargs):
         self.__dispatcher_handler = dispatcher_handler
+        super().__init__(*args, directory=directory, **kwargs)
 
     def send_body(self, body: bytes):
         self.wfile.write(body)
@@ -79,7 +79,12 @@ if __name__ == "__main__":
     hostName = "localhost"
     serverPort = 8888
 
-    webServer = HTTPServer((hostName, serverPort), HTTPRequestHandler)
+    dispatcher_handler = DispatcherHandler(None, None)
+
+    webServer = HTTPServer(
+        (hostName, serverPort),
+        lambda *args, **kwargs: HTTPRequestHandler(*args, dispatcher_handler=dispatcher_handler, **kwargs),
+    )
     print("Server started http://%s:%s" % (hostName, serverPort))
 
     try:

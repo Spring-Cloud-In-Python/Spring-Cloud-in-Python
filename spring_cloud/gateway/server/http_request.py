@@ -268,10 +268,14 @@ class StaticServerHttpRequest(ServerHTTPRequest):
         remote_addr: Optional[tuple] = ("10.0.0.1", 51630),
         local_addr: Optional[tuple] = ("10.0.0.1", 51333),
     ):
+        urlparse_ = urlparse(url_)
         self.__headers = headers
         self.__method = method
         self.__cookies = cookies
         self.__url = url_
+        self.__path = urlparse_.path
+        self.__host = urlparse_.hostname
+        self.__port = urlparse_.port
         self.__body = body
         self.__query = query
         self.__remote_addr = remote_addr
@@ -279,7 +283,7 @@ class StaticServerHttpRequest(ServerHTTPRequest):
 
     @property
     def path(self) -> str:
-        return urlparse(self.__url).path
+        return self.__path
 
     @property
     def query(self) -> Dict[str, str]:
@@ -296,7 +300,7 @@ class StaticServerHttpRequest(ServerHTTPRequest):
     # TODO: the current version doesn't support https
     @property
     def uri(self) -> str:
-        return f"http://{self.host}:{self.port}"
+        return self.__url
 
     @property
     def headers(self) -> Dict[str, str]:
@@ -308,11 +312,11 @@ class StaticServerHttpRequest(ServerHTTPRequest):
 
     @property
     def host(self) -> str:
-        return urlparse(self.__url).hostname
+        return self.__host
 
     @property
     def port(self) -> int:
-        return urlparse(self.__url).port
+        return self.__port
 
     @property
     def remote_addr(self) -> Optional[tuple]:

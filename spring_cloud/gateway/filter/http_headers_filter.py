@@ -24,22 +24,22 @@ class HttpHeadersFilter(ABC):
 
     @staticmethod
     def filter_(
-        filters: List[HttpHeadersFilter], input_: Dict[str, str], exchange: ServerWebExchange, type: Type
+        filters: List[HttpHeadersFilter], headers: Dict[str, str], exchange: ServerWebExchange, type: Type
     ) -> Dict[str, str]:
 
-        response = input_
+        response_headers = headers
         for header_filter in filters:
             if header_filter.supports(type):
-                response = header_filter.filter(response, exchange)
+                response_headers = header_filter.filter(response_headers, exchange)
 
-        return response
+        return response_headers
 
     def supports(self, type: Type):
         return type == Type.REQUEST
 
     @abstractmethod
     def filter(self, original: Dict[str, str], exchange: ServerWebExchange) -> Dict[str, str]:
-        return NotImplemented
+        raise NotImplemented
 
 
 class Type(Enum):
@@ -51,17 +51,14 @@ class ForwardedHeadersFilter(HttpHeadersFilter):
     FORWARDED_HEADER = "Forwarded"
 
     def filter(self, original: Dict[str, str], exchange: ServerWebExchange) -> Dict[str, str]:
-        updated = {}
         forwardeds = []
-
-        for key, value in original.items():
-            if not re.match(key.lower(), self.FORWARDED_HEADER.lower()):
-                updated[key] = value
+        updated = {key: val for key, val in original.items() if key.lower() != self.FORWARDED_HEADER.lower()}
 
         if original.get(self.FORWARDED_HEADER):
             forwardeds.append(original.get(self.FORWARDED_HEADER))
 
         forwardeds.append(f'host="{exchange.request.host}"')
+        # TODO: the scheme should also be a variable
         forwardeds.append(f"proto=http")
 
         if exchange.request.remote_addr:
@@ -79,93 +76,113 @@ class XForwardedHeadersFilter(HttpHeadersFilter):
     X_FORWARDED_PROTO_HEADER = "X-Forwarded-Proto"
     X_FORWARDED_PORT_HEADER = "X-Forwarded-Port"
     X_FORWARDED_HOST_HEADER = "X-Forwarded-Host"
-    for_append = True
-    for_enabled = True
-    proto_enabled = True
-    proto_append = True
-    prefix_enabled = True
-    port_enabled = True
-    port_append = True
-    host_append = True
-    host_enabled = True
 
-    def is_for_append(self):
-        return self.for_append
+    def __init__(self):
+        self.__for_append = True
+        self.__for_enabled = True
+        self.__proto_enabled = True
+        self.__proto_append = True
+        self.__prefix_enabled = True
+        self.__port_enabled = True
+        self.__port_append = True
+        self.__host_append = True
+        self.__host_enabled = True
 
-    def set_for_append(self, for_append: bool):
-        self.for_append = for_append
+    @property
+    def for_append(self):
+        return self.__for_append
 
-    def is_for_enabled(self):
-        return self.for_enabled
+    @for_append.setter
+    def for_append(self, for_append: bool):
+        self.__for_append = for_append
 
-    def set_for_enabled(self, for_enabled: bool):
-        self.for_enabled = for_enabled
+    @property
+    def for_enabled(self):
+        return self.__for_enabled
 
-    def is_proto_enabled(self):
-        return self.proto_enabled
+    @for_enabled.setter
+    def for_enabled(self, for_enabled: bool):
+        self.__for_enabled = for_enabled
 
-    def set_proto_enabled(self, proto_enabled: bool):
-        self.proto_enabled = proto_enabled
+    @property
+    def proto_enabled(self):
+        return self.__proto_enabled
 
-    def is_proto_append(self):
-        return self.proto_append
+    @proto_enabled.setter
+    def proto_enabled(self, proto_enabled: bool):
+        self.__proto_enabled = proto_enabled
 
-    def set_proto_append(self, proto_append: bool):
-        self.proto_append = proto_append
+    @property
+    def proto_append(self):
+        return self.__proto_append
 
-    def is_prefix_enabled(self):
-        return self.proto_enabled
+    @proto_append.setter
+    def proto_append(self, proto_append: bool):
+        self.__proto_append = proto_append
 
-    def set_prefix_enabled(self, prefix_enabled: bool):
-        self.prefix_enabled = prefix_enabled
+    @property
+    def prefix_enabled(self):
+        return self.__proto_enabled
 
-    def is_port_enabled(self):
-        return self.port_enabled
+    @prefix_enabled.setter
+    def prefix_enabled(self, prefix_enabled: bool):
+        self.__prefix_enabled = prefix_enabled
 
-    def set_port_enable(self, port_enable: bool):
-        self.port_enabled = port_enable
+    @property
+    def port_enabled(self):
+        return self.__port_enabled
 
-    def is_port_append(self):
-        return self.port_append
+    @port_enabled.setter
+    def port_enabled(self, port_enabled: bool):
+        self.__port_enabled = port_enabled
 
-    def set_port_append(self, port_append: bool):
-        self.port_append = port_append
+    @property
+    def port_append(self):
+        return self.__port_append
 
-    def is_host_enabled(self):
-        return self.host_enabled
+    @port_append.setter
+    def port_append(self, port_append: bool):
+        self.__port_append = port_append
 
-    def set_host_enable(self, host_enable: bool):
-        self.host_enabled = host_enable
+    @property
+    def host_enabled(self):
+        return self.__host_enabled
 
-    def is_host_append(self):
-        return self.host_append
+    @host_enabled.setter
+    def host_enabled(self, host_enabled: bool):
+        self.__host_enabled = host_enabled
 
-    def set_host_append(self, host_append: bool):
-        self.host_append = host_append
+    @property
+    def host_append(self):
+        return self.__host_append
+
+    @host_append.setter
+    def host_append(self, host_append: bool):
+        self.__host_append = host_append
 
     def filter(self, original: Dict[str, str], exchange: ServerWebExchange) -> Dict[str, str]:
         updated = original.copy()
         request = exchange.request
 
-        if self.is_for_enabled() and request.remote_addr:
+        if self.for_enabled and request.remote_addr:
             local_addr = request.local_addr
-            self.write(updated, self.X_FORWARDED_FOR_HEADER, local_addr[0], self.is_for_append())
+            self.write(updated, self.X_FORWARDED_FOR_HEADER, local_addr[0], self.for_append)
 
-        if self.is_proto_enabled():
-            self.write(updated, self.X_FORWARDED_PROTO_HEADER, "http", self.is_proto_append())
+        if self.proto_enabled:
+            self.write(updated, self.X_FORWARDED_PROTO_HEADER, "http", self.proto_append)
 
-        # TODO
-        if self.is_prefix_enabled():
+        # TODO: Implement X-Forwarded-Prefix header
+        if self.prefix_enabled:
             original_uris = exchange.attributes.get(GATEWAY_ORIGINAL_REQUEST_URL_ATTR)
             request_uri = exchange.attributes.get(GATEWAY_REQUEST_URL_ATTR)
             if original_uris and request_uri:
                 pass
 
-        if self.is_port_enabled():
-            self.write(updated, self.X_FORWARDED_PORT_HEADER, str(request.port), self.is_port_append())
+        if self.port_enabled:
+            self.write(updated, self.X_FORWARDED_PORT_HEADER, str(request.port), self.port_append)
 
-        if self.is_host_enabled():
-            self.write(updated, self.X_FORWARDED_HOST_HEADER, f"{request.host}:{request.port}", self.is_host_append())
+        if self.host_enabled:
+            self.write(updated, self.X_FORWARDED_HOST_HEADER, f"{request.host}:{request.port}", self.host_append)
 
         return updated
 
@@ -178,7 +195,7 @@ class XForwardedHeadersFilter(HttpHeadersFilter):
 
 
 class RemoveHopByHopHeadersFilter(HttpHeadersFilter):
-    HEADERS_REMOVED_ON_REQUEST = [
+    HEADERS_REMOVED_ON_REQUEST = {
         "connection",
         "keep-alive",
         "transfer-encoding",
@@ -188,12 +205,15 @@ class RemoveHopByHopHeadersFilter(HttpHeadersFilter):
         "proxy-authenticate",
         "x-application-context",
         "upgrade",
-    ]
+    }
 
     def filter(self, original: Dict[str, str], exchange: ServerWebExchange) -> Dict[str, str]:
         updated = {}
         for key, value in original.items():
-            if not any(re.match(key.lower(), header.lower()) for header in self.HEADERS_REMOVED_ON_REQUEST):
+            if not any(key.lower() == header.lower() for header in self.HEADERS_REMOVED_ON_REQUEST):
                 updated[key] = value
 
         return updated
+
+
+HEADER_FILTERS = [ForwardedHeadersFilter(), XForwardedHeadersFilter(), RemoveHopByHopHeadersFilter()]

@@ -11,13 +11,7 @@ __license__ = "Apache 2.0"
 
 # scip plugin
 from spring_cloud.commons.http import RestTemplate
-from spring_cloud.gateway.filter import (
-    ForwardedHeadersFilter,
-    GatewayFilterChain,
-    HttpHeadersFilter,
-    RemoveHopByHopHeadersFilter,
-    XForwardedHeadersFilter,
-)
+from spring_cloud.gateway.filter import HEADER_FILTERS, GatewayFilterChain, HttpHeadersFilter
 from spring_cloud.gateway.server import ServerWebExchange
 from spring_cloud.gateway.server.utils import is_already_routed, set_already_routed
 
@@ -31,7 +25,6 @@ class GlobalFilter(ABC):
 class RestTemplateRouteFilter(GlobalFilter):
     def __init__(self, rest_template: RestTemplate):
         self.api = rest_template
-        self.header_filters = [ForwardedHeadersFilter(), XForwardedHeadersFilter(), RemoveHopByHopHeadersFilter()]
 
     def filter(self, exchange: ServerWebExchange, chain: GatewayFilterChain):
         if is_already_routed(exchange):
@@ -40,9 +33,9 @@ class RestTemplateRouteFilter(GlobalFilter):
 
         method = exchange.request.method
         url = self.compose_url(exchange.request.uri, exchange.request.path)
-        filtered_headers = HttpHeadersFilter.filter_request(self.header_filters, exchange)
+        filtered_headers = HttpHeadersFilter.filter_request(HEADER_FILTERS, exchange)
         headers = self.compose_headers(exchange.request.cookies, filtered_headers)
-        self.remove_host_header(headers)
+        self.remove_host_headers(headers)
         params = exchange.request.query
 
         res = self.map_api_request_method(method)(url, headers=headers, params=params)
@@ -63,7 +56,7 @@ class RestTemplateRouteFilter(GlobalFilter):
 
     def send(self, res: requests.Response, exchange: ServerWebExchange):
         # TODO: response body has been unzip by RestTemplate, but we want the raw compressed body
-        self.set_content_header(res.headers, res.content)
+        self.modify_content_headers(res.headers, res.content)
         exchange.response.set_body(res.content)
         exchange.response.set_status_code(res.status_code)
         exchange.response.set_headers(**res.headers)
@@ -75,12 +68,14 @@ class RestTemplateRouteFilter(GlobalFilter):
 
     @classmethod
     def compose_headers(cls, cookies: Dict[str, str], filtered_headers: Dict[str, str]):
-        return {**cookies, **filtered_headers}
+        cookies = [f"{key}={value}" for key, value in cookies.items()]
+        filtered_headers["Cookie"] = "; ".join(cookies)
+        return filtered_headers
 
-    def remove_host_header(self, headers: Dict[str, str]):
+    def remove_host_headers(self, headers: Dict[str, str]):
         headers.pop("Host", None)
         headers.pop("X-Forwarded-For", None)
 
-    def set_content_header(self, headers: Dict[str, str], body: bytes):
+    def modify_content_headers(self, headers: Dict[str, str], body: bytes):
         headers.pop("Content-Encoding", None)
         headers["Content-Length"] = str(len(body))
