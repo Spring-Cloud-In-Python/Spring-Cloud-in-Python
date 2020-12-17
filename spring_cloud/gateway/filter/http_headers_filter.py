@@ -43,7 +43,7 @@ class HttpHeadersFilter(ABC):
 
 
 class Type(Enum):
-    REQUEST = ("request",)
+    REQUEST = "request"
     RESPONSE = "response"
 
 
