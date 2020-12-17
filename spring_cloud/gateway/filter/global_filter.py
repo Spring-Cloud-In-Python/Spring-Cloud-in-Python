@@ -42,10 +42,10 @@ class RestTemplateRouteFilter(GlobalFilter):
         url = self.compose_url(exchange.request.uri, exchange.request.path)
         filtered_headers = HttpHeadersFilter.filter_request(self.header_filters, exchange)
         headers = self.compose_headers(exchange.request.cookies, filtered_headers)
-        headers_removed = self.remove_host_header(headers)
+        self.remove_host_header(headers)
         params = exchange.request.query
 
-        res = self.map_api_request_method(method)(url, headers=headers_removed, params=params)
+        res = self.map_api_request_method(method)(url, headers=headers, params=params)
         self.send(res, exchange)
 
     def map_api_request_method(self, method: str):
@@ -62,6 +62,7 @@ class RestTemplateRouteFilter(GlobalFilter):
         return mapping[method]
 
     def send(self, res: requests.Response, exchange: ServerWebExchange):
+        # TODO: response body has been unzip by RestTemplate, but we want the raw compressed body
         self.set_content_header(res.headers, res.content)
         exchange.response.set_body(res.content)
         exchange.response.set_status_code(res.status_code)

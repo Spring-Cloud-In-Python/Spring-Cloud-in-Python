@@ -11,10 +11,12 @@ from spring_cloud.gateway.handler import DispatcherHandler
 from spring_cloud.gateway.server import DefaultServerHttpRequest, DefaultServerWebExchange, ServerHTTPResponse
 from spring_cloud.gateway.server.server import HttpResponseHandler
 
-dispatcher_handler = DispatcherHandler()
-
 
 class HTTPRequestHandler(SimpleHTTPRequestHandler, HttpResponseHandler):
+    def __init__(self, dispatcher_handler: DispatcherHandler, **kwargs):
+        super().__init__(**kwargs)
+        self.__dispatcher_handler = dispatcher_handler
+
     def send_body(self, body: bytes):
         self.wfile.write(body)
 
@@ -27,7 +29,7 @@ class HTTPRequestHandler(SimpleHTTPRequestHandler, HttpResponseHandler):
         )
         http_response = ServerHTTPResponse(self)
         exchange = DefaultServerWebExchange(http_request, http_response)
-        dispatcher_handler.handle(exchange)
+        self.__dispatcher_handler.handle(exchange)
 
     def do_GET(self):
         self.handle_()

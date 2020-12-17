@@ -6,9 +6,7 @@ __author__ = "Chaoyuuu (chaoyu2330@gmail.com)"
 __license__ = "Apache 2.0"
 
 # scip plugin
-from spring_cloud.commons.http import RestTemplate
-from spring_cloud.gateway.filter import GatewayFilter, GatewayFilterChain, GlobalFilter, StaticGatewayFilterChain
-from spring_cloud.gateway.filter.global_filter import RestTemplateRouteFilter
+from spring_cloud.gateway.filter import GatewayFilter, GatewayFilterChain, GlobalFilter
 from spring_cloud.gateway.route import Route
 from spring_cloud.gateway.route.builder.route_locator import RouteLocator
 from spring_cloud.gateway.server import (
@@ -69,22 +67,13 @@ class RoutePredicateHandlerMapping:
     def __init__(self, web_handler: FilteringWebHandler, route_locator: RouteLocator):
         self.__web_handler = web_handler
         self.__route_locator = route_locator
-        self.logger = getLogger(name="spring_cloud_gateway.RoutePredicateHandlerMapping", debug=True)
+        self.logger = getLogger(name="spring_cloud.gateway.handler.RoutePredicateHandlerMapping")
 
-    def get_handler(self, exchange: ServerWebExchange) -> Optional[FilteringWebHandler]:
-        """
-        Test routes' predicate and pass the matched Route to FilteringWebHandler by exchange's attribute
-        Returns: FilteringWebHandler, this is for DispatchHandler to continue the fluent flow.
-        """
+    def map_route(self, route: Route, exchange: ServerWebExchange):
         exchange.attributes[GATEWAY_HANDLER_MAPPER_ATTR] = "RoutePredicateHandlerMapping"
-        route = self.lookup_route(exchange)
         exchange.attributes.pop(GATEWAY_PREDICATE_ROUTE_ATTR, None)
         self.logger.debug(f"Mapping [{self.get_exchange_desc(exchange)}] to {route}")
         exchange.attributes[GATEWAY_ROUTE_ATTR] = route
-
-        if route is None:
-            return None
-        return self.__web_handler
 
     def lookup_route(self, exchange: ServerWebExchange) -> Optional[Route]:
         """
@@ -107,9 +96,20 @@ class RoutePredicateHandlerMapping:
 
 
 class DispatcherHandler:
-    def __init__(self):
-        pass
+    def __init__(self, route_mapping: RoutePredicateHandlerMapping, filtering_web_handler: FilteringWebHandler):
+        self.filtering_web_handler = filtering_web_handler
+        self.__route_mapping = route_mapping
 
-    # TODO: Implement RoutePredicateHandlerMapping and FilteringWebHandler
     def handle(self, exchange: ServerWebExchange):
-        pass
+        route = self.__route_mapping.lookup_route(exchange)
+        self.__route_mapping.map_route(route, exchange)
+        if route:
+            self.filtering_web_handler.handle(exchange)
+        else:
+            self.send_not_found_response(exchange)
+
+    @staticmethod
+    def send_not_found_response(exchange):
+        exchange.response.set_status_code(404)
+        exchange.response.set_body(b"")
+        exchange.response.commit()
