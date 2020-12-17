@@ -8,12 +8,8 @@ from typing import Dict
 
 # scip plugin
 from ribbon.client.config.client_config import ClientConfig
-from ribbon.loadbalancer.base_loadbalancer import BaseLoadBalancer
-
-
-class DynamicServerListLoadBalancer(BaseLoadBalancer):
-    # TODO: it is a class from Ribbon
-    pass
+from ribbon.eureka.discovery_enabled_niws_server_list import DiscoveryEnabledNIWSServerList
+from ribbon.loadbalancer.dynamic_server_list_load_balancer import DynamicServerListLoadBalancer
 
 
 class SpringClientFactory:
@@ -44,5 +40,6 @@ class SpringClientFactory:
         self.__client_configs[service_id] = config
 
     def __create_load_balancer(self, service_id: str):
-        dynamic_load_balancer = DynamicServerListLoadBalancer()
+        discovery_enabled_niws_server_list = DiscoveryEnabledNIWSServerList(vip_addresses=service_id)
+        dynamic_load_balancer = DynamicServerListLoadBalancer(server_list=discovery_enabled_niws_server_list)
         self.__load_balancers[service_id] = dynamic_load_balancer
