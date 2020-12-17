@@ -9,8 +9,9 @@ from spring_cloud.gateway.server import ServerWebExchange
 GATEWAY_ROUTE_ATTR = "gatewayRoute"
 GATEWAY_HANDLER_MAPPER_ATTR = "gatewayHandlerMapper"
 GATEWAY_PREDICATE_ROUTE_ATTR = "gatewayPredicateRouteAttr"
-GATEWAY_REQUEST_URL_ATTR = "gatewayRequestUrlAttr"
+GATEWAY_REQUEST_URL_ATTR = "gatewayRequestUrl"
 GATEWAY_ALREADY_ROUTED_ATTR = "gatewayAlreadyRoutedAttr"
+GATEWAY_ORIGINAL_REQUEST_URL_ATTR = "gatewayOriginalRequestUrl"
 
 
 def is_already_routed(exchange: ServerWebExchange):

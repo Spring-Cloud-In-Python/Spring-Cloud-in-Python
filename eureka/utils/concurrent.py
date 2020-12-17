@@ -15,7 +15,7 @@ __license__ = "Apache 2.0"
 class ConcurrentCircularList:
     """
     A simple thread-safe circular list which allows user
-    iterate in a round-robin way.
+    iterate in a round-robin way by next().
     """
 
     def __init__(self, list_: list = None):
@@ -23,7 +23,11 @@ class ConcurrentCircularList:
         self._circular_list = list_ or []
 
     def __iter__(self):
-        return self
+        """
+        Returns: iterator of the original list instead of self to avoid infinite loop.
+
+        """
+        return iter(self._circular_list)
 
     @synchronized
     def __next__(self):
@@ -32,6 +36,9 @@ class ConcurrentCircularList:
             self._current_index %= len(self._circular_list)
             return self._circular_list[self._current_index]
         raise StopIteration("The list is empty.")
+
+    def __len__(self):
+        return len(self._circular_list)
 
     def append(self, item):
         self._circular_list.append(item)

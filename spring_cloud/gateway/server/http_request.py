@@ -5,8 +5,10 @@ from __future__ import annotations
 import re
 from abc import ABC, abstractmethod
 from email.message import Message
+from socket import socket
 from socketserver import BaseServer
-from typing import Dict
+from typing import Dict, Optional
+from urllib.parse import urlparse
 
 __author__ = "Chaoyuuu (chaoyu2330@gmail.com)"
 __license__ = "Apache 2.0"
@@ -54,6 +56,26 @@ class ServerHTTPRequest(ABC):
     def body(self) -> bytes:
         raise NotImplemented
 
+    @property
+    @abstractmethod
+    def remote_addr(self) -> Optional[tuple]:
+        raise NotImplemented
+
+    @property
+    @abstractmethod
+    def local_addr(self) -> Optional[tuple]:
+        raise NotImplemented
+
+    @property
+    @abstractmethod
+    def host(self) -> str:
+        raise NotImplemented
+
+    @property
+    @abstractmethod
+    def port(self) -> int:
+        raise NotImplemented
+
     def mutate(self) -> ServerHTTPRequest.Builder:
         return DefaultServerHttpRequestBuilder(self)
 
@@ -80,12 +102,13 @@ class ServerHTTPRequest(ABC):
 
 
 class DefaultServerHttpRequest(ServerHTTPRequest):
-    def __init__(self, headers: Message, path: str, server: BaseServer, method: str, rfile: BinaryIO):
+    def __init__(self, headers: Message, path: str, server: BaseServer, method: str, rfile: BinaryIO, request: socket):
         self.__headers = headers
         self.__path = path
         self.__server = server
         self.__rfile = rfile
         self.__method = method
+        self.__request = request
 
     @property
     def path(self) -> str:
@@ -140,17 +163,23 @@ class DefaultServerHttpRequest(ServerHTTPRequest):
     def port(self) -> int:
         return self.__server.server_address[1]
 
+    @property
+    def remote_addr(self) -> Optional[tuple]:
+        return self.__request.getpeername()
+
+    @property
+    def local_addr(self) -> Optional[tuple]:
+        return self.__request.getsockname()
+
 
 class DefaultServerHttpRequestBuilder(ServerHTTPRequest.Builder):
     def __init__(self, original: ServerHTTPRequest):
         not_none(original)
-        self.__uri = original.uri
-        self.__headers = original.headers
         self.__method = original.method
-        self.__body = original.body
-        self.__original_request = original
+        self.__uri = original.uri
         self.__path = original.path
-        self.__query = original.query
+        self.__headers = original.headers
+        self.__original_request = original
 
     def method(self, method_: str) -> ServerHTTPRequest.Builder:
         self.__method = method_
@@ -169,29 +198,18 @@ class DefaultServerHttpRequestBuilder(ServerHTTPRequest.Builder):
         return self
 
     def build(self) -> ServerHTTPRequest:
-        return MutatedServerHttpRequest(
-            self.__uri, self.__headers, self.__method, self.__body, self.__original_request, self.__path, self.__query
-        )
+        return MutatedServerHttpRequest(self.__uri, self.__headers, self.__method, self.__original_request, self.__path)
 
 
 class MutatedServerHttpRequest(ServerHTTPRequest):
     def __init__(
-        self,
-        uri: str,
-        headers: Dict[str, str],
-        method: str,
-        body: bytes,
-        request: ServerHTTPRequest,
-        path: str,
-        query: Dict[str, str],
+        self, uri: str, headers: Dict[str, str], method: str, request: ServerHTTPRequest, path: str,
     ):
-        self.__method = method
-        self.__body = body
-        self.__original_request = request
         self.__uri = uri
-        self.__path = path
         self.__headers = headers
-        self.__query = query
+        self.__method = method
+        self.__original_request = request
+        self.__path = path
 
     @property
     def path(self) -> str:
@@ -199,7 +217,7 @@ class MutatedServerHttpRequest(ServerHTTPRequest):
 
     @property
     def query(self) -> Dict[str, str]:
-        return self.__query
+        return self.__original_request.query
 
     @property
     def cookies(self) -> Dict[str, str]:
@@ -219,29 +237,49 @@ class MutatedServerHttpRequest(ServerHTTPRequest):
 
     @property
     def body(self) -> bytes:
-        return self.__body
+        return self.__original_request.body
+
+    @property
+    def remote_addr(self) -> Optional[tuple]:
+        return self.__original_request.remote_addr
+
+    @property
+    def local_addr(self) -> Optional[tuple]:
+        return self.__original_request.local_addr
+
+    @property
+    def host(self) -> str:
+        return self.__original_request.host
+
+    @property
+    def port(self) -> int:
+        return self.__original_request.port
 
 
 class StaticServerHttpRequest(ServerHTTPRequest):
     def __init__(
         self,
         headers: Dict[str, str] = {},
-        path: str = "/get",
+        url_: str = "http://127.0.0.1:8888/get",
         method: str = "GET",
         cookies: Dict[str, str] = {},
-        port: int = 8888,
-        host: str = "127.0.0.1",
         body: bytearray = b"",
         query: Dict[str, str] = {},
+        remote_addr: Optional[tuple] = ("10.0.0.1", 51630),
+        local_addr: Optional[tuple] = ("10.0.0.1", 51333),
     ):
+        urlparse_ = urlparse(url_)
         self.__headers = headers
-        self.__path = path
         self.__method = method
         self.__cookies = cookies
-        self.__port = port
-        self.__host = host
+        self.__url = url_
+        self.__path = urlparse_.path
+        self.__host = urlparse_.hostname
+        self.__port = urlparse_.port
         self.__body = body
         self.__query = query
+        self.__remote_addr = remote_addr
+        self.__local_addr = local_addr
 
     @property
     def path(self) -> str:
@@ -262,7 +300,7 @@ class StaticServerHttpRequest(ServerHTTPRequest):
     # TODO: the current version doesn't support https
     @property
     def uri(self) -> str:
-        return f"http://{self.host}:{self.port}"
+        return self.__url
 
     @property
     def headers(self) -> Dict[str, str]:
@@ -279,3 +317,11 @@ class StaticServerHttpRequest(ServerHTTPRequest):
     @property
     def port(self) -> int:
         return self.__port
+
+    @property
+    def remote_addr(self) -> Optional[tuple]:
+        return self.__remote_addr
+
+    @property
+    def local_addr(self) -> Optional[tuple]:
+        return self.__local_addr
