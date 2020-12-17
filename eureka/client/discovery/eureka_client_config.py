@@ -7,7 +7,7 @@ __author__ = "Haribo (haribo1558599@gmail.com)"
 __license__ = "Apache 2.0"
 
 # standard library
-from typing import List
+from typing import Dict, List
 
 # scip plugin
 from eureka.client.discovery.shared.transport import EurekaTransportConfig
@@ -336,12 +336,21 @@ class EurekaClientConfig(ABC):
 
 
 class DefaultEurekaClientConfig(EurekaClientConfig):
-    def __init__(self, eureka_transport_config: EurekaTransportConfig):
+    def __init__(
+        self,
+        eureka_transport_config: EurekaTransportConfig,
+        eureka_server_service_urls: List[str],
+        registry_fetch_interval_in_secs: int = 5,
+        should_disable_delta: bool = True,
+    ):
         self._eureka_transport_config = eureka_transport_config
+        self._registry_fetch_interval_in_secs = registry_fetch_interval_in_secs
+        self._should_disable_delta = should_disable_delta
+        self._eureka_server_service_urls = eureka_server_service_urls
 
     @property
     def registry_fetch_interval_in_secs(self) -> int:
-        return 5
+        return self._registry_fetch_interval_in_secs
 
     @property
     def instance_info_replication_interval_in_secs(self) -> int:
@@ -393,11 +402,11 @@ class DefaultEurekaClientConfig(EurekaClientConfig):
 
     @property
     def should_disable_delta(self) -> bool:
-        return True
+        return self._should_disable_delta
 
     @property
     def eureka_server_service_urls(self) -> List[str]:
-        return ["http://localhost:8000/eureka/v2/"]
+        return self._eureka_server_service_urls
 
     @property
     def should_filter_only_up_instance(self) -> bool:
