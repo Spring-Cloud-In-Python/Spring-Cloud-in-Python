@@ -27,6 +27,10 @@ class StaticRouteLocator(RouteLocator):
     def get_routes(self) -> List[Route]:
         return self.routes
 
+    def __str__(self):
+        routes_to_str = ",".join(["\nRoute: " + str(r) for r in self.routes])
+        return f"\n[{routes_to_str}\n]"
+
 
 class CompositeRouteLocator(RouteLocator):
     def __init__(self, delegates: List[RouteLocator]):

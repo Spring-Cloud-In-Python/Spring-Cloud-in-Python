@@ -2,6 +2,8 @@
 # scip plugin
 from integration_tests.app.db import Users
 from integration_tests.app.entities import User
+from integration_tests.app.errors import NotFoundError
+from spring_cloud.utils import logging
 
 __author__ = "Waterball (johnny850807@gmail.com)"
 __license__ = "Apache 2.0"
@@ -16,6 +18,7 @@ import spring_cloud.context.bootstrap as spring_cloud_bootstrap
 
 spring_cloud_bootstrap.enable_service_discovery()
 app = FastAPI()
+logger = logging.getLogger("user-service")
 
 
 class SignInRequest(BaseModel):
@@ -42,18 +45,24 @@ def get_user(user_id: int):
     global get_user_load
     get_user_load += 1
     user = Users.find_by_id(user_id)
+    if not user:
+        raise NotFoundError()
     return present_user(user)
 
 
 @app.post("/api/users/signIn")
 def sign_in(request: SignInRequest):
+    logger.info(f"Signing in the user with account={request.account}.")
     user = Users.find_by_account_and_password(request.account, request.password)
+    logger.info(f"Successfully Signed in the user (id={user.id}, name={user.name}).")
     return present_user(user)
 
 
 @app.post("/api/users/signUp")
 def sign_up(request: SignUpRequest):
+    logger.info(f"Signing up the user with (name={request.name}, account={request.account}).")
     user = Users.save(User(**request.__dict__))
+    logger.info(f"Successfully Signed up the user (id={user.id}, name={user.name}).")
     return present_user(user)
 
 

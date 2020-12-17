@@ -6,6 +6,9 @@ from typing import Dict
 # pypi/conda library
 import requests
 
+# scip plugin
+from spring_cloud.utils import logging
+
 __author__ = "Chaoyuuu (chaoyu2330@gmail.com)"
 __license__ = "Apache 2.0"
 
@@ -13,7 +16,7 @@ __license__ = "Apache 2.0"
 from spring_cloud.commons.http import RestTemplate
 from spring_cloud.gateway.filter import HEADER_FILTERS, GatewayFilterChain, HttpHeadersFilter
 from spring_cloud.gateway.server import ServerWebExchange
-from spring_cloud.gateway.server.utils import is_already_routed, set_already_routed
+from spring_cloud.gateway.server.utils import GATEWAY_ROUTE_ATTR, is_already_routed, set_already_routed
 
 
 class GlobalFilter(ABC):
@@ -24,22 +27,29 @@ class GlobalFilter(ABC):
 
 class RestTemplateRouteFilter(GlobalFilter):
     def __init__(self, rest_template: RestTemplate):
+        self.logger = logging.getLogger("spring_cloud.gateway.RestTemplateRouteFilter")
         self.api = rest_template
 
     def filter(self, exchange: ServerWebExchange, chain: GatewayFilterChain):
+        self.logger.debug("Start filtering...")
         if is_already_routed(exchange):
             return chain.filter(exchange)
         set_already_routed(exchange)
 
         method = exchange.request.method
-        url = self.compose_url(exchange.request.uri, exchange.request.path)
+        route = exchange.attributes[GATEWAY_ROUTE_ATTR]
+
+        url = self.compose_url(route.uri, exchange.request.path)
         filtered_headers = HttpHeadersFilter.filter_request(HEADER_FILTERS, exchange)
         headers = self.compose_headers(exchange.request.cookies, filtered_headers)
         self.remove_host_headers(headers)
         params = exchange.request.query
+        data = exchange.request.body
 
-        res = self.map_api_request_method(method)(url, headers=headers, params=params)
+        res = self.map_api_request_method(method)(url, headers=headers, params=params, data=data)
+        self.logger.debug("Sending response...")
         self.send(res, exchange)
+        self.logger.debug("Successfully responded.")
 
     def map_api_request_method(self, method: str):
         method = method.lower()

@@ -6,6 +6,9 @@ services:
       dockerfile: integration_tests/Dockerfile
     environment:
       port: 80
+      user-service-base-url: "http://user-service"
+      message-service-base-url: "http://message-service"
+      enable_discovery_client: True
     ports:
       - 80
     networks:
@@ -39,6 +42,8 @@ services:
       dockerfile: integration_tests/Dockerfile
     environment:
       port: 80
+      # message-svc should directly invoke the user-svc via the service discovery
+      user-service-host: user-service
     networks:
       - app
     command: "python3 integration_tests/app/message_service.py"

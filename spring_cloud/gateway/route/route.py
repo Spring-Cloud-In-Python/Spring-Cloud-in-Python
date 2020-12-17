@@ -49,6 +49,13 @@ class Route:
     def builder(self):
         return Route.Builder()
 
+    def __str__(self):
+        if len(self.filters):
+            filters_to_str = "\n".join(["        - " + str(f) for f in self.filters])
+        else:
+            filters_to_str = []
+        return f"\n#{self.route_id}: --> uri({self.uri})\n    Predicate: {str(self.predicate)}\n    Filters: {filters_to_str}"
+
     class Builder:
         def __init__(self):
             self.__route_id = None

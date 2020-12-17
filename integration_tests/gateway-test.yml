@@ -1,0 +1,40 @@
+version: "3"
+services:
+  api-gateway-svc:
+    build:
+      context: ../
+      dockerfile: integration_tests/Dockerfile
+    environment:
+      port: 80
+      logging-debug: "True"
+      user-service-base-url: "http://user-svc"
+      message-service-base-url: "http://message-svc"
+    ports:
+      - 80:80
+    networks:
+      - app
+    command: "python3 integration_tests/app/api_gateway.py"
+  user-svc:
+    build:
+      context: ../
+      dockerfile: integration_tests/Dockerfile
+    environment:
+      logging-debug: "True"
+      port: 80
+    networks:
+      - app
+    command: "python3 integration_tests/app/user_service.py"
+  message-svc:
+    build:
+      context: ../
+      dockerfile: integration_tests/Dockerfile
+    environment:
+      logging-debug: "True"
+      port: 80
+      user-service-host: user-svc
+    networks:
+      - app
+    command: "python3 integration_tests/app/message_service.py"
+
+networks:
+  app:

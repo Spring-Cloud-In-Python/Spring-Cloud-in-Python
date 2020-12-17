@@ -2,6 +2,9 @@
 # standard library
 from typing import List, Optional
 
+# scip plugin
+from spring_cloud.utils import logging
+
 __author__ = "Chaoyuuu (chaoyu2330@gmail.com)"
 __license__ = "Apache 2.0"
 
@@ -51,21 +54,18 @@ class DefaultGatewayFilterChain(GatewayFilterChain):
     def create(gateway_filters: List[GatewayFilter], index: int):
         return DefaultGatewayFilterChain(gateway_filters, index)
 
-    def filter(self, exchange: ServerWebExchange) -> None:
+    def filter(self, exchange: ServerWebExchange):
         """
         Traverse filters
         """
         if self.__index < len(self.__gateway_filters):
             gateway_filter = self.__gateway_filters[self.__index]
             chain = self.create(self.__gateway_filters, self.__index + 1)
-            return gateway_filter.filter(exchange, chain)
-        else:
-            return None
+            gateway_filter.filter(exchange, chain)
 
 
 class RoutePredicateHandlerMapping:
-    def __init__(self, web_handler: FilteringWebHandler, route_locator: RouteLocator):
-        self.__web_handler = web_handler
+    def __init__(self, route_locator: RouteLocator):
         self.__route_locator = route_locator
         self.logger = getLogger(name="spring_cloud.gateway.handler.RoutePredicateHandlerMapping")
 
@@ -91,22 +91,26 @@ class RoutePredicateHandlerMapping:
             return None
 
     # TODO: return exchange.request information for debug
-    def get_exchange_desc(self, exchange: ServerWebExchange):
+    @staticmethod
+    def get_exchange_desc(exchange: ServerWebExchange):
         return f"Exchange: exchange.request.get_method() exchange.request.get_method()"
 
 
 class DispatcherHandler:
     def __init__(self, route_mapping: RoutePredicateHandlerMapping, filtering_web_handler: FilteringWebHandler):
+        self.logger = logging.getLogger("spring_cloud.gateway.DispatcherHandler")
         self.filtering_web_handler = filtering_web_handler
         self.__route_mapping = route_mapping
 
     def handle(self, exchange: ServerWebExchange):
+        self.logger.debug("Dispatching ...")
         route = self.__route_mapping.lookup_route(exchange)
         self.__route_mapping.map_route(route, exchange)
         if route:
             self.filtering_web_handler.handle(exchange)
         else:
             self.send_not_found_response(exchange)
+        self.logger.debug("Complete dispatching.")
 
     @staticmethod
     def send_not_found_response(exchange):

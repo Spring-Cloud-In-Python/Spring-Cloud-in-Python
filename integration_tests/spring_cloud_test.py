@@ -13,9 +13,17 @@ __license__ = "Apache 2.0"
 NUMBER_OF_MESSAGES = 10
 
 
-def test():
+def test_overall():
+    test("overall-test.yml")
+
+
+def test_api_gateway():
+    test("gateway-test.yml")
+
+
+def test(docker_compose_file_name):
     global NUMBER_OF_MESSAGES
-    with DockerCompose(".") as compose:
+    with DockerCompose(".", compose_file_name=docker_compose_file_name) as compose:
         # (*) Use gateway to route requests to the downstream services
         port = compose.get_service_port("api-gateway-svc", 80)
         gateway_base_url = f"http://localhost:{port}"
