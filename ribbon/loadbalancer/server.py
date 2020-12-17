@@ -182,16 +182,16 @@ class Server:
 
     def __eq__(self, other):
         if type(self) == type(other):
-            return self.__id == other.get_id()
+            return self.__id == other.id
         else:
             return False
 
     def __hash__(self):
         hash_code = 7
-        server_id = self.get_id()
+        server_id = self.id
         hash_code = 31 * hash_code + (None == server_id and 0 or self.__hash__(server_id))
 
         return hash_code
 
     def __str__(self):
-        return self.get_id()
+        return self.id
