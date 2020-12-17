@@ -11,10 +11,12 @@ from spring_cloud.gateway.handler import DispatcherHandler
 from spring_cloud.gateway.server import DefaultServerHttpRequest, DefaultServerWebExchange, ServerHTTPResponse
 from spring_cloud.gateway.server.server import HttpResponseHandler
 
-dispatcher_handler = DispatcherHandler()
-
 
 class HTTPRequestHandler(SimpleHTTPRequestHandler, HttpResponseHandler):
+    def __init__(self, *args, dispatcher_handler, directory=None, **kwargs):
+        self.__dispatcher_handler = dispatcher_handler
+        super().__init__(*args, directory=directory, **kwargs)
+
     def send_body(self, body: bytes):
         self.wfile.write(body)
 
@@ -22,10 +24,12 @@ class HTTPRequestHandler(SimpleHTTPRequestHandler, HttpResponseHandler):
         self.send_response(status_code)
 
     def handle_(self):
-        http_request = DefaultServerHttpRequest(self.headers, self.path, self.server, self.command, self.rfile)
+        http_request = DefaultServerHttpRequest(
+            self.headers, self.path, self.server, self.command, self.rfile, self.request
+        )
         http_response = ServerHTTPResponse(self)
         exchange = DefaultServerWebExchange(http_request, http_response)
-        dispatcher_handler.handle(exchange)
+        self.__dispatcher_handler.handle(exchange)
 
     def do_GET(self):
         self.handle_()
@@ -75,7 +79,12 @@ if __name__ == "__main__":
     hostName = "localhost"
     serverPort = 8888
 
-    webServer = HTTPServer((hostName, serverPort), HTTPRequestHandler)
+    dispatcher_handler = DispatcherHandler(None, None)
+
+    webServer = HTTPServer(
+        (hostName, serverPort),
+        lambda *args, **kwargs: HTTPRequestHandler(*args, dispatcher_handler=dispatcher_handler, **kwargs),
+    )
     print("Server started http://%s:%s" % (hostName, serverPort))
 
     try:
