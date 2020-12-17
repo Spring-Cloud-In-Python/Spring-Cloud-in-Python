@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+# scip plugin
+from eureka.client.discovery import EurekaClientConfig
 
 __author__ = "Ricky"
 __license__ = "Apache 2.0"
@@ -13,10 +15,9 @@ from spring_cloud.eureka.eureka_service_instance import EurekaServiceInstance
 
 
 class EurekaDiscoveryClient(DiscoveryClient):
-    def __init__(self, eureka_client, client_config):
+    def __init__(self, eureka_client: EurekaClient):
         self.DESCRIPTION = "Spring Cloud Eureka Discovery Client"
         self.eureka_client = eureka_client
-        self.client_config = client_config
 
     def get_instances(self, service_id: str) -> List[ServiceInstance]:
         instance_info = self.eureka_client.get_instances_by_vip_address(service_id, False)

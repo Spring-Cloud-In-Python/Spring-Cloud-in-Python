@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+# scip plugin
+from ribbon.loadbalancer.load_balancer import LoadBalancer
+from ribbon.loadbalancer.round_robin_rule import RoundRobinRule
 
 __author__ = "Ssu-Tsen"
 __license__ = "Apache 2.0"
@@ -15,31 +18,36 @@ from ribbon.loadbalancer.dynamic_server_list_load_balancer import DynamicServerL
 class SpringClientFactory:
     def __init__(
         self,
+        eureka_client: EurekaClient,
         client_configs: Dict[str, ClientConfig] = {},
-        load_balancers: Dict[str, DynamicServerListLoadBalancer] = {},
+        load_balancers: Dict[str, LoadBalancer] = {},
     ):
+        self.eureka_client = eureka_client
         self.__client_configs = client_configs
         self.__load_balancers = load_balancers
 
     def get_client_config(self, service_id: str) -> ClientConfig:
         if service_id not in self.__client_configs.keys():
-            self.__create_client_config(service_id)
+            self.__client_configs[service_id] = self.__create_client_config(service_id)
 
         return self.__client_configs[service_id]
 
-    def get_load_balancer(self, service_id: str) -> DynamicServerListLoadBalancer:
+    def get_load_balancer(self, service_id: str) -> LoadBalancer:
         if service_id not in self.__load_balancers.keys():
-            self.__create_load_balancer(service_id)
+            self.__load_balancers[service_id] = self.__create_load_balancer(service_id)
 
         return self.__load_balancers[service_id]
 
-    def __create_client_config(self, service_id: str):
+    def __create_client_config(self, service_id: str) -> ClientConfig:
         config = ClientConfig()
         config.load_default_values()
         config.add_property("service_id", service_id)
-        self.__client_configs[service_id] = config
+        return config
 
-    def __create_load_balancer(self, service_id: str):
-        discovery_enabled_niws_server_list = DiscoveryEnabledNIWSServerList(vip_addresses=service_id)
-        dynamic_load_balancer = DynamicServerListLoadBalancer(server_list=discovery_enabled_niws_server_list)
-        self.__load_balancers[service_id] = dynamic_load_balancer
+    def __create_load_balancer(self, service_id: str) -> LoadBalancer:
+        lb_rule = RoundRobinRule()
+        client_config = self.get_client_config(service_id)
+        server_list = DiscoveryEnabledNIWSServerList(
+            eureka_client=self.eureka_client, vip_addresses=service_id, client_config=client_config
+        )
+        return DynamicServerListLoadBalancer(f"MJ-LB:{service_id}", lb_rule, client_config, server_list)
