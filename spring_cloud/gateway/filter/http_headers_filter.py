@@ -208,12 +208,11 @@ class RemoveHopByHopHeadersFilter(HttpHeadersFilter):
     }
 
     def filter(self, original: Dict[str, str], exchange: ServerWebExchange) -> Dict[str, str]:
-        updated = {}
-        for key, value in original.items():
-            if not any(key.lower() == header.lower() for header in self.HEADERS_REMOVED_ON_REQUEST):
-                updated[key] = value
-
-        return updated
+        return {
+            key: value
+            for key, value in original.items()
+            if not any(key.lower() == header.lower() for header in self.HEADERS_REMOVED_ON_REQUEST)
+        }
 
 
 HEADER_FILTERS = [ForwardedHeadersFilter(), XForwardedHeadersFilter(), RemoveHopByHopHeadersFilter()]
