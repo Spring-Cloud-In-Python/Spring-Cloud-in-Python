@@ -10,7 +10,7 @@ from spring_cloud.gateway.server import ServerHTTPRequest, ServerHTTPResponse, S
 from spring_cloud.utils.validate import not_none
 
 
-class StaticServerWebExchange(ServerWebExchange):
+class StubServerWebExchange(ServerWebExchange):
     def __init__(self, http_request: ServerHTTPRequest, http_response: ServerHTTPResponse):
         self.__request = http_request
         self.__response = http_response
@@ -37,10 +37,10 @@ class StaticServerWebExchange(ServerWebExchange):
         return self.__attributes
 
     def mutate(self) -> ServerWebExchange.Builder:
-        return StaticServerWebExchangeBuilder(self)
+        return StubServerWebExchangeBuilder(self)
 
 
-class StaticServerWebExchangeBuilder(ServerWebExchange.Builder):
+class StubServerWebExchangeBuilder(ServerWebExchange.Builder):
     def __init__(self, delegate: ServerWebExchange):
         not_none(delegate)
         self.__delegate = delegate

@@ -7,7 +7,8 @@ __license__ = "Apache 2.0"
 # scip plugin
 from spring_cloud.gateway.filter import GatewayFilter, GatewayFilterChain
 from spring_cloud.gateway.filter.factory.base import GatewayFilterFactory
-from spring_cloud.gateway.server import GATEWAY_ALREADY_PREFIXED_ATTR, ServerWebExchange
+from spring_cloud.gateway.server import GATEWAY_ALREADY_PREFIXED_ATTR, GATEWAY_REQUEST_URL_ATTR, ServerWebExchange
+from spring_cloud.utils.logging import getLogger
 
 
 class AddRequestHeaderGatewayFilterFactory(GatewayFilterFactory):
@@ -46,6 +47,7 @@ class AddResponseHeaderGatewayFilter(GatewayFilter):
 class PrefixPathGatewayFilter(GatewayFilter):
     def __init__(self, config: PrefixPathGatewayFilter.Config):
         self.config = config
+        self.logger = getLogger(name="spring_cloud.gateway.filter.core")
 
     def filter(self, exchange: ServerWebExchange, chain: GatewayFilterChain) -> None:
         is_already_prefix = exchange.get_arrtibute_or_default(GATEWAY_ALREADY_PREFIXED_ATTR, False)
@@ -55,6 +57,8 @@ class PrefixPathGatewayFilter(GatewayFilter):
         exchange.attributes[GATEWAY_ALREADY_PREFIXED_ATTR] = True
         new_path = f"{self.config.prefix}{exchange.request.path}"
         request = exchange.request.mutate().path(new_path).build()
+        exchange.attributes[GATEWAY_REQUEST_URL_ATTR] = f"{request.uri}{request.path}"
+        self.logger.info(f"Prefixed URI with: {self.config.prefix} -> {request.uri}{request.path}")
         chain.filter(exchange.mutate().request(request).build())
 
     class Config:
