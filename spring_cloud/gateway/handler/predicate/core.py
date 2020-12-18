@@ -76,7 +76,7 @@ class CookieRoutePredicate(Predicate):
         return False
 
     def __match_cookie(self, key: str, value: str):
-        return re.match(self.config.cookie_name, key) and re.match(self.config.cookie_regexp, value)
+        return self.config.cookie_name == key and re.match(self.config.cookie_regexp, value)
 
     def __str__(self):
         return f"(Cookie): {self.config.cookie_name}=Regex({self.config.cookie_regexp})"

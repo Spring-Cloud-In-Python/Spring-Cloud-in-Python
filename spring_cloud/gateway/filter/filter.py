@@ -20,11 +20,17 @@ class GatewayFilter(ABC):
     def filter(self, exchange: ServerWebExchange, chain: GatewayFilterChain) -> None:
         pass
 
+    def __str__(self):
+        return str(type(self))
+
 
 class GlobalFilter(ABC):
     @abstractmethod
     def filter(self, exchange: ServerWebExchange, chain: GatewayFilterChain) -> None:
         pass
+
+    def __str__(self):
+        return str(type(self))
 
 
 class StaticGatewayFilterChain(GatewayFilterChain):

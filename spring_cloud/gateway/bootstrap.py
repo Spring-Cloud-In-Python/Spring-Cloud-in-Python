@@ -4,7 +4,6 @@ from http.server import HTTPServer
 from typing import Callable, Optional
 
 # scip plugin
-import spring_cloud.context.bootstrap as spring_cloud_bootstrap
 from spring_cloud.commons.http import RestTemplate
 from spring_cloud.gateway.filter.global_filter import RestTemplateRouteFilter
 from spring_cloud.gateway.handler import DispatcherHandler
@@ -26,12 +25,15 @@ class ApiGatewayApplication:
         enable_discovery_client: Optional[bool] = False,
     ):
         logger = logging.getLogger("spring_cloud.ApiGatewayApplication")
-
+        web_server = None
         try:
 
             logger.info(f"Launching ApiGatewayApplication listening at {host_name}:{port_}")
             if enable_discovery_client:
                 logger.info("The discovery client routing is enabled.")
+                # scip plugin
+                import spring_cloud.context.bootstrap as spring_cloud_bootstrap
+
                 api: RestTemplate = spring_cloud_bootstrap.enable_service_discovery()
             else:
                 api = RestTemplate()
