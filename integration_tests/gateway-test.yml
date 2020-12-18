@@ -7,34 +7,21 @@ services:
     environment:
       port: 80
       logging-debug: "True"
-      user-service-base-url: "http://user-svc"
-      message-service-base-url: "http://message-svc"
+      puzzle-service-base-url: "http://puzzle-svc"
     ports:
-      - 80:80
+      - 80
     networks:
-      - app
-    command: "python3 integration_tests/app/api_gateway.py"
-  user-svc:
+      - gateway-test-app
+    command: "python3 integration_tests/gateway_test_app/api_gateway.py"
+  puzzle-svc:
     build:
       context: ../
       dockerfile: integration_tests/Dockerfile
     environment:
-      logging-debug: "True"
       port: 80
     networks:
-      - app
-    command: "python3 integration_tests/app/user_service.py"
-  message-svc:
-    build:
-      context: ../
-      dockerfile: integration_tests/Dockerfile
-    environment:
-      logging-debug: "True"
-      port: 80
-      user-service-host: user-svc
-    networks:
-      - app
-    command: "python3 integration_tests/app/message_service.py"
+      - gateway-test-app
+    command: "python3 integration_tests/gateway_test_app/puzzle_service.py"
 
 networks:
-  app:
+  gateway-test-app:

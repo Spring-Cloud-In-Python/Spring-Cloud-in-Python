@@ -18,7 +18,7 @@ def test_overall():
 
 
 def test_api_gateway():
-    test("gateway-test.yml")
+    test("gateway_test_app.yml")
 
 
 def test(docker_compose_file_name):
@@ -38,6 +38,10 @@ def test(docker_compose_file_name):
 
         # (3) query messages (this involves service-discovery)
         query_all_messages(poster=user, repeat_time=6, gateway_base_url=gateway_base_url)
+
+        stdout, stderr = compose.get_logs()
+        print(stdout)
+        print(stderr)
 
 
 def sign_up_user(gateway_base_url):
