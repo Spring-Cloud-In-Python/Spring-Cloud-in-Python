@@ -58,7 +58,7 @@ class PrefixPathGatewayFilter(GatewayFilter):
         new_path = f"{self.config.prefix}{exchange.request.path}"
         request = exchange.request.mutate().path(new_path).build()
         exchange.attributes[GATEWAY_REQUEST_URL_ATTR] = f"{request.uri}{request.path}"
-        self.logger.info(f"Prefixed URI with: {self.config.prefix} -> {request.uri}{request.path}")
+        self.logger.trace(f"Prefixed URI with: {self.config.prefix} -> {request.uri}{request.path}")
         chain.filter(exchange.mutate().request(request).build())
 
     class Config:
