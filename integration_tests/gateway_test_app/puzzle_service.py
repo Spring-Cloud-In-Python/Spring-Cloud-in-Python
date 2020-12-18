@@ -17,8 +17,8 @@ app = FastAPI()
 
 
 @app.get("/api/puzzle")
-def puzzle_endpoint(name: str, token: str = Header(None)):
-    return f"HI, {name} ({token}), Question: 1 + 1 = ?"
+def puzzle_endpoint(name: str, identity: str = Header(None)):
+    return f"HI, {name} ({identity}), Question: 1 + 1 = ?"
 
 
 class Answer(BaseModel):
@@ -26,14 +26,14 @@ class Answer(BaseModel):
 
 
 @app.post("/api/answer")
-def answer_endpoint(name: str, answer: Answer, token: str = Header(None)):
+def answer_endpoint(name: str, answer: Answer, identity: str = Header(None)):
     result = "correct" if answer.content.strip() == "2" else "wrong"
-    return f"HI, {name} ({token}), your answer ({answer}) is {result}."
+    return f"HI, {name} ({identity}), your answer ({answer.content}) is {result}."
 
 
 if __name__ == "__main__":
     # standard library
     import os
 
-    port = int(os.getenv("port"))
+    port = int(os.getenv("port") or 8787)
     uvicorn.run(app, host="0.0.0.0", port=port)

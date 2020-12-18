@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 # scip plugin
 from spring_cloud.gateway.bootstrap import ApiGatewayApplication
-from spring_cloud.gateway.filter import GatewayFilter, GatewayFilterChain
 from spring_cloud.gateway.route.builder.route_locator import RouteLocator, RouteLocatorBuilder
-from spring_cloud.gateway.server import ServerWebExchange
 from spring_cloud.utils import logging
 
 __author__ = "Waterball (johnny850807@gmail.com)"
@@ -22,13 +20,13 @@ def define_routes(route_locator_builder: RouteLocatorBuilder) -> RouteLocator:
             .or_()
             .path("/answer")
             .and_()
-            .not_(lambda p: p.cookie("is-user", "(True|true|TRUE)"))
-            .filters(lambda f: f.add_request_header("token", "user").add_prefix("/api"))
+            .not_(lambda p: p.cookie("token", "Guest-[0-9]+"))
+            .filters(lambda f: f.add_request_header("identity", "user").prefix_path("/api"))
             .uri(puzzle_service_base_url)
         )
         .route(
             lambda p: p.path("/**")
-            .filters(lambda f: f.add_request_header("token", "guest"))
+            .filters(lambda f: f.add_request_header("identity", "guest").prefix_path("/api"))
             .uri(puzzle_service_base_url)
         )
         .build()

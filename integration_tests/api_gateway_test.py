@@ -18,17 +18,19 @@ def test():
         gateway_base_url = f"http://localhost:{port}"
 
         # (1) Happy Path
-        assert f"HI, Johnny (user), Question: 1 + 1 = ?" == get_puzzle(gateway_base_url, "Johnny", "True")
-        assert f"HI, Johnny (user), your answer (2) is correct." == post_answer(gateway_base_url, "Johnny", "True", "2")
+        assert '"HI, Johnny (user), Question: 1 + 1 = ?"' == get_puzzle(gateway_base_url, "Johnny", "User-123")
+        assert '"HI, Johnny (user), your answer (2) is correct."' == post_answer(
+            gateway_base_url, "Johnny", "User-456", "2"
+        )
 
         # (2) Sad Path --> (Guest): The cookie 'is-user' != (True|true|TRUE)
-        assert f"HI, Johnny (guest), Question: 1 + 1 = ?" == get_puzzle(gateway_base_url, "Johnny", "False")
-        assert f"HI, Johnny (guest), Question: 1 + 1 = ?" == get_puzzle(gateway_base_url, "Johnny", "T")
-        assert f"HI, Johnny (guest), Question: 1 + 1 = ?" == get_puzzle(gateway_base_url, "Johnny", "TRue")
-        assert f"HI, Johnny (guest), Question: 1 + 1 = ?" == get_puzzle(gateway_base_url, "Johnny", "tr ue")
+        assert '"HI, Johnny (guest), Question: 1 + 1 = ?"' == get_puzzle(gateway_base_url, "Johnny", "Guest-123")
+        assert '"HI, Johnny (guest), Question: 1 + 1 = ?"' == get_puzzle(gateway_base_url, "Johnny", "Guest-0")
+        assert '"HI, Johnny (guest), Question: 1 + 1 = ?"' == get_puzzle(gateway_base_url, "Johnny", "Guest-4444")
+        assert '"HI, Johnny (guest), Question: 1 + 1 = ?"' == get_puzzle(gateway_base_url, "Johnny", "Guest-565656")
 
         # (3) Sad Path --> Wrong Answer
-        assert f"HI, Johnny (user), your answer (20000) is wrong." == post_answer(
+        assert '"HI, Johnny (user), your answer (20000) is wrong."' == post_answer(
             gateway_base_url, "Johnny", "True", "20000"
         )
 
@@ -38,11 +40,11 @@ def test():
         assert 404 == requests.get(f"{gateway_base_url}/api/answer").status_code
 
 
-def get_puzzle(gateway_base_url: str, name: str, is_user: str):
-    return requests.get(f"{gateway_base_url}/puzzle", params={"name": name}, cookies={"is_user": is_user}).text
+def get_puzzle(gateway_base_url: str, name: str, token: str):
+    return requests.get(f"{gateway_base_url}/puzzle", params={"name": name}, cookies={"token": token}).text
 
 
-def post_answer(gateway_base_url: str, name: str, is_user: str, answer: str):
+def post_answer(gateway_base_url: str, name: str, token: str, answer: str):
     return requests.post(
-        f"{gateway_base_url}/answer", params={"name": name}, cookies={"is_user": is_user}, json={"content": answer}
+        f"{gateway_base_url}/answer", params={"name": name}, cookies={"token": token}, json={"content": answer}
     ).text
