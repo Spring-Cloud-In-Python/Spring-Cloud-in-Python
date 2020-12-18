@@ -20,6 +20,7 @@ from spring_cloud.gateway.filter.factory.core import (
     AddRequestHeaderGatewayFilterFactory,
     AddResponseHeaderGatewayFilterFactory,
     NameValueConfig,
+    PrefixPathGatewayFilterFactory,
 )
 from spring_cloud.gateway.handler.predicate import NOT, Predicate
 from spring_cloud.gateway.handler.predicate.core import (
@@ -221,6 +222,10 @@ class GatewayFilterSpec(UriSpec):
         """
         config = NameValueConfig(header_name, header_value)
         return self.filter(AddResponseHeaderGatewayFilterFactory().apply(config))
+
+    def prefix_path(self, prefix: str) -> GatewayFilterSpec:
+        config = PathRoutePredicate.Config(prefix)
+        return self.filter(PrefixPathGatewayFilterFactory().apply(config))
 
 
 class RouteSpec:

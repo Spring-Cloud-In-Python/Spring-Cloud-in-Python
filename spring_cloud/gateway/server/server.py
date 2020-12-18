@@ -100,6 +100,9 @@ class ServerWebExchange(ABC):
     def attributes(self) -> Dict[str, object]:
         raise NotImplemented
 
+    def get_arrtibute_or_default(self, key: str, default_value):
+        return self.attributes.get(key) or default_value
+
     def mutate(self) -> ServerWebExchange.Builder:
         return DefaultServerWebExchangeBuilder(self)
 

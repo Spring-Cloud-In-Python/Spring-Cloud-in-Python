@@ -12,6 +12,7 @@ GATEWAY_PREDICATE_ROUTE_ATTR = "gatewayPredicateRouteAttr"
 GATEWAY_REQUEST_URL_ATTR = "gatewayRequestUrl"
 GATEWAY_ALREADY_ROUTED_ATTR = "gatewayAlreadyRoutedAttr"
 GATEWAY_ORIGINAL_REQUEST_URL_ATTR = "gatewayOriginalRequestUrl"
+GATEWAY_ALREADY_PREFIXED_ATTR = "gatewayAlreadyPrefixed"
 
 
 def is_already_routed(exchange: ServerWebExchange):

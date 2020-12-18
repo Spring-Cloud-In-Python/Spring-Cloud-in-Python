@@ -7,42 +7,71 @@ __license__ = "Apache 2.0"
 
 # scip plugin
 from spring_cloud.gateway.filter import StaticGatewayFilterChain
-from spring_cloud.gateway.filter.factory.core import AddRequestHeaderGatewayFilter, AddResponseHeaderGatewayFilter
+from spring_cloud.gateway.filter.factory.core import (
+    AddRequestHeaderGatewayFilter,
+    AddResponseHeaderGatewayFilter,
+    NameValueConfig,
+    PrefixPathGatewayFilter,
+)
+from spring_cloud.gateway.server import (
+    DefaultServerWebExchange,
+    ServerHTTPResponse,
+    ServerWebExchange,
+    StaticServerHttpRequest,
+)
 
-
-class TestAddRequestHeaderGatewayFilter:
-    def given_http_request_header(self, header):
-        self.http_request = Mock()
-        self.http_request.header = header
-
-    def given_gateway_filter_config(self, header_name, header_value):
-        self.config = Mock()
-        self.config.header_name = header_name
-        self.config.header_value = header_value
-        self.gateway_filter = AddRequestHeaderGatewayFilter(self.config)
-        self.filter_chain = StaticGatewayFilterChain()
-
-    def test_When_filter_Then_add_request_header(self):
-        self.given_http_request_header({})
-        self.given_gateway_filter_config("Hello", "World")
-        self.gateway_filter.filter(self.http_request, self.filter_chain)
-        assert self.http_request.header["Hello"] == "World"
-
-
-class TestAddResponseHeaderGatewayFilter:
-    def given_http_response_header(self, header):
-        self.http_response = Mock()
-        self.http_response.header = header
-
-    def given_gateway_filter_config(self, header_name, header_value):
-        self.config = Mock()
-        self.config.header_name = header_name
-        self.config.header_value = header_value
-        self.filter_chain = StaticGatewayFilterChain()
-        self.gateway_filter = AddResponseHeaderGatewayFilter(self.config)
-
-    def test_When_filter_Then_add_request_header(self):
-        self.given_http_response_header({})
-        self.given_gateway_filter_config("Hello", "World")
-        self.gateway_filter.filter(self.http_response, self.filter_chain)
-        assert self.http_response.header["Hello"] == "World"
+# class TestAddRequestHeaderGatewayFilter:
+#     def given_exchange(self):
+#         http_response = Mock()
+#         http_request = StaticServerHttpRequest()
+#         self.exchange = DefaultServerWebExchange(http_request, http_response)
+#
+#     def given_gateway_filter_config(self, header_name, header_value):
+#         self.config = NameValueConfig(header_name, header_value)
+#         self.filter_chain = StaticGatewayFilterChain()
+#         self.gateway_filter = AddRequestHeaderGatewayFilter(self.config)
+#
+#     def test_When_filter_Then_add_request_header(self):
+#         self.given_exchange()
+#         self.given_gateway_filter_config("Hello", "World")
+#         self.gateway_filter.filter(self.exchange, self.filter_chain)
+#         assert self.exchange.request.headers["Hello"] == "World"
+#
+#
+# class TestAddResponseHeaderGatewayFilter:
+#     def given_exchange(self):
+#         request_handler = Mock()
+#         http_response = ServerHTTPResponse(request_handler)
+#         http_request = StaticServerHttpRequest()
+#         self.exchange = DefaultServerWebExchange(http_request, http_response)
+#
+#     def given_gateway_filter_config(self, header_name, header_value):
+#         self.config = NameValueConfig(header_name, header_value)
+#         self.filter_chain = StaticGatewayFilterChain()
+#         self.gateway_filter = AddResponseHeaderGatewayFilter(self.config)
+#
+#     def test_When_filter_Then_add_request_header(self):
+#         self.given_exchange()
+#         self.given_gateway_filter_config("Hello", "World")
+#         self.gateway_filter.filter(self.exchange, self.filter_chain)
+#         assert self.exchange.response.headers["Hello"] == "World"
+#
+#
+# class TestPrefixPathGatewayFilter:
+#     def given_exchange(self, url: str):
+#         request_handler = Mock()
+#         http_response = ServerHTTPResponse(request_handler)
+#         http_request = StaticServerHttpRequest(url_= url)
+#         self.exchange = DefaultServerWebExchange(http_request, http_response)
+#
+#     def given_gateway_filter_config(self, prefix: str):
+#         self.config = PrefixPathGatewayFilter.Config(prefix)
+#         self.filter_chain = StaticGatewayFilterChain()
+#         self.gateway_filter = PrefixPathGatewayFilter(self.config)
+#
+#     def test_When_filter_Then_add_request_header(self):
+#         self.given_exchange("http://127.0.0.1:8888/get")
+#         self.given_gateway_filter_config("/prefix")
+#         self.gateway_filter.filter(self.exchange, self.filter_chain)
+#         self.gateway_filter.
+#         assert self.exchange.request.path == "/prefix/get"
