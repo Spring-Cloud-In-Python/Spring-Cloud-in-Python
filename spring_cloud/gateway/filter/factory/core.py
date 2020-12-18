@@ -29,18 +29,22 @@ class PrefixPathGatewayFilterFactory(GatewayFilterFactory):
 class AddRequestHeaderGatewayFilter(GatewayFilter):
     def __init__(self, config: NameValueConfig):
         self.config = config
+        self.logger = getLogger(name="spring_cloud.gateway.filter.core")
 
     def filter(self, exchange: ServerWebExchange, chain: GatewayFilterChain) -> None:
         request = exchange.request.mutate().header(self.config.name, self.config.value).build()
+        self.logger.trace(f"Add request header with: {self.config.name}={self.config.value}")
         chain.filter(exchange.mutate().request(request).build())
 
 
 class AddResponseHeaderGatewayFilter(GatewayFilter):
     def __init__(self, config: NameValueConfig):
         self.config = config
+        self.logger = getLogger(name="spring_cloud.gateway.filter.core")
 
     def filter(self, exchange: ServerWebExchange, chain: GatewayFilterChain) -> None:
         exchange.response.add_header(self.config.name, self.config.value)
+        self.logger.trace(f"Add response header with: {self.config.name}={self.config.value}")
         chain.filter(exchange)
 
 
