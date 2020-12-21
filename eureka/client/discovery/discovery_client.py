@@ -6,10 +6,9 @@ __license__ = "Apache 2.0"
 # standard library
 import asyncio
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, TypeVar
 
 # scip plugin
-from eureka.client.app_info.application_info_manager import ApplicationInfoManager
 from eureka.client.app_info.instance_info import InstanceInfo
 from eureka.client.discovery.eureka_client import EurekaClient
 from eureka.client.discovery.eureka_client_config import EurekaClientConfig
@@ -18,6 +17,8 @@ from eureka.client.discovery.shared.resolver.cluster_resolver import DefaultClus
 from eureka.client.discovery.shared.transport import DefaultEurekaTransportConfig, EurekaTransportConfig
 from eureka.client.discovery.shared.transport.asyncio_eureka_http_client_factory import AsyncIOEurekaHttpClientFactory
 from eureka.client.discovery.shared.transport.transport_client_factory import TransportClientFactory
+
+ApplicationInfoManager = TypeVar("ApplicationInfoManager")
 
 
 class DiscoveryClient(EurekaClient):
