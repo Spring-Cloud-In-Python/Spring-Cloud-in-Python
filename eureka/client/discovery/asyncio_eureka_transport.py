@@ -38,7 +38,7 @@ class AsyncIOEurekaTransport(EurekaTransport):
         try:
             eureka_http_response = await self.registration_client.register(instance)
 
-            if eureka_http_response and eureka_http_response == HTTPStatus.NO_CONTENT:
+            if eureka_http_response and eureka_http_response.status_code == HTTPStatus.NO_CONTENT:
                 return True
             else:
                 self._logger.error(f"Instance {instance.instance_id}'s registration task failed")
@@ -91,7 +91,7 @@ class AsyncIOEurekaTransport(EurekaTransport):
         try:
             eureka_http_response = await self.registration_client.cancel(instance)
 
-            if not eureka_http_response or eureka_http_response != HTTPStatus.NO_CONTENT:
+            if not eureka_http_response or eureka_http_response.status_code != HTTPStatus.OK:
                 self._logger.error(f"Instance {instance.instance_id}'s cancellation task failed")
         except asyncio.TimeoutError:
             self._logger.error(f"Timeout reached while cancelling instance {instance.instance_id}")
