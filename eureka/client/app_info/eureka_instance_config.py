@@ -96,10 +96,23 @@ class EurekaInstanceConfig(ABC):
 
 
 class DefaultEurekaInstanceConfig(EurekaInstanceConfig):
-    def __init__(self, app_name: str = None):
+    def __init__(
+        self,
+        app_name: str = None,
+        is_instance_enabled_on_init: bool = False,
+        unsecure_port: int = 80,
+        secure_port: int = 443,
+        is_unsecure_port_enabled: bool = True,
+        is_secure_port_enabled: bool = False,
+    ):
         self._instance_id = str(uuid.uuid4())
         self._app_name = app_name
         self._host_name = next(self._get_local_non_loopback_ipv4_addresses())
+        self._is_instance_enabled_on_init = is_instance_enabled_on_init
+        self._unsecure_port = unsecure_port
+        self._secure_port = secure_port
+        self._is_unsecure_port_enabled = is_unsecure_port_enabled
+        self._is_secure_port_enabled = is_secure_port_enabled
 
     @staticmethod
     def _get_local_non_loopback_ipv4_addresses():
@@ -126,23 +139,23 @@ class DefaultEurekaInstanceConfig(EurekaInstanceConfig):
 
     @property
     def is_instance_enabled_on_init(self) -> bool:
-        return False
+        return self._is_instance_enabled_on_init
 
     @property
     def unsecure_port(self) -> int:
-        return 80
+        return self._unsecure_port
 
     @property
     def secure_port(self) -> int:
-        return 443
+        return self._secure_port
 
     @property
     def is_unsecure_port_enabled(self) -> bool:
-        return True
+        return self._is_unsecure_port_enabled
 
     @property
     def is_secure_port_enabled(self) -> bool:
-        return False
+        return self._is_secure_port_enabled
 
     @property
     def lease_renewal_interval_in_secs(self) -> int:
