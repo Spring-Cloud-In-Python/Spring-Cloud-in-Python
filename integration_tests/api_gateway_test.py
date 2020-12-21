@@ -3,6 +3,9 @@
 The integration tests
 """
 
+# standard library
+import time
+
 # pypi/conda library
 import requests
 from testcontainers.compose import DockerCompose
@@ -16,6 +19,7 @@ def test():
         # (*) Use gateway to route requests to the downstream services
         port = compose.get_service_port("api-gateway-svc", 80)
         gateway_base_url = f"http://localhost:{port}"
+        time.sleep(2)
 
         # (1) Happy Path
         assert '"HI, Johnny (user), Question: 1 + 1 = ?"' == get_puzzle(gateway_base_url, "Johnny", "User-123")

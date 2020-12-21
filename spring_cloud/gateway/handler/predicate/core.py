@@ -40,7 +40,7 @@ class AfterRoutePredicate(Predicate):
         return now > self.config.date_time
 
     def __str__(self):
-        return f"(After): {self.config.date_time}"
+        return f"[After:'{self.config.date_time}']"
 
     class Config:
         def __init__(self, date_time: datetime):
@@ -57,7 +57,7 @@ class PathRoutePredicate(Predicate):
         return path_pattern.matches(request_path)
 
     def __str__(self):
-        return f"(Path): {self.config.pattern}"
+        return f"[Path:'{self.config.pattern}']"
 
     class Config:
         def __init__(self, pattern=None):
@@ -79,7 +79,7 @@ class CookieRoutePredicate(Predicate):
         return self.config.cookie_name == key and re.match(self.config.cookie_regexp, value)
 
     def __str__(self):
-        return f"(Cookie): {self.config.cookie_name}=Regex({self.config.cookie_regexp})"
+        return f"[Cookie:'{self.config.cookie_name}'=Regex('{self.config.cookie_regexp}')]"
 
     class Config:
         def __init__(self, cookie_name=None, cookie_regexp=None):

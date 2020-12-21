@@ -36,6 +36,9 @@ class AddRequestHeaderGatewayFilter(GatewayFilter):
         self.logger.trace(f"Add request header with: {self.config.name}={self.config.value}")
         chain.filter(exchange.mutate().request(request).build())
 
+    def __str__(self):
+        return f"[AddRequestHeader:'{self.config.name}'='{self.config.value}']"
+
 
 class AddResponseHeaderGatewayFilter(GatewayFilter):
     def __init__(self, config: NameValueConfig):
@@ -46,6 +49,9 @@ class AddResponseHeaderGatewayFilter(GatewayFilter):
         exchange.response.add_header(self.config.name, self.config.value)
         self.logger.trace(f"Add response header with: {self.config.name}={self.config.value}")
         chain.filter(exchange)
+
+    def __str__(self):
+        return f"[AddResponseHeader:'{self.config.name}'='{self.config.value}']"
 
 
 class PrefixPathGatewayFilter(GatewayFilter):
@@ -64,6 +70,9 @@ class PrefixPathGatewayFilter(GatewayFilter):
         exchange.attributes[GATEWAY_REQUEST_URL_ATTR] = f"{request.uri}{request.path}"
         self.logger.trace(f"Prefixed URI with: {self.config.prefix} -> {request.uri}{request.path}")
         chain.filter(exchange.mutate().request(request).build())
+
+    def __str__(self):
+        return f"[PrefixPath:'{self.config.prefix}']"
 
     class Config:
         def __init__(self, prefix: str):

@@ -14,6 +14,9 @@ class OrGatewayPredicate(Predicate):
     def test(self, obj) -> bool:
         return self.left.test(obj) or self.right.test(obj)
 
+    def __str__(self):
+        return f"({self.left} || {self.right})"
+
 
 class AndGatewayPredicate(Predicate):
     def __init__(self, left: Predicate, right: Predicate):
@@ -23,6 +26,9 @@ class AndGatewayPredicate(Predicate):
     def test(self, obj) -> bool:
         return self.left.test(obj) and self.right.test(obj)
 
+    def __str__(self):
+        return f"({self.left} && {self.right})"
+
 
 class NegateGatewayPredicate(Predicate):
     def __init__(self, p: Predicate):
@@ -30,6 +36,9 @@ class NegateGatewayPredicate(Predicate):
 
     def test(self, obj) -> bool:
         return not self.p.test(obj)
+
+    def __str__(self):
+        return f"!{self.p}"
 
 
 def AND(left: Predicate, right: Predicate) -> Predicate:
