@@ -3,13 +3,13 @@
 from typing import Optional
 
 # pypi/conda library
-import requests
 from pydantic import BaseModel
 
 # scip plugin
 from integration_tests.app.db import Messages
 from integration_tests.app.entities import Message
-from spring_cloud.utils import logging
+from spring_cloud.commons.http import RestTemplate
+from spring_cloud.utils import logging, validate
 
 __author__ = "Waterball (johnny850807@gmail.com)"
 __license__ = "Apache 2.0"
@@ -21,7 +21,6 @@ from fastapi import FastAPI, Header
 # scip plugin
 import spring_cloud.context.bootstrap_client as spring_cloud_bootstrap
 
-spring_cloud_bootstrap.enable_service_discovery()
 app = FastAPI()
 logger = logging.getLogger("message-service")
 
@@ -63,9 +62,18 @@ def __present_message(message: Message, poster):
     return {"id": message.id, "content": message.content, "poster": poster}
 
 
+@app.on_event("shutdown")
+def shutdown_event():
+    eureka_client.shutdown()
+
+
 if __name__ == "__main__":
     # standard library
     import os
 
-    port = int(os.getenv("port"))
+    port = int(os.getenv("port") or 80)
+    eureka_server_url: str = validate.not_none(os.getenv("eureka-server-url"))
+    requests, eureka_client = spring_cloud_bootstrap.enable_service_discovery(
+        service_id="message-service", port=port, eureka_server_urls=[eureka_server_url]
+    )
     uvicorn.run(app, host="0.0.0.0", port=port)

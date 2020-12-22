@@ -37,5 +37,13 @@ if __name__ == "__main__":
 
     port = int(os.getenv("port") or 80)
     enable_discovery_client = bool(os.getenv("enable-discovery-client"))
+    eureka_server_url: str = os.getenv("eureka-server-url")
+    logger.info(f"enable-discovery-client: {enable_discovery_client}")
+    logger.info(f"eureka-server-url: {eureka_server_url}")
     logger.info("Running the ApiGatewayApplication...")
-    ApiGatewayApplication.run(define_routes, port_=port, enable_discovery_client=enable_discovery_client)
+    ApiGatewayApplication.run(
+        define_routes,
+        port_=port,
+        enable_discovery_client=enable_discovery_client,
+        eureka_server_urls=[eureka_server_url],
+    )
