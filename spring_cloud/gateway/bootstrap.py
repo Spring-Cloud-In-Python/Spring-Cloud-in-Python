@@ -32,7 +32,7 @@ class ApiGatewayApplication:
             if enable_discovery_client:
                 logger.info("The discovery client routing is enabled.")
                 # scip plugin
-                import spring_cloud.context.bootstrap as spring_cloud_bootstrap
+                import spring_cloud.context.bootstrap_client as spring_cloud_bootstrap
 
                 api: RestTemplate = spring_cloud_bootstrap.enable_service_discovery()
             else:

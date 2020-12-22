@@ -1,20 +1,13 @@
 # -*- coding: utf-8 -*-
 # standard library
-import threading
-from abc import ABC, abstractmethod
-from typing import Optional
+from typing import List, Optional
 from urllib.parse import ParseResult, urlparse
 
 # scip plugin
-from eureka.client.app_info import InstanceInfo, LeaseInfo
+from eureka.client.app_info import DefaultEurekaInstanceConfig, InstanceInfo, LeaseInfo
 from eureka.client.app_info.application_info_manager import ApplicationInfoManager
-from eureka.client.discovery import DefaultEurekaClientConfig
+from eureka.client.discovery import DefaultEurekaClientConfig, DiscoveryClient, EurekaClient
 from eureka.client.discovery.shared.transport import DefaultEurekaTransportConfig
-from ribbon.client.config.client_config import ClientConfig
-from ribbon.eureka.discovery_enabled_niws_server_list import DiscoveryEnabledNIWSServerList
-from ribbon.loadbalancer.dynamic_server_list_load_balancer import DynamicServerListLoadBalancer
-from ribbon.loadbalancer.load_balancer import LoadBalancer
-from ribbon.loadbalancer.round_robin_rule import RoundRobinRule
 from spring_cloud.commons.client.loadbalancer import LoadBalancerClient, ServiceInstance
 from spring_cloud.commons.http import ClientHttpRequestInterceptor, HttpRequest, RestTemplate
 from spring_cloud.eureka.eureka_discovery_client import EurekaDiscoveryClient
@@ -28,10 +21,14 @@ __license__ = "Apache 2.0"
 has_setup_service_discovery = False
 
 
-def enable_service_discovery(service_id: str, port: int) -> RestTemplate:
+def enable_service_discovery(
+    service_id: str, port: int, eureka_server_urls: Optional[List[str]] = None
+) -> RestTemplate:
+    if eureka_server_urls is None:
+        eureka_server_urls = ["http://localhost:8000/eureka/v2/"]
     global has_setup_service_discovery
     if not has_setup_service_discovery:
-        rest_template = __setup_and_launch_discovery_client(service_id, port)
+        rest_template = __setup_and_launch_discovery_client(service_id, port, eureka_server_urls)
         has_setup_service_discovery = True
         return rest_template
     else:
@@ -52,9 +49,8 @@ class LoadBalancerInterceptor(ClientHttpRequestInterceptor):
         self.logger.debug(f"Successfully Intercepted. (url={http_request.url})")
 
 
-def __setup_and_launch_discovery_client(service_id: str, port: int) -> RestTemplate:
-    eureka_client = __eureka_discovery_client(service_id, port)
-    discovery_client = __spring_cloud_discovery_client(eureka_client)
+def __setup_and_launch_discovery_client(service_id: str, port: int, eureka_server_urls: List[str]) -> RestTemplate:
+    eureka_client = __eureka_discovery_client(service_id, port, eureka_server_urls)
     loadbalancer_client = __spring_cloud_loadbalancer_client(eureka_client)
     rest_template = RestTemplate([LoadBalancerInterceptor(loadbalancer_client)])
     return rest_template
@@ -70,31 +66,25 @@ def __spring_cloud_loadbalancer_client(eureka_client: EurekaClient) -> RibbonLoa
     return loadbalancer_client
 
 
-def __eureka_discovery_client(service_id: str, port: int) -> EurekaClient:
-    id_address = None  # TODO should be generated via some way
+def __eureka_discovery_client(service_id: str, port: int, eureka_server_urls: List[str]) -> EurekaClient:
+    eureka_instance_config = DefaultEurekaInstanceConfig(app_name=service_id, unsecure_port=port)
+
     instance_info = InstanceInfo(
-        instance_id=service_id,
-        app_name=service_id,
-        app_group_name=service_id,
-        ip_address=id_address,
-        vip_address=service_id,
-        secure_vip_address=service_id,
-        lease_info=LeaseInfo(),
-        metadata={},
-        host_name="localhost",
-        port=port,
+        instance_id=eureka_instance_config.instance_id,
+        app_name=eureka_instance_config.app_name,
+        ip_address=eureka_instance_config.ip_address,
+        vip_address=eureka_instance_config.app_name,
+        secure_vip_address=eureka_instance_config.virtual_host_name,
+        lease_info=LeaseInfo(
+            lease_renewal_interval_in_secs=eureka_instance_config.lease_renewal_interval_in_secs,
+            lease_duration_in_secs=eureka_instance_config.lease_expiration_duration_in_secs,
+        ),
+        host_name=eureka_instance_config.host_name,
+        port=eureka_instance_config.unsecure_port,
+        secure_port=eureka_instance_config.secure_port,
     )
-    app_info_manager = ApplicationInfoManager(DefaultEurekaInstaneConfig(service_id), instance_info)
 
-    eureka_client_config = DefaultEurekaClientConfig(DefaultEurekaTransportConfig())
-    return DiscoveryClient(app_info_manager, eureka_client_config)
-
-
-def enable_service_registry(port=8761):
-    # TODO: Fake, should be substituted with the real implementation
-    # standard library
-    import time
-
-    while True:
-        time.sleep(3)
-        print("Tick...")  # simulate service' running
+    app_info_manager = ApplicationInfoManager(DefaultEurekaInstanceConfig(service_id), instance_info)
+    return DiscoveryClient(
+        app_info_manager, DefaultEurekaClientConfig(DefaultEurekaTransportConfig(), eureka_server_urls)
+    )

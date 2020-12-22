@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # scip plugin
+from eureka.client.discovery import EurekaClient
 from ribbon.loadbalancer.load_balancer import LoadBalancer
 from ribbon.loadbalancer.round_robin_rule import RoundRobinRule
 

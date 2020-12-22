@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # scip plugin
-from eureka.client.discovery import EurekaClientConfig
+from eureka.client.discovery import EurekaClient, EurekaClientConfig
 
 __author__ = "Ricky"
 __license__ = "Apache 2.0"
@@ -20,7 +20,7 @@ class EurekaDiscoveryClient(DiscoveryClient):
         self.eureka_client = eureka_client
 
     def get_instances(self, service_id: str) -> List[ServiceInstance]:
-        instance_info = self.eureka_client.get_instances_by_vip_address(service_id, False)
+        instance_info = self.eureka_client.get_instances_by_virtual_host_name(service_id, False)
         instances = [EurekaServiceInstance(x) for x in instance_info]
         return instances
 
@@ -30,4 +30,4 @@ class EurekaDiscoveryClient(DiscoveryClient):
         if not applications:
             return []
         registered_apps = applications.get_registered_applications()
-        return [app.get_name().lower() for app in registered_apps if not app.get_instances().is_empty()]
+        return [app.name.lower() for app in registered_apps if not app.get_instances().is_empty()]

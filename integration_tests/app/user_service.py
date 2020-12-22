@@ -14,9 +14,8 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 
 # scip plugin
-import spring_cloud.context.bootstrap as spring_cloud_bootstrap
+import spring_cloud.context.bootstrap_client as spring_cloud_bootstrap
 
-spring_cloud_bootstrap.enable_service_discovery()
 app = FastAPI()
 logger = logging.getLogger("user-service")
 
@@ -74,5 +73,6 @@ if __name__ == "__main__":
     # standard library
     import os
 
-    port = int(os.getenv("port"))
+    port = int(os.getenv("port") or 80)
+    spring_cloud_bootstrap.enable_service_discovery(service_id="user-service", port=port)
     uvicorn.run(app, host="0.0.0.0", port=port)

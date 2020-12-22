@@ -19,7 +19,7 @@ import uvicorn
 from fastapi import FastAPI, Header
 
 # scip plugin
-import spring_cloud.context.bootstrap as spring_cloud_bootstrap
+import spring_cloud.context.bootstrap_client as spring_cloud_bootstrap
 
 spring_cloud_bootstrap.enable_service_discovery()
 app = FastAPI()
