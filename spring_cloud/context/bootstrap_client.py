@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # standard library
-from typing import List, Optional
+from typing import List, Optional, Tuple
 from urllib.parse import ParseResult, urlparse
 
 # scip plugin
@@ -19,18 +19,22 @@ __author__ = "Waterball (johnny850807@gmail.com)"
 __license__ = "Apache 2.0"
 
 has_setup_service_discovery = False
+logger = logging.getLogger("spring_cloud.bootstrap_client")
 
 
 def enable_service_discovery(
     service_id: str, port: int, eureka_server_urls: Optional[List[str]] = None
-) -> RestTemplate:
+) -> Tuple[RestTemplate, EurekaClient]:
     if eureka_server_urls is None:
-        eureka_server_urls = ["http://localhost:8000/eureka/v2/"]
+        eureka_server_urls = ["http://localhost:8761/eureka/v2/"]
+    logger.info(
+        f'Enabling service discovery with the arguments: service_id={service_id}, port={port}, eureka_server_urls={",".join(eureka_server_urls)}'
+    )
     global has_setup_service_discovery
     if not has_setup_service_discovery:
-        rest_template = __setup_and_launch_discovery_client(service_id, port, eureka_server_urls)
+        rest_template, eureka_client = __setup_and_launch_discovery_client(service_id, port, eureka_server_urls)
         has_setup_service_discovery = True
-        return rest_template
+        return rest_template, eureka_client
     else:
         raise Exception("You can't setup service discovery twice.")
 
@@ -45,15 +49,17 @@ class LoadBalancerInterceptor(ClientHttpRequestInterceptor):
         parse_result: ParseResult = urlparse(http_request.url)
         instance: ServiceInstance = self.loadbalancer_client.choose(parse_result.hostname, http_request)
         self.logger.info(f"Transform host: {parse_result.hostname} --> {instance.host}.")
-        http_request.url = parse_result._replace(netloc=instance.host)
+        http_request.url = parse_result._replace(netloc=f"{instance.host}:{instance.port}").geturl()
         self.logger.debug(f"Successfully Intercepted. (url={http_request.url})")
 
 
-def __setup_and_launch_discovery_client(service_id: str, port: int, eureka_server_urls: List[str]) -> RestTemplate:
+def __setup_and_launch_discovery_client(
+    service_id: str, port: int, eureka_server_urls: List[str]
+) -> Tuple[RestTemplate, EurekaClient]:
     eureka_client = __eureka_discovery_client(service_id, port, eureka_server_urls)
     loadbalancer_client = __spring_cloud_loadbalancer_client(eureka_client)
     rest_template = RestTemplate([LoadBalancerInterceptor(loadbalancer_client)])
-    return rest_template
+    return rest_template, eureka_client
 
 
 def __spring_cloud_discovery_client(eureka_client: EurekaClient) -> EurekaDiscoveryClient:

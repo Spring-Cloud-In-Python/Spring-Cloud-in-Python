@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+# standard library
+from unittest.mock import Mock
 
 __author__ = "Ssu-Tsen"
 __license__ = "Apache 2.0"
@@ -26,9 +28,10 @@ class FakeEurekaClient:
         return [info1, info2, info3]
 
 
+eureka_client = Mock()
 server_with_wrong_port = Server(host="127.0.0.1", port=56747, scheme="https")
 server_with_right_port = Server(host="127.0.0.1", port=443, scheme="https")
-spring_client_factory = SpringClientFactory()
+spring_client_factory = SpringClientFactory(eureka_client)
 ribbon_load_balancer_client = RibbonLoadBalancerClient(spring_client_factory)
 ribbon_server = RibbonServer(service_id="1", server=server_with_right_port, secure=True)
 discovery_enable_server = DiscoveryEnabledServer(instance_info())

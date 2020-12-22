@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+# scip plugin
+from spring_cloud.utils import validate
 
 __author__ = "Haribo (haribo1558599@gmail.com)"
 __license__ = "Apache 2.0"
@@ -21,9 +23,10 @@ from spring_cloud.utils.logging import getLogger
 class AsyncIOEurekaHttpClient(EurekaHttpClient):
     def __init__(self, service_url: str, connection_timeout: int = 300):
         self._connection_timeout = connection_timeout
-        self._service_url = service_url
+        self._service_url = validate.not_none(service_url)
 
         self._logger = getLogger("eureka.client.discovery.asyncio_eureka_http_client")
+        self._logger.info(f"Initiated with service_url={self._service_url}.")
 
     @property
     def connection_timeout(self) -> int:
@@ -39,6 +42,7 @@ class AsyncIOEurekaHttpClient(EurekaHttpClient):
 
         eureka_http_response = None
         url = urljoin(self._service_url, f"apps/{instance.app_name}")
+        self._logger.info(f"Requesting to {url}...")
         try:
             async with aiohttp.ClientSession() as session:
                 async with session.post(
@@ -47,6 +51,7 @@ class AsyncIOEurekaHttpClient(EurekaHttpClient):
                     eureka_http_response = EurekaHttpResponse(
                         status_code=response.status, headers=dict(response.headers)
                     )
+                self._logger.debug(f"Response: {response}")
         except asyncio.TimeoutError:
             self._logger.error(
                 f"Connection timeout reached while registering instance {instance.instance_id} with {url}"
@@ -54,6 +59,8 @@ class AsyncIOEurekaHttpClient(EurekaHttpClient):
             raise
         except RuntimeError:
             self._logger.warning(f"Session was closed while registering instance {instance.instance_id} with {url}")
+        except Exception as e:
+            self._logger.error(e)
         finally:
             return eureka_http_response
 
@@ -78,6 +85,8 @@ class AsyncIOEurekaHttpClient(EurekaHttpClient):
             raise
         except RuntimeError:
             self._logger.warning(f"Session was closed while fetching full registry with {url}")
+        except Exception as e:
+            self._logger.error(e)
         finally:
             return eureka_http_response
 
@@ -97,6 +106,8 @@ class AsyncIOEurekaHttpClient(EurekaHttpClient):
             raise
         except RuntimeError:
             self._logger.warning(f"Session was closed while unregistering instance {instance.instance_id} with {url}")
+        except Exception as e:
+            self._logger.error(e)
         finally:
             return eureka_http_response
 

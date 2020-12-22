@@ -3,7 +3,7 @@
 from integration_tests.app.db import Users
 from integration_tests.app.entities import User
 from integration_tests.app.errors import NotFoundError
-from spring_cloud.utils import logging
+from spring_cloud.utils import logging, validate
 
 __author__ = "Waterball (johnny850807@gmail.com)"
 __license__ = "Apache 2.0"
@@ -69,10 +69,18 @@ def present_user(user: User):
     return {"id": user.id, "name": user.name, "account": user.account}
 
 
+@app.on_event("shutdown")
+def shutdown_event():
+    eureka_client.shutdown()
+
+
 if __name__ == "__main__":
     # standard library
     import os
 
     port = int(os.getenv("port") or 80)
-    spring_cloud_bootstrap.enable_service_discovery(service_id="user-service", port=port)
+    eureka_server_url = validate.not_none(os.getenv("eureka-server-url"))
+    _, eureka_client = spring_cloud_bootstrap.enable_service_discovery(
+        service_id="user-service", port=port, eureka_server_urls=[eureka_server_url]
+    )
     uvicorn.run(app, host="0.0.0.0", port=port)

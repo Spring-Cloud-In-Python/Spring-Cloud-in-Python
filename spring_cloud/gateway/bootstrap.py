@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # standard library
 from http.server import HTTPServer
-from typing import Callable, Optional
+from typing import Callable, List, Optional
 
 # scip plugin
 from spring_cloud.commons.http import RestTemplate
@@ -10,7 +10,7 @@ from spring_cloud.gateway.handler import DispatcherHandler
 from spring_cloud.gateway.handler.handler import FilteringWebHandler, RoutePredicateHandlerMapping
 from spring_cloud.gateway.route.builder.route_locator import RouteLocator, RouteLocatorBuilder
 from spring_cloud.gateway.server.request_handler import HTTPRequestHandler
-from spring_cloud.utils import logging
+from spring_cloud.utils import logging, validate
 
 __author__ = "Waterball (johnny850807@gmail.com)"
 __license__ = "Apache 2.0"
@@ -23,6 +23,7 @@ class ApiGatewayApplication:
         host_name: Optional[str] = "0.0.0.0",
         port_: Optional[int] = 8726,
         enable_discovery_client: Optional[bool] = False,
+        eureka_server_urls: Optional[List[str]] = None,
     ):
         logger = logging.getLogger("spring_cloud.ApiGatewayApplication")
         web_server = None
@@ -30,11 +31,14 @@ class ApiGatewayApplication:
 
             logger.info(f"Launching ApiGatewayApplication listening at {host_name}:{port_}")
             if enable_discovery_client:
+                validate.not_none(eureka_server_urls)
                 logger.info("The discovery client routing is enabled.")
                 # scip plugin
                 import spring_cloud.context.bootstrap_client as spring_cloud_bootstrap
 
-                api: RestTemplate = spring_cloud_bootstrap.enable_service_discovery()
+                api, _ = spring_cloud_bootstrap.enable_service_discovery(
+                    service_id="ApiGateway", port=port_, eureka_server_urls=eureka_server_urls
+                )
             else:
                 api = RestTemplate()
 

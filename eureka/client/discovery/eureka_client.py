@@ -52,3 +52,7 @@ class EurekaClient(ABC):
     @abstractmethod
     def application_info_manager(self) -> ApplicationInfoManager:
         raise NotImplemented
+
+    @abstractmethod
+    def shutdown(self):
+        pass
