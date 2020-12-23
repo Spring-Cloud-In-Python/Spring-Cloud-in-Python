@@ -171,6 +171,9 @@ class DefaultServerHttpRequest(ServerHTTPRequest):
     def local_addr(self) -> Optional[tuple]:
         return self.__request.getsockname()
 
+    def __str__(self):
+        return f"[{self.method}] {self.uri}. Headers: {str(self.headers)}"
+
 
 class DefaultServerHttpRequestBuilder(ServerHTTPRequest.Builder):
     def __init__(self, original: ServerHTTPRequest):

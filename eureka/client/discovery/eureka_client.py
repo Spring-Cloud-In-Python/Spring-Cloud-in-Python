@@ -2,10 +2,9 @@
 
 # standard library
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, TypeVar
 
 # scip plugin
-from eureka.client.app_info.application_info_manager import ApplicationInfoManager
 from eureka.client.app_info.instance_info import InstanceInfo
 from eureka.client.discovery.eureka_client_config import EurekaClientConfig
 from eureka.client.discovery.shared.application import Application
@@ -13,6 +12,8 @@ from eureka.client.discovery.shared.applications import Applications
 
 __author__ = "Haribo (haribo1558599@gmail.com)"
 __license__ = "Apache 2.0"
+
+ApplicationInfoManager = TypeVar("ApplicationInfoManager")
 
 
 class EurekaClient(ABC):
@@ -51,3 +52,7 @@ class EurekaClient(ABC):
     @abstractmethod
     def application_info_manager(self) -> ApplicationInfoManager:
         raise NotImplemented
+
+    @abstractmethod
+    def shutdown(self):
+        pass

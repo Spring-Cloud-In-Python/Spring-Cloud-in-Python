@@ -1,20 +1,21 @@
 # -*- coding: utf-8 -*-
+# standard library
+from unittest.mock import Mock
 
 __author__ = "Ssu-Tsen"
 __license__ = "Apache 2.0"
 
 # standard library
-from typing import List
 
 # scip plugin
 from ribbon.client.config.client_config import ClientConfig
-from ribbon.loadbalancer.dynamic_server_list_load_balancer import DynamicServerListLoadBalancer
 from spring_cloud.ribbon.spring_client_factory import DynamicServerListLoadBalancer, SpringClientFactory
 
 
 class TestSpringClientFactory:
-
-    spring_client_factory = SpringClientFactory()
+    eureka_client = Mock()
+    eureka_client.get_instances_by_virtual_host_name = Mock(return_value=[])
+    spring_client_factory = SpringClientFactory(eureka_client)
 
     def test_get_client_config(self):
         assert isinstance(self.spring_client_factory.get_client_config("1"), ClientConfig)

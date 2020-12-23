@@ -17,7 +17,7 @@ class Users:
 
     @staticmethod
     def find_by_id(id_: int) -> Optional[User]:
-        return Users.db[id_]
+        return Users.db.get(id_)
 
     @staticmethod
     def find_by_account_and_password(account: str, password: str):

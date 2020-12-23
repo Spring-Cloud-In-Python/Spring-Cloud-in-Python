@@ -22,7 +22,7 @@ class TestRoutePredicateHandlerMapping:
             .build()
         )
         filtering_web_handler = Mock()
-        self.predicate_handler = RoutePredicateHandlerMapping(filtering_web_handler, route_locator)
+        self.predicate_handler = RoutePredicateHandlerMapping(route_locator)
 
     def given_http_request(self, url: str):
         request = StaticServerHttpRequest(url_=url)

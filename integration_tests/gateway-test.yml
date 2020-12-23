@@ -1,0 +1,27 @@
+version: "3"
+services:
+  api-gateway-svc:
+    build:
+      context: ../
+      dockerfile: integration_tests/Dockerfile
+    environment:
+      port: 80
+      logging-debug: "True"
+      puzzle-service-base-url: "http://puzzle-svc"
+    ports:
+      - 80
+    networks:
+      - gateway-test-app
+    command: "python3 integration_tests/gateway_test_app/api_gateway.py"
+  puzzle-svc:
+    build:
+      context: ../
+      dockerfile: integration_tests/Dockerfile
+    environment:
+      port: 80
+    networks:
+      - gateway-test-app
+    command: "python3 integration_tests/gateway_test_app/puzzle_service.py"
+
+networks:
+  gateway-test-app:

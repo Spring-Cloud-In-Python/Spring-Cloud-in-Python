@@ -7,6 +7,7 @@ from eureka.client.app_info.eureka_instance_config import EurekaInstanceConfig
 from eureka.client.app_info.instance_info import InstanceInfo
 from eureka.client.app_info.lease_info import LeaseInfo
 from eureka.client.discovery.status_change_event import StatusChangeEvent
+from spring_cloud.utils import logging
 
 __author__ = "Haribo (haribo1558599@gmail.com)"
 __license__ = "Apache 2.0"
@@ -14,6 +15,10 @@ __license__ = "Apache 2.0"
 
 class ApplicationInfoManager:
     def __init__(self, eureka_instance_config: EurekaInstanceConfig, instance_info: InstanceInfo):
+        self._logger = logging.getLogger("eureka.ApplicationInfoManager")
+        self._logger.info(
+            f"Instance Config: Host={eureka_instance_config.host_name}, Port={eureka_instance_config.unsecure_port}"
+        )
         self._eureka_instance_config = eureka_instance_config
         self._instance_info = instance_info
         self._listener_name_to_listener_dict = {}
