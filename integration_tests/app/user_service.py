@@ -71,7 +71,7 @@ def present_user(user: User):
 
 @app.on_event("shutdown")
 def shutdown_event():
-    eureka_client.shutdown()
+    client.shutdown()
 
 
 if __name__ == "__main__":
@@ -80,7 +80,7 @@ if __name__ == "__main__":
 
     port = int(os.getenv("port") or 80)
     eureka_server_url = validate.not_none(os.getenv("eureka-server-url"))
-    _, eureka_client = spring_cloud_bootstrap.enable_service_discovery(
+    client = spring_cloud_bootstrap.enable_service_discovery(
         service_id="user-service", port=port, eureka_server_urls=[eureka_server_url]
     )
     uvicorn.run(app, host="0.0.0.0", port=port)

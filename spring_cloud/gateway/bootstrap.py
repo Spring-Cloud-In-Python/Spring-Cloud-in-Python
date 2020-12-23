@@ -26,6 +26,7 @@ class ApiGatewayApplication:
         eureka_server_urls: Optional[List[str]] = None,
     ):
         logger = logging.getLogger("spring_cloud.ApiGatewayApplication")
+        api = None
         web_server = None
         try:
 
@@ -36,7 +37,7 @@ class ApiGatewayApplication:
                 # scip plugin
                 import spring_cloud.context.bootstrap_client as spring_cloud_bootstrap
 
-                api, _ = spring_cloud_bootstrap.enable_service_discovery(
+                api = spring_cloud_bootstrap.enable_service_discovery(
                     service_id="ApiGateway", port=port_, eureka_server_urls=eureka_server_urls
                 )
             else:
@@ -65,20 +66,5 @@ class ApiGatewayApplication:
         if web_server:
             web_server.server_close()
             logger.info("Server stopped.")
-
-
-def define_routes(route_locator_builder: RouteLocatorBuilder) -> RouteLocator:
-    return (
-        route_locator_builder.routes()
-        .route(lambda p: p.path("/api/users/**").uri("http://localhost:10000"))
-        .route(lambda p: p.path("/api/messages/**").uri("http://localhost:10001"))
-        .build()
-    )
-
-
-if __name__ == "__main__":
-    # standard library
-    import os
-
-    port = int(os.getenv("port") or 80)
-    ApiGatewayApplication.run(define_routes, port_=port, enable_discovery_client=False)
+        if api:
+            api.shutdown()
