@@ -8,7 +8,6 @@ from pydantic import BaseModel
 # scip plugin
 from integration_tests.app.db import Messages
 from integration_tests.app.entities import Message
-from spring_cloud.commons.http import RestTemplate
 from spring_cloud.utils import logging, validate
 
 __author__ = "Waterball (johnny850807@gmail.com)"
@@ -55,7 +54,7 @@ def __request_poster(poster_id):
     user_service_host = os.getenv("user-service-host")
     url = f"http://{user_service_host}/api/users/{poster_id}"
     logger.info(f"Requesting to: {url}.")
-    return requests.get(url).json()
+    return client.get(url).json()
 
 
 def __present_message(message: Message, poster):
@@ -64,7 +63,7 @@ def __present_message(message: Message, poster):
 
 @app.on_event("shutdown")
 def shutdown_event():
-    eureka_client.shutdown()
+    client.shutdown()
 
 
 if __name__ == "__main__":
@@ -73,7 +72,7 @@ if __name__ == "__main__":
 
     port = int(os.getenv("port") or 80)
     eureka_server_url: str = validate.not_none(os.getenv("eureka-server-url"))
-    requests, eureka_client = spring_cloud_bootstrap.enable_service_discovery(
+    client = spring_cloud_bootstrap.enable_service_discovery(
         service_id="message-service", port=port, eureka_server_urls=[eureka_server_url]
     )
     uvicorn.run(app, host="0.0.0.0", port=port)

@@ -22,9 +22,18 @@ has_setup_service_discovery = False
 logger = logging.getLogger("spring_cloud.bootstrap_client")
 
 
+class ServiceDiscoveryClient(RestTemplate):
+    def __init__(self, rest_template: RestTemplate, eureka_client: EurekaClient):
+        super().__init__(rest_template.interceptors)
+        self.eureka_client = eureka_client
+
+    def shutdown(self):
+        self.eureka_client.shutdown()
+
+
 def enable_service_discovery(
     service_id: str, port: int, eureka_server_urls: Optional[List[str]] = None
-) -> Tuple[RestTemplate, EurekaClient]:
+) -> ServiceDiscoveryClient:
     if eureka_server_urls is None:
         eureka_server_urls = ["http://localhost:8761/eureka/v2/"]
     logger.info(
@@ -34,7 +43,7 @@ def enable_service_discovery(
     if not has_setup_service_discovery:
         rest_template, eureka_client = __setup_and_launch_discovery_client(service_id, port, eureka_server_urls)
         has_setup_service_discovery = True
-        return rest_template, eureka_client
+        return ServiceDiscoveryClient(rest_template, eureka_client)
     else:
         raise Exception("You can't setup service discovery twice.")
 

@@ -62,7 +62,7 @@ class RestTemplate:
     def __init__(self, interceptors: List[ClientHttpRequestInterceptor] = None):
         if interceptors is None:
             interceptors = []
-        self.__interceptors = interceptors
+        self.interceptors = interceptors
         self.__logger = logging.getLogger("spring_cloud.http.RestTemplate")
 
     def request(self, method, url, **kwargs):
@@ -213,7 +213,7 @@ class RestTemplate:
             thr url (str)
         """
         http_request = HttpRequest(method=method, url=url, **kwargs)
-        for interceptor in self.__interceptors:
+        for interceptor in self.interceptors:
             interceptor.intercept(http_request)
 
             # replace the attributes with the intercepted one if exists
