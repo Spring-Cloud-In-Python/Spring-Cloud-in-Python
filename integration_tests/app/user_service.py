@@ -31,18 +31,8 @@ class SignUpRequest(BaseModel):
     password: str
 
 
-get_user_load = 0
-
-
-@app.get("/metrics/get_user_load/load")
-def get_load_of_get_user_load_api():
-    return get_user_load
-
-
 @app.get("/api/users/{user_id}")
 def get_user(user_id: int):
-    global get_user_load
-    get_user_load += 1
     user = Users.find_by_id(user_id)
     if not user:
         raise NotFoundError()

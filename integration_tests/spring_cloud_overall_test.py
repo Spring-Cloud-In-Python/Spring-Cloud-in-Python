@@ -21,7 +21,7 @@ def test():
     with DockerCompose(".", compose_file_name="overall-test.yml") as compose:
         # (*) Use gateway to route requests to the downstream services
         port = compose.get_service_port("api-gateway-svc", 80)
-        time.sleep(5)  # wait for the server to be ready
+        time.sleep(8)  # wait for the server to be ready
         gateway_base_url = f"http://localhost:{port}"
 
         # (1) sign-up a new user
@@ -49,9 +49,10 @@ def sign_up_user_on_all_services(gateway_base_url):
                 json={"name": "johnny", "account": "account", "password": "password"},
             ).json()
         )
-        assert users[i]["id"] == 0, (
+    for user in users:
+        assert user["id"] == 0, (
             f"Assert load-balancing, the sign-up should be handled by the three replicas, "
-            f"thus the ids all should be zeros. Given: {','.join([u['id'] for u in users])}"
+            f"thus the ids all should be zeros. Given: {','.join([str(u['id']) for u in users])}"
         )
 
     return users[0]
