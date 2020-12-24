@@ -8,6 +8,7 @@ from eureka.client.app_info import DefaultEurekaInstanceConfig, InstanceInfo, Le
 from eureka.client.app_info.application_info_manager import ApplicationInfoManager
 from eureka.client.discovery import DefaultEurekaClientConfig, DiscoveryClient, EurekaClient
 from eureka.client.discovery.shared.transport import DefaultEurekaTransportConfig
+from spring_cloud.commons.client.discovery.discovery_client import DiscoveryClient as spring_cloud_DiscoveryClient
 from spring_cloud.commons.client.loadbalancer import LoadBalancerClient, ServiceInstance
 from spring_cloud.commons.http import ClientHttpRequestInterceptor, HttpRequest, RestTemplate
 from spring_cloud.eureka.eureka_discovery_client import EurekaDiscoveryClient
@@ -22,13 +23,20 @@ has_setup_service_discovery = False
 logger = logging.getLogger("spring_cloud.bootstrap_client")
 
 
-class ServiceDiscoveryClient(RestTemplate):
-    def __init__(self, rest_template: RestTemplate, eureka_client: EurekaClient):
+class ServiceDiscoveryClient(RestTemplate, spring_cloud_DiscoveryClient):
+    def __init__(self, rest_template: RestTemplate, discovery_client: spring_cloud_DiscoveryClient):
         super().__init__(rest_template.interceptors)
-        self.eureka_client = eureka_client
+        self.discovery_client = discovery_client
+
+    @property
+    def services(self) -> List[str]:
+        return self.discovery_client.services
+
+    def get_instances(self, service_id: str) -> List[ServiceInstance]:
+        return self.discovery_client.get_instances(service_id)
 
     def shutdown(self):
-        self.eureka_client.shutdown()
+        self.discovery_client.shutdown()
 
 
 def enable_service_discovery(
@@ -64,11 +72,11 @@ class LoadBalancerInterceptor(ClientHttpRequestInterceptor):
 
 def __setup_and_launch_discovery_client(
     service_id: str, port: int, eureka_server_urls: List[str]
-) -> Tuple[RestTemplate, EurekaClient]:
+) -> Tuple[RestTemplate, spring_cloud_DiscoveryClient]:
     eureka_client = __eureka_discovery_client(service_id, port, eureka_server_urls)
     loadbalancer_client = __spring_cloud_loadbalancer_client(eureka_client)
     rest_template = RestTemplate([LoadBalancerInterceptor(loadbalancer_client)])
-    return rest_template, eureka_client
+    return rest_template, __spring_cloud_discovery_client(eureka_client)
 
 
 def __spring_cloud_discovery_client(eureka_client: EurekaClient) -> EurekaDiscoveryClient:

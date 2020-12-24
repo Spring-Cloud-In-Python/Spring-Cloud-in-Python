@@ -35,6 +35,9 @@ class DiscoveryClient(ABC):
         """
         pass
 
+    def shutdown(self):
+        pass
+
 
 class StaticDiscoveryClient(DiscoveryClient):
     """
