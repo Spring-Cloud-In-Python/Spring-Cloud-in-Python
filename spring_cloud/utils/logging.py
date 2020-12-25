@@ -18,7 +18,7 @@ class Formatter:
         self.fmt = fmt
 
     def format(self, record):
-        length = len("{name}:{function}:{line}" % {**record})
+        length = len("{extra[name]}:{function}:{line}" % {**record})
         self.padding = max(self.padding, length)
         record["extra"]["padding"] = " " * (self.padding - length)
         return self.fmt
@@ -72,8 +72,7 @@ def getLogger(name=None, debug=False, diagnose=False, fmt=None, *, logger_=__log
     name = name or "{name}"
     fmt = (
         fmt
-        or "<green>{time:YYYY-MM-DD at HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>%(name)s</cyan>:<cyan>{function}</cyan>:<cyan>{line}{extra[padding]}</cyan> - <level>{message}</level>\n{exception}"
-        % {"name": name}
+        or "<green>{time:YYYY-MM-DD at HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{extra[name]}</cyan>:<cyan>{function}</cyan>:<cyan>{line}{extra[padding]}</cyan> - <level>{message}</level>\n{exception}"
     )
 
     # Remove default settings
