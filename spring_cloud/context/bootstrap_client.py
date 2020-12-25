@@ -49,9 +49,9 @@ def enable_service_discovery(
     )
     global has_setup_service_discovery
     if not has_setup_service_discovery:
-        rest_template, eureka_client = __setup_and_launch_discovery_client(service_id, port, eureka_server_urls)
+        rest_template, discovery_client = __setup_and_launch_discovery_client(service_id, port, eureka_server_urls)
         has_setup_service_discovery = True
-        return ServiceDiscoveryClient(rest_template, eureka_client)
+        return ServiceDiscoveryClient(rest_template, discovery_client)
     else:
         raise Exception("You can't setup service discovery twice.")
 
