@@ -41,6 +41,10 @@ class FakeLoadBalancer(LoadBalancer):
     def get_all_servers(self) -> List[Server]:
         return self.servers
 
+    @property
+    def name(self):
+        return "FakeLoadBalancer"
+
 
 class TestRoundRobinRule:
     lb = FakeLoadBalancer()

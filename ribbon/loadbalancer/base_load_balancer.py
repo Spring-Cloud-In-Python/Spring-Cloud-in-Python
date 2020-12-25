@@ -17,9 +17,9 @@ from ribbon.loadbalancer.server import Server
 
 
 class BaseLoadBalancer(LoadBalancer):
-    def __init__(self, name: str = "LoadBalancer", rule: LoadBalanceRule = None, config: ClientConfig = None):
+    def __init__(self, name: str = None, rule: LoadBalanceRule = None, config: ClientConfig = None):
         self._logger = logging.getLogger(f"ribbon.BaseLoadBalancer({name})")
-        self._name = name
+        self._name = name or "LoadBalancer"
         self._rule = rule or RoundRobinRule()
         self._servers: List[Server] = []
         self._counter = 0
