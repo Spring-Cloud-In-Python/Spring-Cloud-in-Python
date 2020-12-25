@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+# scip plugin
+from spring_cloud.utils import logging
 
 __author__ = "MJ (tsngmj@gmail.com)"
 __license__ = "Apache 2.0"
@@ -16,6 +18,7 @@ from ribbon.loadbalancer.server_list import ServerList
 
 class DiscoveryEnabledNIWSServerList(ServerList):
     def __init__(self, eureka_client=None, vip_addresses: str = None, client_config: ClientConfig = None):
+        self.logger = logging.getLogger("ribbon.eureka.DiscoveryEnabledNIWSServerList")
         self.__eureka_client = eureka_client
         self.__vip_addresses = self.__split_vip_addresses(vip_addresses)
         self.__client_config = client_config or self._create_client_config()
@@ -80,6 +83,7 @@ class DiscoveryEnabledNIWSServerList(ServerList):
         return self.obtain_servers_via_discovery()
 
     def obtain_servers_via_discovery(self) -> List[Server]:
+        self.logger.trace("Obtaining servers via the eureka discovery client...")
         server_list: List[Server] = []
 
         if self.__vip_addresses and self.__eureka_client:

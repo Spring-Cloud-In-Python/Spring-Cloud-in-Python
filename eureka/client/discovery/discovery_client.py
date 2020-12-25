@@ -25,6 +25,7 @@ ApplicationInfoManager = TypeVar("ApplicationInfoManager")
 
 class DiscoveryClient(EurekaClient):
     def __init__(self, application_info_manager: ApplicationInfoManager, eureka_client_config: EurekaClientConfig):
+        self.logger = logging.getLogger("eureka.DiscoveryClient")
         self._application_info_manager = application_info_manager
         self._eureka_client_config = eureka_client_config
         self._eureka_transport_config = DefaultEurekaTransportConfig()
@@ -78,7 +79,9 @@ class DiscoveryClient(EurekaClient):
         return next(self.applications.get_instances_by_virtual_host_name(virtual_host_name))
 
     def get_instances_by_virtual_host_name(self, virtual_host_name: str, secure: bool) -> List[InstanceInfo]:
-        return list(self.applications.get_instances_by_virtual_host_name(virtual_host_name))
+        instances: List[InstanceInfo] = list(self.applications.get_instances_by_virtual_host_name(virtual_host_name))
+        self.logger.debug(f'Got Instances by vhost: {[f"{i.ip_address}:{i.port}" for i in instances]}')
+        return instances
 
     @property
     def eureka_client_config(self) -> EurekaClientConfig:

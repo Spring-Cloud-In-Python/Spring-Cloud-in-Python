@@ -62,12 +62,14 @@ class LoadBalancerInterceptor(ClientHttpRequestInterceptor):
         self.loadbalancer_client = loadbalancer_client
 
     def intercept(self, http_request: HttpRequest):
-        self.logger.debug("Intercepting...")
         parse_result: ParseResult = urlparse(http_request.url)
+        self.logger.trace(f"Intercepting the host name: {parse_result.hostname} via the load-balancer.")
         instance: ServiceInstance = self.loadbalancer_client.choose(parse_result.hostname, http_request)
-        self.logger.info(f"Transform host: {parse_result.hostname} --> {instance.host}.")
-        http_request.url = parse_result._replace(netloc=f"{instance.host}:{instance.port}").geturl()
-        self.logger.debug(f"Successfully Intercepted. (url={http_request.url})")
+        if instance:
+            http_request.url = parse_result._replace(netloc=f"{instance.host}:{instance.port}").geturl()
+            self.logger.debug(f"Successfully Intercepted. (url={http_request.url})")
+        else:
+            self.logger.warning(f"No instances found.")
 
 
 def __setup_and_launch_discovery_client(

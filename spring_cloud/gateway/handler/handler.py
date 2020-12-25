@@ -72,7 +72,7 @@ class RoutePredicateHandlerMapping:
     def map_route(self, route: Route, exchange: ServerWebExchange):
         exchange.attributes[GATEWAY_HANDLER_MAPPER_ATTR] = "RoutePredicateHandlerMapping"
         exchange.attributes.pop(GATEWAY_PREDICATE_ROUTE_ATTR, None)
-        self.logger.debug(f"Mapping [{self.get_exchange_desc(exchange)}] to {route}")
+        self.logger.debug(f"\nMapping [{self.get_exchange_description(exchange)}] to {route}")
         exchange.attributes[GATEWAY_ROUTE_ATTR] = route
 
     def lookup_route(self, exchange: ServerWebExchange) -> Optional[Route]:
@@ -92,25 +92,25 @@ class RoutePredicateHandlerMapping:
 
     # TODO: return exchange.request information for debug
     @staticmethod
-    def get_exchange_desc(exchange: ServerWebExchange):
-        return f"Exchange: exchange.request.get_method() exchange.request.get_method()"
+    def get_exchange_description(exchange: ServerWebExchange):
+        return f"Exchange: [{exchange.request.method}] {exchange.request.uri}"
 
 
 class DispatcherHandler:
     def __init__(self, route_mapping: RoutePredicateHandlerMapping, filtering_web_handler: FilteringWebHandler):
-        self.logger = logging.getLogger("spring_cloud.gateway.DispatcherHandler")
+        self.__logger = logging.getLogger("spring_cloud.gateway.DispatcherHandler")
         self.filtering_web_handler = filtering_web_handler
         self.__route_mapping = route_mapping
 
     def handle(self, exchange: ServerWebExchange):
-        self.logger.debug("Dispatching ...")
+        self.__logger.debug("Dispatching ...")
         route = self.__route_mapping.lookup_route(exchange)
         self.__route_mapping.map_route(route, exchange)
         if route:
             self.filtering_web_handler.handle(exchange)
         else:
             self.send_not_found_response(exchange)
-        self.logger.debug("Complete dispatching.")
+        self.__logger.debug("Complete dispatching.")
 
     @staticmethod
     def send_not_found_response(exchange):

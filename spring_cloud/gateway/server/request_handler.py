@@ -13,11 +13,12 @@ from spring_cloud.gateway.handler import DispatcherHandler
 from spring_cloud.gateway.server import DefaultServerHttpRequest, DefaultServerWebExchange, ServerHTTPResponse
 from spring_cloud.gateway.server.server import HttpResponseHandler
 
+logger = logging.getLogger("spring_cloud.gateway.HTTPRequestHandler")
+
 
 class HTTPRequestHandler(SimpleHTTPRequestHandler, HttpResponseHandler):
     def __init__(self, *args, dispatcher_handler: DispatcherHandler, directory=None, **kwargs):
         self.__dispatcher_handler = dispatcher_handler
-        self.logger = logging.getLogger("spring_cloud.gateway.HTTPRequestHandler")
         super().__init__(*args, directory=directory, **kwargs)
 
     def send_body(self, body: bytes):
@@ -33,11 +34,11 @@ class HTTPRequestHandler(SimpleHTTPRequestHandler, HttpResponseHandler):
         if http_request.path == "/api/gateway/_health_check":
             self._respond_health_check()
         else:
-            self.logger.info(f"Handling request: {http_request}.")
+            logger.trace(f"Handling request: {http_request}.")
             http_response = ServerHTTPResponse(self)
             exchange = DefaultServerWebExchange(http_request, http_response)
             self.__dispatcher_handler.handle(exchange)
-        self.logger.info("Successfully handling request.")
+        logger.trace("Successfully handling request.")
 
     def _respond_health_check(self):
         message = b"The Api Gateway is ready."

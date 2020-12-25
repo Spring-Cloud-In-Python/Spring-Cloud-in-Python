@@ -7,6 +7,7 @@ Currently, it only covers the feature we need.
 """
 # standard library
 import threading
+from typing import Optional
 
 __author__ = "Waterball (johnny850807@gmail.com)"
 __license__ = "Apache 2.0"
@@ -17,7 +18,7 @@ class AtomicInteger:
     An atomic integer
     """
 
-    def __init__(self, value=0):
+    def __init__(self, value: Optional[int] = 0):
         self.__value = value
         self.__lock = threading.Lock()
 
@@ -34,5 +35,8 @@ class AtomicInteger:
             else:
                 return False
 
-    def get(self):
+    def get(self) -> int:
         return self.__value
+
+    def __str__(self):
+        return str(self.get())

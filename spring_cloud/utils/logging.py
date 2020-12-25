@@ -81,7 +81,7 @@ def getLogger(name=None, debug=False, diagnose=False, fmt=None, *, logger_=__log
     # Debug level settings
     if bool(os.environ.get("logging-debug")):
         debug = True
-    DEBUG_LEVEL = "DEBUG" if debug else "INFO"
+    DEBUG_LEVEL = "DEBUG" if debug else os.environ.get("logging-level") or "INFO"
     DEBUG_FILTER = None if debug else lambda record: record["level"].no <= 30
 
     # Patch name if provided

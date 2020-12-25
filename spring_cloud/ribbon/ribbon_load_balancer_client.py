@@ -12,10 +12,12 @@ from ribbon.loadbalancer.server import Server
 from spring_cloud.commons.client.loadbalancer import LoadBalancerClient
 from spring_cloud.ribbon.ribbon_server import RibbonServer
 from spring_cloud.ribbon.spring_client_factory import SpringClientFactory
+from spring_cloud.utils import logging
 
 
 class RibbonLoadBalancerClient(LoadBalancerClient):
     def __init__(self, client_factory: SpringClientFactory):
+        self.logger = logging.getLogger("spring_cloud.ribbon.RibbonLoadBalancerClient")
         self.__client_factory = client_factory
 
     def choose(self, service_id: str, request=None) -> Union[RibbonServer, None]:
@@ -25,6 +27,7 @@ class RibbonLoadBalancerClient(LoadBalancerClient):
         :param request: (opt)
         :return: (ServiceInstance)
         """
+        self.logger.trace("Delegating to the vendor --> Ribbon.")
         server = self.get_server(self.get_load_balancer(service_id), request)
         if not server:
             return None

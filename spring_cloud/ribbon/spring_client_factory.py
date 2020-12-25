@@ -3,6 +3,7 @@
 from eureka.client.discovery import EurekaClient
 from ribbon.loadbalancer.load_balancer import LoadBalancer
 from ribbon.loadbalancer.round_robin_rule import RoundRobinRule
+from spring_cloud.utils import logging
 
 __author__ = "Ssu-Tsen"
 __license__ = "Apache 2.0"
@@ -23,6 +24,7 @@ class SpringClientFactory:
         client_configs: Dict[str, ClientConfig] = {},
         load_balancers: Dict[str, LoadBalancer] = {},
     ):
+        self.logger = logging.getLogger("spring_cloud.ribbon.SpringClientFactory")
         self.eureka_client = eureka_client
         self.__client_configs = client_configs
         self.__load_balancers = load_balancers
@@ -46,9 +48,10 @@ class SpringClientFactory:
         return config
 
     def __create_load_balancer(self, service_id: str) -> LoadBalancer:
+        self.logger.trace("Creating Ribbon's load-balancer...")
         lb_rule = RoundRobinRule()
         client_config = self.get_client_config(service_id)
         server_list = DiscoveryEnabledNIWSServerList(
             eureka_client=self.eureka_client, vip_addresses=service_id, client_config=client_config
         )
-        return DynamicServerListLoadBalancer(f"MJ-LB:{service_id}", lb_rule, client_config, server_list)
+        return DynamicServerListLoadBalancer(service_id, lb_rule, client_config, server_list)
