@@ -26,7 +26,7 @@ class SumRequest(BaseModel):
 
 
 @app.post("/api/sum")
-def sign_in(request: SumRequest):
+def get_sum(request: SumRequest):
     global load
     load += 1
     numbers = request.numbers

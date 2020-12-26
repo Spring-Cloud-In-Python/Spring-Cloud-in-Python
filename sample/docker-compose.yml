@@ -11,20 +11,6 @@ services:
     networks:
       - app
     command: "python3 sample/service_registry.py"
-  api-gateway-svc:
-    build:
-      context: ../
-      dockerfile: integration_tests/Dockerfile
-    environment:
-      port: 80
-      eureka-server-url: "http://service-registry-svc/eureka/v2/"
-    ports:
-      - 80:80
-    depends_on:
-      - service-registry-svc
-    networks:
-      - app
-    command: "python3 sample/api_gateway.py"
   sum-svc:
     build:
       context: ../
