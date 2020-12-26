@@ -31,3 +31,6 @@ class EurekaDiscoveryClient(DiscoveryClient):
             return []
         registered_apps = applications.get_registered_applications()
         return [app.name.lower() for app in registered_apps if not app.get_instances().is_empty()]
+
+    def shutdown(self):
+        self.eureka_client.shutdown()
