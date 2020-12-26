@@ -54,7 +54,8 @@ class BaseLoadBalancer(LoadBalancer):
             self._rule.loadbalancer = self
         self._logger.debug(f"Use **{self._rule}** to choose a server to send the request to.")
         server = self._rule.choose(key=key)
-        self._logger.info(f"Successfully load-balancing with the selected server: {server.host}:{server.port}.")
+        if server:
+            self._logger.info(f"Successfully load-balancing with the selected server: {server.host}:{server.port}.")
         return server
 
     def mark_server_down(self, server: Server):
