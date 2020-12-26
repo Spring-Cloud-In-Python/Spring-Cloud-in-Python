@@ -172,7 +172,7 @@ class DefaultServerHttpRequest(ServerHTTPRequest):
         return self.__request.getsockname()
 
     def __str__(self):
-        return f"[{self.method}] {self.uri}. Headers: {str(self.headers)}"
+        return f"[{self.method}] {self.uri}{self.path}. Headers: {str(self.headers)}"
 
 
 class DefaultServerHttpRequestBuilder(ServerHTTPRequest.Builder):
