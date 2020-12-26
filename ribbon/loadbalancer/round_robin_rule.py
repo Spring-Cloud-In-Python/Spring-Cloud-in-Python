@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
+# scip plugin
+from spring_cloud.utils import logging
 
 __author__ = "MJ (tsngmj@gmail.com)"
 __license__ = "Apache 2.0"
-
 
 # standard library
 import time
@@ -22,7 +23,7 @@ class RoundRobinRule(LoadBalanceRule):
     __ALL_SERVERS = False
 
     def __init__(self, lb: LoadBalancer = None):
-        self.logger = getLogger()
+        self.logger = logging.getLogger(f"ribbon.RoundRobinRule")
         self.__lb = lb
         self.__nextServerCyclicCounter = AtomicInteger()
 
@@ -33,6 +34,7 @@ class RoundRobinRule(LoadBalanceRule):
         count = 0
 
         if lb:
+            self.logger.trace(f"({lb.name}) RR is being performed (pos={self.__nextServerCyclicCounter})...")
             while not server and count < 10:
                 count += 1
 
@@ -54,6 +56,7 @@ class RoundRobinRule(LoadBalanceRule):
                     continue
 
                 if server.is_alive and server.is_ready_to_serve:
+                    self.logger.trace(f"RoundRobin algorithm is completed. (pos={self.__nextServerCyclicCounter}).")
                     return server
 
                 else:
@@ -84,3 +87,6 @@ class RoundRobinRule(LoadBalanceRule):
     @loadbalancer.setter
     def loadbalancer(self, lb: LoadBalancer):
         self.__lb = lb
+
+    def __str__(self):
+        return "RoundRobinRule"

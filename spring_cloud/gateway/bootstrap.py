@@ -25,15 +25,15 @@ class ApiGatewayApplication:
         enable_discovery_client: Optional[bool] = False,
         eureka_server_urls: Optional[List[str]] = None,
     ):
-        logger = logging.getLogger("spring_cloud.ApiGatewayApplication")
+        __logger = logging.getLogger("spring_cloud.ApiGatewayApplication")
         api = None
         web_server = None
         try:
 
-            logger.info(f"Launching ApiGatewayApplication listening at {host_name}:{port_}")
+            __logger.info(f"Launching ApiGatewayApplication listening at {host_name}:{port_}")
             if enable_discovery_client:
                 validate.not_none(eureka_server_urls)
-                logger.info("The discovery client routing is enabled.")
+                __logger.debug("The discovery client routing is enabled.")
                 # scip plugin
                 import spring_cloud.context.bootstrap_client as spring_cloud_bootstrap
 
@@ -44,7 +44,7 @@ class ApiGatewayApplication:
                 api = RestTemplate()
 
             route_locator = route_locator_builder_consumer(RouteLocatorBuilder())
-            logger.debug(str(route_locator))
+            __logger.debug(str(route_locator))
 
             route_mapping = RoutePredicateHandlerMapping(route_locator)
             filtering_web_handler = FilteringWebHandler([RestTemplateRouteFilter(api)])
@@ -55,16 +55,16 @@ class ApiGatewayApplication:
                 lambda *args, **kwargs: HTTPRequestHandler(*args, dispatcher_handler=dispatcher_handler, **kwargs),
             )
 
-            logger.info(f"Server listening at {host_name}:{port_}")
+            __logger.info(f"Server listening at {host_name}:{port_}")
 
             web_server.serve_forever()
         except KeyboardInterrupt:
             pass
         except Exception as err:
-            logger.error(str(err))
+            __logger.error(str(err))
 
         if web_server:
             web_server.server_close()
-            logger.info("Server stopped.")
+            __logger.info("Server stopped.")
         if api:
             api.shutdown()

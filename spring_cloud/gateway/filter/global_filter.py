@@ -31,7 +31,7 @@ class RestTemplateRouteFilter(GlobalFilter):
         self.api = rest_template
 
     def filter(self, exchange: ServerWebExchange, chain: GatewayFilterChain):
-        self.logger.debug("Start filtering...")
+        self.logger.trace("Filtering...")
         if is_already_routed(exchange):
             return chain.filter(exchange)
         set_already_routed(exchange)
@@ -47,9 +47,9 @@ class RestTemplateRouteFilter(GlobalFilter):
         data = exchange.request.body
 
         res = self.map_api_request_method(method)(url, headers=headers, params=params, data=data)
-        self.logger.debug("Sending response...")
+        self.logger.trace("Receive the response from the downstream service, now return it back to the client.")
         self.send(res, exchange)
-        self.logger.debug("Successfully responded.")
+        self.logger.trace("Successfully responded.")
 
     def map_api_request_method(self, method: str):
         method = method.lower()

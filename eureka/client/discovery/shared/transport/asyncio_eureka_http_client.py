@@ -25,8 +25,7 @@ class AsyncIOEurekaHttpClient(EurekaHttpClient):
         self._connection_timeout = connection_timeout
         self._service_url = validate.not_none(service_url)
 
-        self._logger = getLogger("eureka.client.discovery.asyncio_eureka_http_client")
-        self._logger.info(f"Initiated with service_url={self._service_url}.")
+        self._logger = getLogger("eureka.client.asyncio_eureka_http_client")
 
     @property
     def connection_timeout(self) -> int:
@@ -42,7 +41,7 @@ class AsyncIOEurekaHttpClient(EurekaHttpClient):
 
         eureka_http_response = None
         url = urljoin(self._service_url, f"apps/{instance.app_name}")
-        self._logger.info(f"Requesting to {url}...")
+        self._logger.trace(f"Requesting to {url}...")
         try:
             async with aiohttp.ClientSession() as session:
                 async with session.post(
@@ -51,7 +50,7 @@ class AsyncIOEurekaHttpClient(EurekaHttpClient):
                     eureka_http_response = EurekaHttpResponse(
                         status_code=response.status, headers=dict(response.headers)
                     )
-                self._logger.debug(f"Response: {response}")
+                self._logger.debug(f"Registration Response: Status {response.status}")
         except asyncio.TimeoutError:
             self._logger.error(
                 f"Connection timeout reached while registering instance {instance.instance_id} with {url}"

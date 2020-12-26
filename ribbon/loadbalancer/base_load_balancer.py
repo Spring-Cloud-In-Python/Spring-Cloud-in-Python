@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+# scip plugin
+from spring_cloud.utils import logging
 
 __author__ = "MJ (tsngmj@gmail.com)"
 __license__ = "Apache 2.0"
@@ -12,12 +14,11 @@ from ribbon.loadbalancer.load_balance_rule import LoadBalanceRule
 from ribbon.loadbalancer.load_balancer import LoadBalancer
 from ribbon.loadbalancer.round_robin_rule import RoundRobinRule
 from ribbon.loadbalancer.server import Server
-from spring_cloud.utils.logging import getLogger
 
 
 class BaseLoadBalancer(LoadBalancer):
     def __init__(self, name: str = None, rule: LoadBalanceRule = None, config: ClientConfig = None):
-        self._logger = getLogger()
+        self._logger = logging.getLogger(f"ribbon.BaseLoadBalancer({name})")
         self._name = name or "LoadBalancer"
         self._rule = rule or RoundRobinRule()
         self._servers: List[Server] = []
@@ -51,8 +52,11 @@ class BaseLoadBalancer(LoadBalancer):
     def choose_server(self, key: object) -> Server:
         if self._rule.loadbalancer is None:
             self._rule.loadbalancer = self
-
-        return self._rule.choose(key=key)
+        self._logger.debug(f"Use **{self._rule}** to choose a server to send the request to.")
+        server = self._rule.choose(key=key)
+        if server:
+            self._logger.info(f"Successfully load-balancing with the selected server: {server.host}:{server.port}.")
+        return server
 
     def mark_server_down(self, server: Server):
         if server:

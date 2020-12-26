@@ -84,6 +84,7 @@ class AsyncIOEurekaTransport(EurekaTransport):
             discovery_client.applications = registry_received_from_eureka_server
 
     async def send_heart_beat(self):
+        # TODO heart-beat task
         pass
 
     async def unregister(self):

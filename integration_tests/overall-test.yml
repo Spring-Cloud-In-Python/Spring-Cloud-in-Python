@@ -10,7 +10,7 @@ services:
       message-service-base-url: "http://message-service"
       enable-discovery-client: "True"
       eureka-server-url: "http://service-registry-svc/eureka/v2/"
-      logging-debug: "True"
+      logging-level: "TRACE"
     ports:
       - 80:80
     depends_on:
@@ -24,7 +24,7 @@ services:
       dockerfile: integration_tests/Dockerfile
     environment:
       port: 80
-      logging-debug: "True"
+      logging-level: "TRACE"
     networks:
       - app
     command: "python3 integration_tests/app/service_registry.py"
@@ -35,7 +35,7 @@ services:
     environment:
       port: 80
       eureka-server-url: "http://service-registry-svc/eureka/v2/"
-      logging-debug: "True"
+      logging-level: "TRACE"
     depends_on:
       - service-registry-svc
     networks:
@@ -52,7 +52,7 @@ services:
     environment:
       port: 80
       eureka-server-url: "http://service-registry-svc/eureka/v2/"
-      logging-debug: "True"
+      logging-level: "TRACE"
       # message-svc should directly invoke the user-svc via the service discovery
       user-service-host: user-service
     depends_on:

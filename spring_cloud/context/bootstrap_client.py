@@ -45,13 +45,13 @@ def enable_service_discovery(
     if eureka_server_urls is None:
         eureka_server_urls = ["http://localhost:8761/eureka/v2/"]
     logger.info(
-        f'Enabling service discovery with the arguments: service_id={service_id}, port={port}, eureka_server_urls={",".join(eureka_server_urls)}'
+        f'Enabling service discovery with the arguments: service_id={service_id}, port={port}, \neureka_server_urls={",".join(eureka_server_urls)}'
     )
     global has_setup_service_discovery
     if not has_setup_service_discovery:
-        rest_template, eureka_client = __setup_and_launch_discovery_client(service_id, port, eureka_server_urls)
+        rest_template, discovery_client = __setup_and_launch_discovery_client(service_id, port, eureka_server_urls)
         has_setup_service_discovery = True
-        return ServiceDiscoveryClient(rest_template, eureka_client)
+        return ServiceDiscoveryClient(rest_template, discovery_client)
     else:
         raise Exception("You can't setup service discovery twice.")
 
@@ -62,12 +62,14 @@ class LoadBalancerInterceptor(ClientHttpRequestInterceptor):
         self.loadbalancer_client = loadbalancer_client
 
     def intercept(self, http_request: HttpRequest):
-        self.logger.debug("Intercepting...")
         parse_result: ParseResult = urlparse(http_request.url)
+        self.logger.trace(f"Intercepting the host name: {parse_result.hostname} via the load-balancer.")
         instance: ServiceInstance = self.loadbalancer_client.choose(parse_result.hostname, http_request)
-        self.logger.info(f"Transform host: {parse_result.hostname} --> {instance.host}.")
-        http_request.url = parse_result._replace(netloc=f"{instance.host}:{instance.port}").geturl()
-        self.logger.debug(f"Successfully Intercepted. (url={http_request.url})")
+        if instance:
+            http_request.url = parse_result._replace(netloc=f"{instance.host}:{instance.port}").geturl()
+            self.logger.debug(f"Successfully Intercepted. (url={http_request.url})")
+        else:
+            self.logger.warning(f"No instances found.")
 
 
 def __setup_and_launch_discovery_client(

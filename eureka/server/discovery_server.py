@@ -47,7 +47,7 @@ class UvicornDiscoveryServer(DiscoveryServer):
         host = host if host is not None else self._config.host
         port = port if port is not None else self._config.port
 
-        uvicorn.run(self._app, host=host, port=port)
+        uvicorn.run(self._app, host=host, port=port, access_log=False)
 
 
 if __name__ == "__main__":

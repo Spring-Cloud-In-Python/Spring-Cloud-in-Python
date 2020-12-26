@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+# scip plugin
+from spring_cloud.utils import logging
 
 __author__ = "MJ (tsngmj@gmail.com)"
 __license__ = "Apache 2.0"

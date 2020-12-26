@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+# scip plugin
+from spring_cloud.utils import logging
 
 __author__ = "Daniel1147 (sxn91401@gmail.com)"
 __license__ = "Apache 2.0"
@@ -52,6 +54,7 @@ def decorate_instance_info(lease: Lease) -> InstanceInfo:
 
 class InstanceRegistry:
     def __init__(self):
+        self.logger = logging.getLogger("eureka.InstanceRegistry")
         self.registry = ConcurrentMap()
         self.lock = threading.RLock()
         self.presenter = RegistryPresenter(self)
@@ -89,6 +92,9 @@ class InstanceRegistry:
 
             registrant.action_type = InstanceInfo.ActionType.ADD
             registrant.set_last_updated_timestamp()
+            self.logger.info(
+                f"Successfully registration: {registrant.vip_address}({registrant.ip_address}:{registrant.port})"
+            )
 
     def cancel(self, application_name: str, instance_id: str) -> bool:
         with self.lock:
