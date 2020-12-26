@@ -47,7 +47,7 @@ class RestTemplateRouteFilter(GlobalFilter):
         data = exchange.request.body
 
         res = self.map_api_request_method(method)(url, headers=headers, params=params, data=data)
-        self.logger.trace("Sending response from the downstream service...")
+        self.logger.trace("Receive the response from the downstream service, now return it back to the client.")
         self.send(res, exchange)
         self.logger.trace("Successfully responded.")
 

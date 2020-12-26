@@ -45,7 +45,7 @@ def enable_service_discovery(
     if eureka_server_urls is None:
         eureka_server_urls = ["http://localhost:8761/eureka/v2/"]
     logger.info(
-        f'Enabling service discovery with the arguments: service_id={service_id}, port={port}, eureka_server_urls={",".join(eureka_server_urls)}'
+        f'Enabling service discovery with the arguments: service_id={service_id}, port={port}, \neureka_server_urls={",".join(eureka_server_urls)}'
     )
     global has_setup_service_discovery
     if not has_setup_service_discovery:

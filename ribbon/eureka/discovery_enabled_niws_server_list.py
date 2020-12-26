@@ -76,14 +76,15 @@ class DiscoveryEnabledNIWSServerList(ServerList):
 
     @property
     def initial_list_of_servers(self) -> DiscoveryEnabledServer:
+        self.logger.trace("Initialize servers via the eureka discovery client...")
         return self.obtain_servers_via_discovery()
 
     @property
     def updated_list_of_servers(self) -> DiscoveryEnabledServer:
+        self.logger.trace("Obtaining servers via the eureka discovery client...")
         return self.obtain_servers_via_discovery()
 
     def obtain_servers_via_discovery(self) -> List[Server]:
-        self.logger.trace("Obtaining servers via the eureka discovery client...")
         server_list: List[Server] = []
 
         if self.__vip_addresses and self.__eureka_client:

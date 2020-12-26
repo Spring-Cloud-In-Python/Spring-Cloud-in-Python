@@ -30,6 +30,8 @@ class PathPatternParser:
 
 class InternalPathPatternParser:
     """
+    /api/users/**
+        ^
     The algorithm that parses tha pattern into the abstract syntax tree (though in our case,
         it's barely a linked-list rather than a tree)
     """

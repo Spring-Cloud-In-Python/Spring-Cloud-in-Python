@@ -16,7 +16,7 @@ __license__ = "Apache 2.0"
 class ApplicationInfoManager:
     def __init__(self, eureka_instance_config: EurekaInstanceConfig, instance_info: InstanceInfo):
         self._logger = logging.getLogger("eureka.ApplicationInfoManager")
-        self._logger.info(
+        self._logger.debug(
             f"Instance Config: Host={eureka_instance_config.host_name}, Port={eureka_instance_config.unsecure_port}"
         )
         self._eureka_instance_config = eureka_instance_config
